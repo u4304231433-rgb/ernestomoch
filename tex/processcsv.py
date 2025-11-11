@@ -33,7 +33,7 @@ def erreorder(t):
     return t.translate(replacements)
 
 def fr(x):
-    return unicodedata.normalize('NFD',x.lower())
+    return unicodedata.normalize('NFD',x.lower().replace("œ","oe"))
 
 def er(x):
     if len(x.split(","))<=2:
@@ -88,7 +88,7 @@ async def processcsv():
              .replace("(adjectif)","(adj.)") \
              .replace("(adverbe)","(adv.)") \
              .replace("\\","{\\backslash}") \
-             .replace("$","")
+             .replace("$","").replace("œ","oe")
 
     rerform = rer.replace("\"\"","''") \
              .replace("\"","") \
@@ -98,7 +98,7 @@ async def processcsv():
              .replace("(adjectif)","(adj.)") \
              .replace("(adverbe)","(adv.)") \
              .replace("\\","{\\backslash}") \
-             .replace("$","")
+             .replace("$","").replace("œ","{\\oe}")
 
     rfrform = balisage(rfrform).replace("_","").replace("{|comma}","{\\comma}").encode(errors="replace")
     rerform = balisage(rerform).replace("_","").replace("{|comma}","{\\comma}").encode(errors="replace")
@@ -112,3 +112,5 @@ async def processcsv():
     f3.close()
 
 
+if __name__ == "__main__":
+    processcsv()
