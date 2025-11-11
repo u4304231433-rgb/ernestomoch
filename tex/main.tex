@@ -1,0 +1,414 @@
+\documentclass[a4paper, 12pt] {report}
+\usepackage{fontspec}
+
+\usepackage{blindtext}
+\usepackage{csvsimple}
+\usepackage{ifthen}
+
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\usepackage{zref-savepos}
+\usepackage{zref-user}
+
+\usepackage{fontspec}
+
+\usepackage{xstring}
+\usepackage{textcase}
+
+\usepackage{hyperref}
+
+\usepackage{environ}
+
+
+\newcommand{\NormalizeChar}[1]{%
+  \IfSubStr{éèêÉÈÊ}{#1}{E}{%
+    \IfSubStr{àâÀÂ}{#1}{A}{%
+      \IfSubStr{ùûÙÛ}{#1}{U}{%
+        \IfSubStr{îÎ}{#1}{I}{%
+          \IfSubStr{ôÔ}{#1}{O}{%
+            	\MakeUppercase{#1}%
+          }%
+        }%
+      }%
+    }%
+  }%
+}
+
+\newcommand{\NormalizeCharErnestien}[1]{%
+  \IfSubStr{éèêÉÈÊ}{#1}{E}{%
+    \IfSubStr{àâÀÂ}{#1}{A}{%
+      \IfSubStr{ùûÙÛ}{#1}{U}{%
+        \IfSubStr{îÎ}{#1}{I}{%
+          \IfSubStr{ôÔ}{#1}{O}{%
+          	\IfSubStr{cC}{#1}{H}{%
+            		\MakeUppercase{#1}%
+          	}%
+          }%
+        }%
+      }%
+    }%
+  }%
+}
+
+\newcommand{\Normalize}[1]{%
+  % Conversion des minuscules accentuées
+  \StrSubstitute{#1}{é}{E}[\tempA]%
+  \StrSubstitute{\tempA}{è}{E}[\tempB]%
+  \StrSubstitute{\tempB}{ê}{E}[\tempC]%
+  \StrSubstitute{\tempC}{ë}{E}[\tempD1]%
+  \StrSubstitute{\tempD1}{à}{A}[\tempD2]%
+  \StrSubstitute{\tempD2}{â}{A}[\tempD3]%
+  \StrSubstitute{\tempD3}{ä}{A}[\tempD4]%
+  \StrSubstitute{\tempD4}{ù}{U}[\tempD5]%
+  \StrSubstitute{\tempD5}{û}{U}[\tempD6]%
+  \StrSubstitute{\tempD6}{ü}{U}[\tempD7]%
+  \StrSubstitute{\tempD7}{î}{I}[\tempD8]%
+  \StrSubstitute{\tempD8}{ï}{I}[\tempD9]%
+  \StrSubstitute{\tempD9}{ô}{O}[\tempD10]%
+  \StrSubstitute{\tempD10}{ö}{O}[\tempD11]%
+  \StrSubstitute{\tempD11}{ç}{C}[\tempD12]%
+  % Conversion des majuscules accentuées
+  \StrSubstitute{\tempD12}{É}{E}[\tempE1]%
+  \StrSubstitute{\tempE1}{È}{E}[\tempE2]%
+  \StrSubstitute{\tempE2}{Ê}{E}[\tempE3]%
+  \StrSubstitute{\tempE3}{Ë}{E}[\tempE4]%
+  \StrSubstitute{\tempE4}{À}{A}[\tempE5]%
+  \StrSubstitute{\tempE5}{Â}{A}[\tempE6]%
+  \StrSubstitute{\tempE6}{Ä}{A}[\tempE7]%
+  \StrSubstitute{\tempE7}{Ù}{U}[\tempE8]%
+  \StrSubstitute{\tempE8}{Û}{U}[\tempE9]%
+  \StrSubstitute{\tempE9}{Ü}{U}[\tempE10]%
+  \StrSubstitute{\tempE10}{Î}{I}[\tempE11]%
+  \StrSubstitute{\tempE11}{Ï}{I}[\tempE12]%
+  \StrSubstitute{\tempE12}{Ô}{O}[\tempE13]%
+  \StrSubstitute{\tempE13}{Ö}{O}[\tempE14]%
+  \StrSubstitute{\tempE14}{Ç}{C}[\tempE]%
+  % Conversion manuelle des minuscules restantes
+  \StrSubstitute{\tempE}{a}{A}[\tempF]%
+  \StrSubstitute{\tempF}{b}{B}[\tempG]%
+  \StrSubstitute{\tempG}{c}{C}[\tempH]%
+  \StrSubstitute{\tempH}{d}{D}[\tempI]%
+  \StrSubstitute{\tempI}{e}{E}[\tempJ]%
+  \StrSubstitute{\tempJ}{f}{F}[\tempK]%
+  \StrSubstitute{\tempK}{g}{G}[\tempL]%
+  \StrSubstitute{\tempL}{h}{H}[\tempM]%
+  \StrSubstitute{\tempM}{i}{I}[\tempN]%
+  \StrSubstitute{\tempN}{j}{J}[\tempO]%
+  \StrSubstitute{\tempO}{k}{K}[\tempP]%
+  \StrSubstitute{\tempP}{l}{L}[\tempQ]%
+  \StrSubstitute{\tempQ}{m}{M}[\tempR]%
+  \StrSubstitute{\tempR}{n}{N}[\tempS]%
+  \StrSubstitute{\tempS}{o}{O}[\tempT]%
+  \StrSubstitute{\tempT}{p}{P}[\tempU]%
+  \StrSubstitute{\tempU}{q}{Q}[\tempV]%
+  \StrSubstitute{\tempV}{r}{R}[\tempW]%
+  \StrSubstitute{\tempW}{s}{S}[\tempX]%
+  \StrSubstitute{\tempX}{t}{T}[\tempY]%
+  \StrSubstitute{\tempY}{u}{U}[\tempZ]%
+  \StrSubstitute{\tempZ}{v}{V}[\tempAA]%
+  \StrSubstitute{\tempAA}{w}{W}[\tempAB]%
+  \StrSubstitute{\tempAB}{x}{X}[\tempAC]%
+  \StrSubstitute{\tempAC}{y}{Y}[\tempAD]%
+  \StrSubstitute{\tempAD}{z}{Z}[\NormalizedResult]%
+}
+
+\newcommand{\IfLike}[2]{%
+  \Normalize{#1}%
+  \edef\NormText{\NormalizedResult}%
+  \Normalize{#2}%
+  \edef\NormMot{\NormalizedResult}%
+  \IfSubStr{\NormText}{\NormMot}
+}
+
+
+\newcommand{\ifequal}[4]{%
+  \ifthenelse{\equal{#1}{#2}}{%
+    #3%
+  }{%
+    #4%
+  }%
+}
+
+\newcommand{\ern}[1]{%
+\StrSubstitute{#1}{--}{\textendash}[\temp]%
+{\small\fontspec{ErnestFont}{\temp}}%
+}
+
+\newcommand{\erntrad}[1]{%
+\StrSubstitute{#1}{--}{\textendash}[\temp]%
+{\small\fontspec{ErnestFont}{\temp}} (\temp)%
+}
+
+\newcommand{\largeern}[1]{%
+\StrSubstitute{#1}{--}{\textendash}[\temp]%
+{\normalsize\fontspec{ErnestFont}{\temp}}%
+}
+
+\newcommand{\largeerntrad}[1]{%
+\StrSubstitute{#1}{--}{\textendash}[\temp]%
+{\normalsize\fontspec{ErnestFont}{\temp}} (\temp)%
+}
+
+\newcommand{\hugeern}[1]{%
+\StrSubstitute{#1}{--}{\textendash}[\temp]%
+{\huge\fontspec{ErnestFont}{\temp}}%
+}
+
+\newcommand{\comma}{,}
+\renewcommand{\backslash}{/}
+
+
+\NewEnviron{ernestienenv}{%
+\StrSubstitute{\BODY}{--}{\textendash}[\temp]%
+\small\fontspec{ErnestFont}\temp\;}
+
+\NewEnviron{ernestientrad}{ %
+\StrSubstitute{\BODY}{--}{\textendash}[\temp]%
+{\small\fontspec{ErnestFont}\temp} (\temp)\;%
+}
+
+
+\newcommand{\setvariable}[2]{%
+  \expandafter\edef\csname var@{#1}\endcsname{#2}%
+}
+
+\newcommand{\getvariable}[1]{%
+  \csname var@{#1}\endcsname%
+}
+
+
+\newcommand{\thelastpage}{}
+
+\renewcommand{\headrulewidth}{0pt}
+%\fancyfoot[C]{}
+%\fancyhead[C]{\thepage}
+\fancyhead[R]{\getvariable{lastword\thepage}}%
+\fancyhead[L]{\getvariable{firstword\thepage}}%
+
+\makeatletter
+\newcommand{\getpage}[1]{%
+  \zref@extractdefault{elem:#1}{page}{0}%
+}
+\makeatother
+
+\setvariable{lastletter}{}
+\setvariable{actualletter}{}
+
+
+\newcommand\setword[1]{%
+  \StrLeft{#1}{1}[\premierCaractere]%
+  \IfLike{\premierCaractere}{\getvariable{lastletter}}{}{%
+    \linebreak%
+    \textbf{\Huge{\NormalizeChar{\premierCaractere}}}%
+    \nopagebreak\linebreak\nopagebreak%
+  }%
+  \setvariable{lastletter}{\premierCaractere}%
+%
+  \zlabel{elem:#1}%
+  \hypertarget{#1}{\label{#1}}%
+%
+  \ifthenelse{\equal{\getpage{#1}}{\thelastpage}}{%
+    \setvariable{lastword\getpage{#1}}{#1}%
+  }{%
+    \setvariable{firstword\getpage{#1}}{#1}%
+    \setvariable{lastword\getpage{#1}}{#1}%
+    \edef\thelastpage{\getpage{#1}}%
+  }%
+}
+
+
+\newcommand\setwordernestien[1]{%
+  \StrLeft{#1}{1}[\premierCaractere]%
+  \StrLeft{#1}{2}[\2premierCaractere]%
+  \IfLike{\premierCaractere}{\getvariable{lastletter}}{}{%
+    \linebreak%
+    \textbf{\Huge{\fontspec{ErnestFont}\NormalizeCharErnestien{\premierCaractere}}}%
+    \nopagebreak\linebreak\nopagebreak%
+  }%
+  \setvariable{lastletter}{\premierCaractere}%
+%
+  \zlabel{elem:#1}%
+%
+  \ifthenelse{\equal{\getpage{#1}}{\thelastpage}}{%
+    \setvariable{lastword\getpage{#1}}{#1}%
+  }{%
+    \setvariable{firstword\getpage{#1}}{#1}%
+    \setvariable{lastword\getpage{#1}}{#1}%
+    \edef\thelastpage{\getpage{#1}}%
+  }%
+}
+
+\newcommand\setwordsansethym[1]{%
+  \StrLeft{#1}{1}[\premierCaractere]%
+  \StrLeft{#1}{2}[\2premierCaractere]%
+  \IfLike{\premierCaractere}{\getvariable{lastletter}}{}{%
+    \linebreak%
+    \textbf{\Huge{\NormalizeChar{\premierCaractere}}}%
+    \nopagebreak\linebreak\nopagebreak%
+  }%
+  \setvariable{lastletter}{\premierCaractere}%
+%
+  \zlabel{elem:{#1}_sansethym}%
+%
+  \ifthenelse{\equal{\getpage{{#1}_sansethym}}{\thelastpage}}{%
+    \setvariable{lastword\getpage{{#1}_sansethym}}{#1}%
+  }{%
+    \setvariable{firstword\getpage{{#1}_sansethym}}{#1}%
+    \setvariable{lastword\getpage{{#1}_sansethym}}{#1}%
+    \edef\thelastpage{\getpage{{#1}_sansethym}}%
+  }%
+}
+
+\input{./package.tex}
+
+
+\begin{document}
+
+\everymath{\displaystyle}
+
+\title{Dictionnaire Ernestien officiel \\ \largeern{rislojisiêl ernestinbûchg librêg}}
+\author{Démocratie Ernestienne Normalienne et Supercool \\ \ern{nuranjêrs ernestinbûchg bizargêst feltanîg}}
+
+\maketitle
+
+%\tableofcontents
+\pagebreak
+
+\noindent\textbf{\Huge{Guide du dictionnaire}}
+\vspace{1em}
+
+\noindent\textbf{\Large{Sommaire}}
+
+\begin{center}
+\hyperlink{grammtitle}{Grammaire et formatage lexical \dotfill \pageref{grammtitle}} \\
+\hyperlink{fraerntitle}{Français en ernestien \dotfill \pageref{fraerntitle}} \\
+\hyperlink{ernfratitle}{Ernestien en français \dotfill \pageref{ernfratitle}} \\
+\hyperlink{fraernethymtitle}{Français en ernestien et éthymologie \dotfill \pageref{fraernethymtitle}}
+
+\end{center}
+
+\vspace{2em}
+\noindent\textbf{\Large{Abréviations}}
+
+\begin{center}
+\begin{tabular}{r l}
+\textbf{adj.} & Adjectif \\
+\textbf{adv.} & Adverbe \\
+\textbf{litt.} & Littéralement \\
+\textbf{n.} & Nom \\
+\textbf{ref.} & Référence \\
+\end{tabular}
+\end{center}
+
+\pagebreak
+
+\hypertarget{grammtitle}{\noindent\textbf{\Huge{Grammaire et formatage lexical}}\label{grammtitle}}
+
+\vspace{1em}
+
+\noindent\textbf{\Large{Structure et accords}}
+
+\noindent L'ernestien est une langue à structure simple \{sujet\} -- \{verbe\} -- \{complément\}. 
+
+\noindent Les adjectifs ou adverbes se placent après les noms ou verbes et ne s'accordent pas.
+
+\noindent Les mots peuvent être formés par concaténation de noms et adjectifs ou noms entre eux. Par exemple, dictionnaire \erntrad{rislojisiêl} est formé par concaténation des mots \erntrad{rîs}, mot et \erntrad{lojisiêl}, application.
+
+\noindent Les noms au pluriel prennent la terminaison \erntrad{--i}
+
+\vspace{1em}
+
+\noindent\textbf{\Large{Règle orthographique spéciale}}
+
+\noindent La dernière voyelle de chaque mot prend un accent circonflexe \erntrad{odform}, sauf pour le mot \erntrad{odform}. Pendant les années bissextiles, l'accent doit être déplacé sur l'avant-dernière voyelle si possible, ou disparaître.
+
+\vspace{1em}
+
+\noindent\textbf{\Large{Règles de formatage lexical}}
+
+\noindent Le formatage des mots suit les règles résumées ci-dessous :
+
+\begin{center}
+\begin{tabular}{r l}
+\textbf{Nature lexicale ou concept} & Préfixe ou suffixe \\
+\hline \\
+\textbf{Adjectif, adverbe} & \erntrad{-g} \\
+\textbf{Contraire} & \erntrad{mal-} \\
+\textbf{Disciplines} & \erntrad{-ôn} \\
+\textbf{Fait de} & \erntrad{-f} \\
+\textbf{Impératif} & \erntrad{-avekû} \\
+\textbf{Lieu} & \erntrad{-ô} \\
+\textbf{Le meilleur} & \erntrad{-êst} \\
+\textbf{Outil} & \erntrad{-ôl} \\
+\textbf{Personne} & \erntrad{-z} \\
+\textbf{Rendre qqch \{adj\}} & \erntrad{-glê}
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Exceptions} --- Un adjectif ou adverbe construit sur un ancien adjectif ou adverbe ne prend pas un nouveau \erntrad{--g} (ex : bizargêst).
+
+\noindent \textbf{Exemples} --- Considérons le mot \erntrad{strûnz} -- pierre. L'adjectif "en pierre" se dit donc \erntrad{strûnzg}, la géologie se dit \erntrad{strunzôn}. Les outils relatifs aux pierres (pioche par exemple) se disent \erntrad{strunzôl} et les lieux (grotte, carrière...) \erntrad{strunzô}.
+
+\noindent L'ernestien étant une langue interprétative, la connaissance du contexte est nécessaire pour déterminer le sens précis des mots.
+
+\vspace{1.5em}
+
+\noindent\textbf{\Large{Règles de conjugaison}}
+
+\begin{center}
+\begin{tabular}{r l}
+\textbf{Temps} & Conjugaison \\
+\hline \\
+\textbf{Infinitif} & \{verbe\} \\
+\textbf{Présent} & \{verbe\}\ern{q} \\
+\textbf{Passé} & \ern{q}\{verbe\} \\
+\textbf{Futur} & \{verbe\}\ern{qq} \\
+\end{tabular}
+\end{center}
+
+\pagebreak
+
+\hypertarget{fraerntitle}{\noindent\textbf{\Huge{Français en ernestien}}\label{fraerntitle}}
+
+\setlength{\columnsep}{30pt}
+
+\begin{multicols}{2}
+\noindent
+%sort by=frersort.xml,
+\csvreader[head to column names]{frer.csv}{Francais=\francais, Ernestien=\ernestien, Etymologie=\etymologie}{%
+\noindent\setwordsansethym{\francais}\textbf{\hyperlink{\francais}{\francais}} --- \erntrad{\ernestien}\\}
+\vfill
+\pagebreak
+\end{multicols}
+
+\pagebreak
+
+\hypertarget{ernfratitle}{\noindent\textbf{\Huge{\hugeern{ernestinbûch frêd etiminbûch}}}\label{ernfratitle}}
+
+\begin{multicols}{2}
+\noindent
+%sort by=frersort.xml,
+\csvreader[head to column names]{erfr.csv}{Francais=\francais, Ernestien=\ernestien, Etymologie=\etymologie}{%
+\noindent\setwordernestien{\ernestien}\textbf{\erntrad{\ernestien}} --- \hyperlink{\francais}{\francais}\\}
+\vfill
+\pagebreak
+\end{multicols}
+
+\pagebreak
+
+\hypertarget{fraernethymtitle}{\noindent\textbf{\Huge{Français en ernestien \& étymologie}}\label{fraernethymtitle}}
+
+\setlength{\columnsep}{30pt}
+
+\begin{multicols}{2}
+\noindent
+%sort by=frersort.xml,
+\csvreader[head to column names]{frer.csv}{Francais=\francais, Ernestien=\ernestien, Etymologie=\etymologie}{%
+\noindent\setword{\francais}\textbf{\francais} --- \erntrad{\ernestien} \nolinebreak\ifequal{\etymologie}{}{}{: \textit{\etymologie}} \\}
+\vfill
+\pagebreak
+\end{multicols}
+
+\end{document}
