@@ -98,7 +98,7 @@ async def processcsv():
              .replace("(adjectif)","(adj.)") \
              .replace("(adverbe)","(adv.)") \
              .replace("\\","{\\backslash}") \
-             .replace("$","").replace("œ","{\\oe}")
+             .replace("$","").replace("œ","oe")
 
     rfrform = balisage(rfrform).replace("_","").replace("{|comma}","{\\comma}").encode(errors="replace")
     rerform = balisage(rerform).replace("_","").replace("{|comma}","{\\comma}").encode(errors="replace")
