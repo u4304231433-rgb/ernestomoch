@@ -845,6 +845,3 @@ DISCORD_TOKEN = ftoken.read()
 ftoken.close()
 
 bot.run(DISCORD_TOKEN)
-
-
-
