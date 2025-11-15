@@ -15,6 +15,8 @@ from tex.googleapif import *
 
 from difflib import SequenceMatcher
 
+import textounicode.convert
+
 
 CITOYENS_NAME = "Citoyen"       # Noms exacts des rôles dans Discord
 NORMALIENS_NAME = "Normalien"
@@ -299,8 +301,12 @@ async def dictionnaire(inter):
 # DICO
 
 def interprete_balises(text):
-    text2 = re.sub(r"\_\_(.*?)\_\_", r"_\1_", text)
-    return text2
+    text = re.sub(r"\_\_(.*?)\_\_", r"_\1_", text)
+    text = re.sub(r"\#(.*?)\#", lambda x : rf"{textounicode.convert.convert(x.group(1))}", text)
+    text = re.sub(r"£(.*?)£", lambda m: ernconvert(m.group(1))+" ("+m.group(1)+")", text)
+    text = re.sub(r"€(.*?)€", lambda m: ernconvert(m.group(1)), text)
+
+    return text
 
 
 class DicoPaginator(discord.ui.View):
@@ -439,9 +445,7 @@ def cherche_dico(mot, sens="*"):
     # Surlignage dans les colonnes ciblées
     def surligner_ernestien(val):
         val_clean = nettoyer_texte(val)
-        val2 = re.sub(r"£(.*?)£", lambda m: "_"+m.group(1)+"_ ("+ernconvert(m.group(1))+")", val)
-        val2 = re.sub(r"€(.*?)€", lambda m: "_"+m.group(1)+"_", val2)
-        return re.sub(pattern, lambda m: f"**{val[m.start():m.end()]}**", val2, flags=re.IGNORECASE)
+        return re.sub(pattern, lambda m: f"**{val[m.start():m.end()]}**", val, flags=re.IGNORECASE)
 
     for col in COLS:
         df_resultats[col] = df_resultats[col].apply(lambda val: surligner_ernestien(str(val)))
@@ -580,7 +584,7 @@ class FormulaireModal(discord.ui.Modal):
 
                         await interaction.delete_original_response()
                         await interaction.followup.send(
-                            content=DICO_EMOJI+f" {interaction.user.mention} a ajouté\n```{mot_francais} → {mot_ernestien}{'\n' + mot_etymologie if mot_etymologie != '' else ''}```",
+                            content=DICO_EMOJI+f" {interaction.user.mention} a ajouté\n```{mot_francais} → {ernconvert(mot_ernestien)} ({mot_ernestien}){'\n' + mot_etymologie if mot_etymologie != '' else ''}```",
                             allowed_mentions=discord.AllowedMentions(users=False)
                         )
                     else:
@@ -610,7 +614,7 @@ class FormulaireModal(discord.ui.Modal):
 
                         await interaction.delete_original_response()
                         await interaction.followup.send(
-                            content=DICO_EMOJI+f" {interaction.user.mention} a modifié{' : '+self.francais_val+' en '+mot_francais if self.francais_val != mot_francais else ''}\n```{mot_francais} → {mot_ernestien}{'\n' + mot_etymologie if mot_etymologie != '' else ''}```",
+                            content=DICO_EMOJI+f" {interaction.user.mention} a modifié{' : '+self.francais_val+' en '+mot_francais if self.francais_val != mot_francais else ''}\n```{mot_francais} → {ernconvert(mot_ernestien)} ({mot_ernestien}){'\n' + mot_etymologie if mot_etymologie != '' else ''}```",
                             allowed_mentions=discord.AllowedMentions(users=False)
                         )
                     else:
