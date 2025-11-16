@@ -21,6 +21,14 @@ def convert(s):
 
 	if s != "":
 		s = unicodedata.normalize("NFC",s)
+	s = s.replace(r"\{", r"\backslashlbracket")
+	s = s.replace(r"\}", r"\backslashrbracket")
+	s = s.replace("{","")
+	s = s.replace("}","")
+	s = s.replace(r"\backslashlbracket", r"\{")
+	s = s.replace(r"\backslashrbracket", r"\}")
+	s = s.replace(r"\,", r" ")
+	s = s.replace(r"\;", r" ")
 	return s
 
 # If s is just a latex code "alpha" or "beta" it converts it to its
@@ -241,7 +249,9 @@ combinings = []
 aliases = []
 
 if __name__ != "__main__":
-        BASE_DIR = "textounicode/"
-        load_data()
+		BASE_DIR = "textounicode/"
+		load_data()
 else:
-        print(convert(r"\sum^n_{i=0} x^i  13^{12}"))
+		BASE_DIR = ""
+		print(convert(r"\frac{1}{2}"))
+		print(convert(r"\varphi_{n,m}"))
