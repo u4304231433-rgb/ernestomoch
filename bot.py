@@ -19,34 +19,49 @@ from difflib import SequenceMatcher
 import textounicode.convert
 
 
-CITOYENS_NAME = "Citoyen"       # Noms exacts des rôles dans Discord
-NORMALIENS_NAME = "Normalien"
-TOURISTES_NAME = "Touriste"
-POLICIERS_NAME = "Policier"
-COMMISSAIRE_NAME = "Commissaire"
-PROCUREUR_NAME = "Procureur"
-CONSEILLER_CONST_NAME = "Conseiller constitutionnel"
-CONSEILLER_PERM_NAME = "Conseiller permanent"
+PARAMS = {}
+
+f = open("params/params", "r", encoding="utf-8")
+for l in f.readlines():
+    if l.replace("\n","") != "":
+        li = l.replace("\n","").split("=")
+        k = li[0]
+        v = "=".join(li[1:])
+        try:
+            PARAMS[k] = int(v)
+        except ValueError:
+            PARAMS[k] = v
+f.close()
+
+# Noms exacts des rôles dans Discord
+CITOYENS_NAME = PARAMS["CITOYENS_NAME"]
+NORMALIENS_NAME = PARAMS["NORMALIENS_NAME"]
+TOURISTES_NAME = PARAMS["TOURISTES_NAME"]
+POLICIERS_NAME = PARAMS["POLICIERS_NAME"]
+COMMISSAIRE_NAME = PARAMS["COMMISSAIRE_NAME"]
+PROCUREUR_NAME = PARAMS["PROCUREUR_NAME"]
+CONSEILLER_CONST_NAME = PARAMS["CONSEILLER_CONST_NAME"]
+CONSEILLER_PERM_NAME = PARAMS["CONSEILLER_PERM_NAME"]
 
 ADMINISTRATOR_RIGHTS = [CONSEILLER_CONST_NAME, POLICIERS_NAME, CONSEILLER_PERM_NAME, COMMISSAIRE_NAME] # les roles qui ont des droits spéciaux
 DICO_RIGHTS = ADMINISTRATOR_RIGHTS # les roles qui ont des droits spéciaux
 
-ANCIENNETE = 5                  # ancienneté requise pour être ancien citoyen (en jours)
-NUMBER_OF_POLLS_ANCIEN = 3      # nombre de sondages à avoir répondu pour être ancien
-LIMIT_NUMBER_OF_POLLS = 10      # nombre des derniers votes pris en comptes
+ANCIENNETE = PARAMS["ANCIENNETE"]                  # ancienneté requise pour être ancien citoyen (en jours)
+NUMBER_OF_POLLS_ANCIEN = PARAMS["NUMBER_OF_POLLS_ANCIEN"]      # nombre de sondages à avoir répondu pour être ancien
+LIMIT_NUMBER_OF_POLLS = PARAMS["LIMIT_NUMBER_OF_POLLS"]      # nombre des derniers votes pris en comptes
 
-VOTES_NAME = "votes"            # nom exact du canal des votes
+VOTES_NAME = PARAMS["VOTES_NAME"]            # nom exact du canal des votes
 
-COMMAND_PREFIX = "/"
-BOT_NAME = "Ernestomôch"
+COMMAND_PREFIX = PARAMS["COMMAND_PREFIX"]
+BOT_NAME = PARAMS["BOT_NAME"]
 
-ERROR_RIGHTS_MESSAGE = "Désolé, vous ne disposez pas des droits pour effectuer cette commande"
-ERROR_MESSAGE = "Une erreur s'est produite, veuillez nous en excuser."
-ERROR_BOT_DISABLED_MESSAGE = "Désolé, le bot est actuellement désactivé."
+ERROR_RIGHTS_MESSAGE = PARAMS["ERROR_RIGHTS_MESSAGE"]
+ERROR_MESSAGE = PARAMS["ERROR_MESSAGE"]
+ERROR_BOT_DISABLED_MESSAGE = PARAMS["ERROR_BOT_DISABLED_MESSAGE"]
 
-VALIDATION_EMOJI = ":white_check_mark:"
-ERROR_EMOJI = ":no_entry_sign:"
-DICO_EMOJI = ":book:"
+VALIDATION_EMOJI = PARAMS["VALIDATION_EMOJI"]
+ERROR_EMOJI = PARAMS["ERROR_EMOJI"]
+DICO_EMOJI = PARAMS["DICO_EMOJI"]
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -55,6 +70,40 @@ intents.members = True
 intents.reactions = True
 intents.guilds = True
 
+ioloenabled = True
+
+running_locally = False
+is_local = False
+
+bot_disabled = False
+replacing_tags = True
+
+if os.path.exists("params/local.txt"):
+    f = open("params/local.txt","r")
+    if f.read() == "1":
+        is_local = True
+        print("Running locally")
+    f.close()
+
+
+flog = open(".log","w", encoding="utf-8")
+flog.write("")
+flog.close()
+
+
+lettre_frer = {}
+lettre_erfr = {}
+f = open("params/ernestchars", "r", encoding="utf-8")
+for l in f.readlines():
+    fr, er = l.replace("\n","").split(" ")
+    lettre_frer[fr] = er
+    lettre_erfr[er] = fr
+
+f.close()
+
+lettre_frer[" "] = " "
+lettre_erfr[" "] = " "
+
 
 class CustomHelpCommand(commands.HelpCommand):
     async def send_bot_help(self, mapping):
@@ -62,10 +111,6 @@ class CustomHelpCommand(commands.HelpCommand):
 
     async def send_command_help(self, command):
         pass
-
-flog = open(".log","w", encoding="utf-8")
-flog.write("")
-flog.close()
 
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents, help_command=CustomHelpCommand())
 
@@ -153,7 +198,7 @@ async def on_message(msg):
                 await msg.delete()
                 await send_custom_message(
                     msg.channel,
-                    name=msgauthor.display_name+" ft. Ernestomôch",
+                    name=msgauthor.display_name+" ft. "+BOT_NAME,
                     avatar_url=msgauthor.avatar.url,
                     content=replace_tags(msgtext)
                 )
@@ -218,22 +263,7 @@ async def generate_pdf():
         stderr=asyncio.subprocess.PIPE
     )
     stdout, stderr = await process.communicate()
-
-ioloenabled = True
-
-running_locally = False
-is_local = False
-
-bot_disabled = False
-replacing_tags = True
-
-if os.path.exists("local.txt"):
-    f = open("local.txt","r")
-    if f.read() == "1":
-        is_local = True
-        print("Running locally")
-    f.close()
-
+    
 
 async def update_specrights(inter):
     specrights = []
@@ -439,16 +469,6 @@ def nettoyer_texte(texte):
         return ""
     return unicodedata.normalize("NFKD", str(texte)).encode("ASCII", "ignore").decode().lower()
 
-lettre_frer = {}
-lettre_erfr = {}
-f = open("ernestchars", "r", encoding="utf-8")
-for l in f.readlines():
-    fr, er = l[:-1].split(" ")
-    lettre_frer[fr] = er
-    lettre_erfr[er] = fr
-
-lettre_frer[" "] = " "
-lettre_erfr[" "] = " "
 
 def ernconvert(mot):
     mapping = lettre_frer
