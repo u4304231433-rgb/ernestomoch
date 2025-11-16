@@ -439,22 +439,27 @@ def nettoyer_texte(texte):
         return ""
     return unicodedata.normalize("NFKD", str(texte)).encode("ASCII", "ignore").decode().lower()
 
+lettre_frer = {}
+lettre_erfr = {}
+f = open("ernestchars", "r", encoding="utf-8")
+for l in f.readlines():
+    fr, er = l[:-1].split(" ")
+    lettre_frer[fr] = er
+    lettre_erfr[er] = fr
+
+lettre_frer[" "] = " "
+lettre_erfr[" "] = " "
+
 def ernconvert(mot):
-    erchars = [".",","," ",'𓆟', 'n', 'n̂', 'Ր', 'Þ', 'c', 'ĉ', 'ϕ', 'ᕋ', 'ʃ', 'ı', 'î', 'J', '¢', 'ʟ̥', 'ᒐ', 'ᒉ', 'o', 'ô', 'г̊', 'Ꞁ̊', 'c̥', '⟊', 'u', 'û', 'v̥', '∤']
-    frchars = "., qaâbdeêfghiîjklmnoôprstuûvz"
-    mapping = dict(zip(frchars, erchars))
+    mapping = lettre_frer
     return ''.join(mapping[c] for c in mot if c in mapping)
 
 def frconvert(mot):
-    erchars = [".",","," ",'𓆟', 'n', 'n̂', 'Ր', 'Þ', 'c', 'ĉ', 'ϕ', 'ᕋ', 'ʃ', 'ı', 'î', 'J', '¢', 'ʟ̥', 'ᒐ', 'ᒉ', 'o', 'ô', 'г̊', 'Ꞁ̊', 'c̥', '⟊', 'u', 'û', 'v̥', '∤']
-    frchars = "., qaâbdeêfghiîjklmnoôprstuûvz"
-    mapping = dict(zip(erchars, frchars))
+    mapping = lettre_erfr
     return ''.join(mapping[c] for c in mot if c in mapping)
 
 def frconvert_keep(mot):
-    erchars = [".",","," ",'𓆟', 'n', 'n̂', 'Ր', 'Þ', 'c', 'ĉ', 'ϕ', 'ᕋ', 'ʃ', 'ı', 'î', 'J', '¢', 'ʟ̥', 'ᒐ', 'ᒉ', 'o', 'ô', 'г̊', 'Ꞁ̊', 'c̥', '⟊', 'u', 'û', 'v̥', '∤']
-    frchars = "., qaâbdeêfghiîjklmnoôprstuûvz"
-    mapping = dict(zip(erchars, frchars))
+    mapping = lettre_erfr
     return ''.join(mapping[c] if c in mapping else c for c in mot)
 
 def score_ligne(ligne,mot):
