@@ -142,7 +142,6 @@ async def on_message(msg):
         msgchannel = msg.channel
         msgauthor = msg.author
         if not bot_disabled and replacing_tags:
-            t = time.time()
             balises = ["€","£",r"\$"]
             tomodify = False
             textcb = remove_code_blocks(msgtext)
@@ -158,7 +157,6 @@ async def on_message(msg):
                     avatar_url=msgauthor.avatar.url,
                     content=replace_tags(msgtext)
                 )
-            print(time.time()-t)
         if ioloenabled and not bot_disabled:
             if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
                 await msgchannel.send("iolô !")
