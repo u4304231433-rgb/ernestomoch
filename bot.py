@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-from discord import app_commands
+from discord import app_commands, Webhook
+import aiohttp
 
 import datetime
 import time
@@ -55,8 +56,6 @@ intents.reactions = True
 intents.guilds = True
 
 
-ioloenabled = False
-
 class CustomHelpCommand(commands.HelpCommand):
     async def send_bot_help(self, mapping):
         pass
@@ -79,21 +78,94 @@ def log_save(m):
 @bot.event
 async def on_ready():
     await bot.tree.sync()
+    specrights = []
+    if bot_disabled:
+        specrights.append("[O]")
+    if ioloenabled:
+        specrights.append("[I]")
+    if running_locally:
+        specrights.append("[L]")
     for guild in bot.guilds:
-        await guild.me.edit(nick=BOT_NAME)
-    
+        await guild.me.edit(nick=BOT_NAME+(" " if specrights else "")+" ".join(specrights))
     log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: {bot.user} connecté à {';'.join([str(guild.id)+'#'+guild.name for guild in bot.guilds])}")
-    
+
+
+# modification contextuelle par ernestomoch
+
+def remove_code_blocks(text):
+    text = re.sub(r"```.*?```", lambda m: " " * len(m.group()), text, flags=re.DOTALL)
+    text = re.sub(r"`[^`]*`", lambda m: " " * len(m.group()), text)
+    return text
+
+def replace_tags(text):
+    tags = ["\\", "€", "£", "$"]
+    tagscodes = ["\\backslashsymbol", "\\eurosymbol", "\\poundsymbol", "\\dollarsymbol"]
+    for i, tag in enumerate(tags):
+        text = text.replace("\\"+tag, tagscodes[i])
+    transformations = {"€": ernconvert, "£": lambda x: ernconvert(x)+" ("+x+")", r"\$": textounicode.convert.convert}
+    cleaned = remove_code_blocks(text)
+
+    for transfo in transformations:
+        matches = list(re.finditer(transfo+r"(.*?)"+transfo, cleaned))
+
+        new_text = []
+        last_index = 0
+        for match in matches:
+            start, end = match.span()
+            content = match.group(1)
+            replacement = transformations[transfo](content)
+
+            # Ajouter le texte avant la balise
+            new_text.append(text[last_index:start])
+            # Ajouter le remplacement
+            new_text.append(replacement)
+            last_index = end
+
+        new_text.append(text[last_index:])
+        text = ''.join(new_text)
+    return text
+
+async def send_custom_message(channel, name, avatar_url, content):
+    async with aiohttp.ClientSession() as session:
+        webhook = await channel.create_webhook(name="TempWebhook")
+        await webhook.send(
+            content,
+            username=name,
+            avatar_url=avatar_url
+        )
+        await webhook.delete()
+
 @bot.event
 async def on_message(msg):
     if not msg.author.bot:
-        if ioloenabled:
-            if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msg.content.lower()):
-                await msg.channel.send("iolô !")
-            elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ][oô̥ô̥ô])|([ıi][oo0ô̥ô̥ô]))($|\s|\_|\*)(.*)",msg.content.lower()):
-                await msg.channel.send("ıoʟ̥ô !")
-            if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msg.content.lower()):
-                await msg.channel.send("C'est moi !")
+        msgtext = msg.content
+        msgchannel = msg.channel
+        msgauthor = msg.author
+        if not bot_disabled and replacing_tags:
+            t = time.time()
+            balises = ["€","£",r"\$"]
+            tomodify = False
+            textcb = remove_code_blocks(msgtext)
+            for balise in balises:
+                if re.search(balise+r".*?"+balise,textcb) is not None:
+                    tomodify = True
+                    break
+            if tomodify:
+                await msg.delete()
+                await send_custom_message(
+                    msg.channel,
+                    name=msgauthor.display_name+" ft. Ernestomôch",
+                    avatar_url=msgauthor.avatar.url,
+                    content=replace_tags(msgtext)
+                )
+            print(time.time()-t)
+        if ioloenabled and not bot_disabled:
+            if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
+                await msgchannel.send("iolô !")
+            elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ][oô̥ô̥ô])|([ıi][oo0ô̥ô̥ô]))($|\s|\_|\*)(.*)",msgtext.lower()):
+                await msgchannel.send("ıoʟ̥ô !")
+            if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
+                await msgchannel.send("C'est moi !")
         await bot.process_commands(msg)
 
 
@@ -149,10 +221,13 @@ async def generate_pdf():
     )
     stdout, stderr = await process.communicate()
 
+ioloenabled = True
+
 running_locally = False
 is_local = False
 
 bot_disabled = False
+replacing_tags = True
 
 if os.path.exists("local.txt"):
     f = open("local.txt","r")
@@ -170,7 +245,7 @@ async def update_specrights(inter):
         specrights.append("[I]")
     if running_locally:
         specrights.append("[L]")
-    await inter.guild.me.edit(nick=BOT_NAME+" "+" ".join(specrights))
+    await inter.guild.me.edit(nick=BOT_NAME+(" " if specrights else "")+" ".join(specrights))
 
 
 
