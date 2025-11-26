@@ -1,0 +1,28 @@
+\documentclass[a4paper, 12pt] {report}
+\usepackage[paperwidth=10cm, paperheight=6cm, margin=0cm]{geometry}
+
+\usepackage{graphicx}
+
+\usepackage{fontspec}
+
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\NewEnviron{ernestienenv}{%
+\small\fontspec{ErnestFont}\BODY\;}
+
+\newcommand{\ern}[1]{%
+{\small\fontspec{ErnestFont}{#1}}%
+}
+
+
+\usepackage[angle=0,scale=0.9,pages=all, contents=\includegraphics{logo.png},position={4.5cm,-0.3cm}]{background}
+
+\begin{document}
+DÉMOCRATIE
+ERNESTIENNE NORMALIENNE ET
+SUPERCOOL \ern{nuranjêrs ernestôg bizarg}
+\includegraphics[width=2cm,height=2cm]{img.jpg}
+\end{document}

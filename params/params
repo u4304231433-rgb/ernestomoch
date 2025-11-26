@@ -1,0 +1,33 @@
+CITOYENS_NAME=Citoyen
+NORMALIENS_NAME=Normalien
+TOURISTES_NAME=Touriste
+POLICIERS_NAME=Policier
+COMMISSAIRE_NAME=Commissaire
+PROCUREUR_NAME=Procureur
+CONSEILLER_CONST_NAME=Conseiller constitutionnel
+CONSEILLER_PERM_NAME=Conseiller permanent
+
+ANCIENNETE=5
+NUMBER_OF_POLLS_ANCIEN=3
+LIMIT_NUMBER_OF_POLLS=10
+
+VOTES_NAME=votes
+
+COMMAND_PREFIX=/
+
+BOT_NAME=Ernestomôch
+
+ERROR_RIGHTS_MESSAGE=Désolé, vous ne disposez pas des droits pour effectuer cette commande.
+ERROR_MESSAGE=Une erreur s'est produite, veuillez nous en excuser.
+ERROR_BOT_DISABLED_MESSAGE=Désolé, le bot est actuellement désactivé.
+
+VALIDATION_EMOJI=:white_check_mark:
+ERROR_EMOJI=:no_entry_sign:
+DICO_EMOJI=:book:
+
+PROPORTION_LOI=0.5
+PROPORTION_REVISION=0.75
+
+DUREE_VOTES=7
+
+PING_FIN_LOI=ping conseil
