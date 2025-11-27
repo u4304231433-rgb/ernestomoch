@@ -20,6 +20,8 @@ from difflib import SequenceMatcher
 
 import textounicode.convert
 
+import references.references
+
 
 PARAMS = {}
 
@@ -450,7 +452,8 @@ async def on_message(msg):
                 await msgchannel.send("ıoʟ̥ô !")
             if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
                 await msgchannel.send("C'est moi !")
-        await bot.process_commands(msg)
+            await references.references.process_message(msgtext,msgchannel)
+        #await bot.process_commands(msg)
 
 
 def get_last_user_traceback_line(tb):
