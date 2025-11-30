@@ -44,7 +44,6 @@ f.close()
 def simplify_role_name(r):
     return unidecode(r.split("/")[0].replace(" ", "").replace(".","").lower()).replace("*","")
 
-# Noms exacts des rôles dans Discord
 CITOYENS_NAME = PARAMS["CITOYENS_NAME"]
 NORMALIENS_NAME = PARAMS["NORMALIENS_NAME"]
 TOURISTES_NAME = PARAMS["TOURISTES_NAME"]
@@ -54,16 +53,16 @@ PROCUREUR_NAME = PARAMS["PROCUREUR_NAME"]
 CONSEILLER_CONST_NAME = PARAMS["CONSEILLER_CONST_NAME"]
 CONSEILLER_PERM_NAME = PARAMS["CONSEILLER_PERM_NAME"]
 
-ADMINISTRATOR_RIGHTS = ([PARAMS[n] for n in PARAMS["ADMINISTRATOR_RIGHTS"].split(",")] if PARAMS["ADMINISTRATOR_RIGHTS"] != "" else []) # les roles qui ont des droits spéciaux
-VOTE_RIGHTS = ([PARAMS[n] for n in PARAMS["VOTE_RIGHTS"].split(",")] if PARAMS["VOTE_RIGHTS"] != "" else []) # les roles qui peuvent initier des votes
-DICO_RIGHTS = ([PARAMS[n] for n in PARAMS["DICO_RIGHTS"].split(",")] if PARAMS["DICO_RIGHTS"] != "" else []) # les roles qui ont des droits spéciaux
-REFS_RIGHTS = ([PARAMS[n] for n in PARAMS["REFS_RIGHTS"].split(",")] if PARAMS["REFS_RIGHTS"] != "" else []) # les roles qui ont des droits spéciaux
+ADMINISTRATOR_RIGHTS = ([PARAMS[n] for n in PARAMS["ADMINISTRATOR_RIGHTS"].split(",")] if PARAMS["ADMINISTRATOR_RIGHTS"] != "" else [])
+VOTE_RIGHTS = ([PARAMS[n] for n in PARAMS["VOTE_RIGHTS"].split(",")] if PARAMS["VOTE_RIGHTS"] != "" else [])
+DICO_RIGHTS = ([PARAMS[n] for n in PARAMS["DICO_RIGHTS"].split(",")] if PARAMS["DICO_RIGHTS"] != "" else [])
+REFS_RIGHTS = ([PARAMS[n] for n in PARAMS["REFS_RIGHTS"].split(",")] if PARAMS["REFS_RIGHTS"] != "" else [])
 
-ANCIENNETE = PARAMS["ANCIENNETE"]                  # ancienneté requise pour être ancien citoyen (en jours)
-NUMBER_OF_POLLS_ANCIEN = PARAMS["NUMBER_OF_POLLS_ANCIEN"]      # nombre de sondages à avoir répondu pour être ancien
-LIMIT_NUMBER_OF_POLLS = PARAMS["LIMIT_NUMBER_OF_POLLS"]      # nombre des derniers votes pris en comptes
+ANCIENNETE = PARAMS["ANCIENNETE"]
+NUMBER_OF_POLLS_ANCIEN = PARAMS["NUMBER_OF_POLLS_ANCIEN"]
+LIMIT_NUMBER_OF_POLLS = PARAMS["LIMIT_NUMBER_OF_POLLS"]
 
-VOTES_NAME = PARAMS["VOTES_NAME"]            # nom exact du canal des votes
+VOTES_NAME = PARAMS["VOTES_NAME"]
 
 COMMAND_PREFIX = PARAMS["COMMAND_PREFIX"]
 BOT_NAME = PARAMS["BOT_NAME"]
@@ -198,7 +197,7 @@ def load_emojis():
             if emoji_g[g] is not None:
                 PB_EMOJIS[v] = "<:"+v+":"+str(emoji_g[g].id)+">"
             else:
-                pass#raise Exception(f"Emoji {v} non trouvé sur le serveur {g}")
+                pass
 
 load_emojis()
 
@@ -270,7 +269,6 @@ def load_polls(path="votes/polls.csv"):
                             if values[j][0] == "\"" and values[j][-1] == "\"":
                                 poll[keys[j]] = values[j][1:-1].replace("{\\pointvirgule}", ";").replace("\\n", "\n").replace("\\r", "\r").replace("\\t", "\t")
                             else:
-                                # c'est un int ou float
                                 try:
                                     v = int(values[j])
                                 except ValueError:
@@ -789,8 +787,7 @@ def score_ligne(ligne,mot):
                 for word in frconvert_keep(nettoyer_texte(val)).split():
                     d1 = distance_approx(word, mot_clean)
                     if d1 <= 2:
-                        score += witherrors/5 * (3 - d1)  # bonus inversé
- 
+                        score += witherrors/5 * (3 - d1)
     return score
 
 def cherche_dico(mot, sens="*"):
@@ -808,18 +805,15 @@ def cherche_dico(mot, sens="*"):
     else:
         colonnes = df.columns.tolist()
 
-    # Nettoyage colonne par colonne (sans applymap)
     df_clean = df[colonnes].copy()
     for col in colonnes:
         df_clean[col] = df_clean[col].map(nettoyer_texte)
 
-    # Calcul du score de pertinence
     scores = df_clean.apply(lambda x : score_ligne(x,mot), axis=1)
     df_resultats = df[scores >= 1][COLS].copy()
     df_resultats["pertinence"] = scores[scores >= 1]
     df_resultats = df_resultats.sort_values(by="pertinence", ascending=False)
 
-    # Surlignage dans les colonnes ciblées
     def surligner_ernestien(val):
         val_clean = nettoyer_texte(val)
         return re.sub(pattern, lambda m: f"**{val[m.start():m.end()]}**", val, flags=re.IGNORECASE)
@@ -1261,7 +1255,7 @@ class PollView(discord.ui.View):
 
         self.options = {
             "o": {
-                "text": "Oui", # "᲼" espace insécable...
+                "text": "Oui",
                 "ernestien": "chlorên",
                 "emoji": self.PB_EMOJIS["yes_check_mark"]
                 },
@@ -1307,7 +1301,7 @@ class PollView(discord.ui.View):
         b_s_number = int(proportion*pb_width)
         b_s_numberhalf = int(2*proportion*pb_width)/2
 
-        side_spaces = ""#"᲼"
+        side_spaces = ""
         
         """en pratique, je n'ai pas programmé le cas
         où la limite est au bord pour les votes non vides... inutiles ici"""
@@ -1484,9 +1478,7 @@ class PollView(discord.ui.View):
             description=self.PB_EMOJIS["empty"]+"\n",
             color=color
         )
-        #embed.add_field(name="", value=" ", inline=True)
         embed.add_field(name="", value=self.PB_EMOJIS["empty"]*(1 if prop < 1 else 2)+pb+proportions, inline=True)
-        #embed.add_field(name="", value=" ", inline=True)
         if not ended:
             txt = self.get_advancement()
         else:
@@ -1598,10 +1590,8 @@ class PollButton(discord.ui.Button):
                 elif self.vote_key == "b":
                     self.poll_view.blancs += 1
                 
-                # Enregistre le vote
                 self.poll_view.votes[self.vote_key].append(user_id)
 
-                # Mets à jour le fichier
                 polls = load_polls()
                 for poll in polls:
                     if poll["message_id"] == interaction.message.id:
