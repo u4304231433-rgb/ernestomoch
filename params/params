@@ -1,21 +1,29 @@
-CITOYENS_NAME=Citoyen
-NORMALIENS_NAME=Normalien
+CITOYENS_NAME=Citoyen.ne
+NORMALIENS_NAME=Normalien.ne
 TOURISTES_NAME=Touriste
-POLICIERS_NAME=Policier
+POLICIERS_NAME=Policier.e
 COMMISSAIRE_NAME=Commissaire
-PROCUREUR_NAME=Procureur
-CONSEILLER_CONST_NAME=Conseiller constitutionnel
-CONSEILLER_PERM_NAME=Conseiller permanent
+PROCUREUR_NAME=Procureur.e
+CONSEILLER_CONST_NAME=Conseiller.e constitutionnel.le
+CONSEILLER_PERM_NAME=Conseiller.e permanent.e
+LINGUISTE_NAME=Linguiste
+BOT_DEV_NAME=Dev de bot
+ANIM_PART_NAME=Animal préhistorique partouzeur de droite
 
 ANCIENNETE=5
 NUMBER_OF_POLLS_ANCIEN=3
 LIMIT_NUMBER_OF_POLLS=10
 
-VOTES_NAME=votes
+VOTES_NAME=🗳-votes
 
 COMMAND_PREFIX=/
 
 BOT_NAME=Ernestomôch
+
+ADMINISTRATOR_RIGHTS=BOT_DEV_NAME
+VOTE_RIGHTS=CONSEILLER_CONST_NAME,CONSEILLER_PERM_NAME
+DICO_RIGHTS=LINGUISTE_NAME,BOT_DEV_NAME
+REFS_RIGHTS=BOT_DEV_NAME,ANIM_PART_NAME
 
 ERROR_RIGHTS_MESSAGE=Désolé, vous ne disposez pas des droits pour effectuer cette commande.
 ERROR_MESSAGE=Une erreur s'est produite, veuillez nous en excuser.
@@ -30,4 +38,4 @@ PROPORTION_REVISION=0.75
 
 DUREE_VOTES=7
 
-PING_FIN_LOI=ping conseil
+PING_FIN_LOI=<@&1424803382773944440>
