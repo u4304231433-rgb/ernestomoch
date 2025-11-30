@@ -40,6 +40,10 @@ for l in f.readlines():
                 PARAMS[k] = v
 f.close()
 
+
+def simplify_role_name(r):
+    return unidecode(r.split("/")[0].replace(" ", "").replace(".","").lower()).replace("*","")
+
 # Noms exacts des rôles dans Discord
 CITOYENS_NAME = PARAMS["CITOYENS_NAME"]
 NORMALIENS_NAME = PARAMS["NORMALIENS_NAME"]
@@ -50,9 +54,10 @@ PROCUREUR_NAME = PARAMS["PROCUREUR_NAME"]
 CONSEILLER_CONST_NAME = PARAMS["CONSEILLER_CONST_NAME"]
 CONSEILLER_PERM_NAME = PARAMS["CONSEILLER_PERM_NAME"]
 
-ADMINISTRATOR_RIGHTS = [CONSEILLER_CONST_NAME, POLICIERS_NAME, CONSEILLER_PERM_NAME, COMMISSAIRE_NAME] # les roles qui ont des droits spéciaux
-VOTE_RIGHTS = [CONSEILLER_CONST_NAME, CONSEILLER_PERM_NAME] # les roles qui peuvent initier des votes
-DICO_RIGHTS = ADMINISTRATOR_RIGHTS # les roles qui ont des droits spéciaux
+ADMINISTRATOR_RIGHTS = ([PARAMS[n] for n in PARAMS["ADMINISTRATOR_RIGHTS"].split(",")] if PARAMS["ADMINISTRATOR_RIGHTS"] != "" else []) # les roles qui ont des droits spéciaux
+VOTE_RIGHTS = ([PARAMS[n] for n in PARAMS["VOTE_RIGHTS"].split(",")] if PARAMS["VOTE_RIGHTS"] != "" else []) # les roles qui peuvent initier des votes
+DICO_RIGHTS = ([PARAMS[n] for n in PARAMS["DICO_RIGHTS"].split(",")] if PARAMS["DICO_RIGHTS"] != "" else []) # les roles qui ont des droits spéciaux
+REFS_RIGHTS = ([PARAMS[n] for n in PARAMS["REFS_RIGHTS"].split(",")] if PARAMS["REFS_RIGHTS"] != "" else []) # les roles qui ont des droits spéciaux
 
 ANCIENNETE = PARAMS["ANCIENNETE"]                  # ancienneté requise pour être ancien citoyen (en jours)
 NUMBER_OF_POLLS_ANCIEN = PARAMS["NUMBER_OF_POLLS_ANCIEN"]      # nombre de sondages à avoir répondu pour être ancien
@@ -190,12 +195,10 @@ def load_emojis():
     for v in values:
         emoji_g = get_emoji(v)
         for g in emoji_g:
-            if emoji_g[g] is None:
-                raise Exception(f"Emoji {v} non trouvé sur le serveur {g}")
-            if g in PB_EMOJIS:
-                PB_EMOJIS[g][v] = "<:"+v+":"+str(emoji_g[g].id)+">"
+            if emoji_g[g] is not None:
+                PB_EMOJIS[v] = "<:"+v+":"+str(emoji_g[g].id)+">"
             else:
-                PB_EMOJIS[g] = {v: "<:"+v+":"+str(emoji_g[g].id)+">"}
+                pass#raise Exception(f"Emoji {v} non trouvé sur le serveur {g}")
 
 load_emojis()
 
@@ -256,10 +259,11 @@ def load_polls(path="votes/polls.csv"):
                             votes = {}
                             citoyens = []
                             for v in votesl:
-                                c = v.split(":")
-                                if len(c) == 2:
-                                    votes[c[0]] = c[1]
-                                citoyens.append(int(c[0]))
+                                if v != "":
+                                    c = v.split(":")
+                                    if len(c) == 2:
+                                        votes[c[0]] = c[1]
+                                    citoyens.append(int(c[0]))
                             poll["votes"] = votes
                             poll["citoyens"] = citoyens
                         else:
@@ -323,7 +327,7 @@ def get_closed_view(poll):
     view.channel_id = poll["channel_id"]
     view.author_id = poll["author_id"]
     view.message_id = poll["message_id"]
-    view.PB_EMOJIS = PB_EMOJIS[view.guild_id]
+    view.PB_EMOJIS = PB_EMOJIS
 
     view.citoyens = poll["citoyens"]
 
@@ -366,8 +370,8 @@ async def on_ready():
     if running_locally:
         specrights.append("[L]")
     for guild in bot.guilds:
-        await guild.me.edit(nick=BOT_NAME+(" " if specrights else "")+" ".join(specrights))
-
+        await guild.me.edit(nick=BOT_NAME)
+    await update_specrights()
     log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: {bot.user} connecté à {';'.join([str(guild.id)+'#'+guild.name for guild in bot.guilds])}")
     load_emojis()
     log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: Emojis chargés")
@@ -410,51 +414,63 @@ def replace_tags(text):
         text = ''.join(new_text)
     return text
 
-async def send_custom_message(channel, name, avatar_url, content, delete_old=None):
+async def send_custom_message(channel, name, user, avatar_url, content, delete_old=None):
     async with aiohttp.ClientSession() as session:
         webhook = await channel.create_webhook(name="TempWebhook")
         if delete_old is not None:
             await delete_old.delete()
 
-        await webhook.send(
+        msg = await webhook.send(
             content,
             username=name,
-            avatar_url=avatar_url
+            avatar_url=avatar_url,
+            wait=True
         )
+        msg_id = msg.id
         await webhook.delete()
+
+        def check(x, xuser):
+            return x.message.channel.id == channel.id and xuser.id == user.id
+        reaction = await bot.wait_for("reaction_add", check=check, timeout=None)  # Wait for a reaction
+        if reaction[0].emoji == "❌":
+            msg2 = await channel.fetch_message(msg_id)
+            await msg2.delete()
 
 @bot.event
 async def on_message(msg):
-    if not msg.author.bot:
-        msgtext = msg.content
-        msgchannel = msg.channel
-        msgauthor = msg.author
-        if not bot_disabled and replacing_tags:
-            balises = ["€","£",r"\$"]
-            tomodify = False
-            textcb = remove_code_blocks(msgtext)
-            for balise in balises:
-                if re.search(balise+r".*?"+balise,textcb) is not None:
-                    tomodify = True
-                    break
-            if tomodify:
-                await send_custom_message(
-                    msg.channel,
-                    name=msgauthor.display_name+" ft. "+BOT_NAME,
-                    avatar_url=msgauthor.avatar.url,
-                    content=replace_tags(msgtext),
-                    delete_old=msg
-                )
-        if ioloenabled and not bot_disabled:
-            if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
-                await msgchannel.send("iolô !")
-            elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ][oô̥ô̥ô])|([ıi][oo0ô̥ô̥ô]))($|\s|\_|\*)(.*)",msgtext.lower()):
-                await msgchannel.send("ıoʟ̥ô !")
-            if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
-                await msgchannel.send("C'est moi !")
-            await references.references.process_message(msgtext,msgchannel)
-        #await bot.process_commands(msg)
-
+    try:
+        if not msg.author.bot:
+            msgtext = msg.content
+            msgchannel = msg.channel
+            msgauthor = msg.author
+            if not bot_disabled and replacing_tags:
+                balises = ["€","£",r"\$"]
+                tomodify = False
+                textcb = remove_code_blocks(msgtext)
+                for balise in balises:
+                    if re.search(balise+r".*?"+balise,textcb) is not None:
+                        tomodify = True
+                        break
+                if tomodify:
+                    await send_custom_message(
+                        msg.channel,
+                        name=msgauthor.display_name+" ft. "+BOT_NAME,
+                        user=msgauthor,
+                        avatar_url=msgauthor.display_avatar.url,
+                        content=replace_tags(msgtext),
+                        delete_old=msg
+                    )
+            if ioloenabled and not bot_disabled:
+                if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
+                    await msgchannel.send("iolô !")
+                elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ][oô̥ô̥ô])|([ıi][oo0ô̥ô̥ô]))($|\s|\_|\*)(.*)",msgtext.lower()):
+                    await msgchannel.send("ıoʟ̥ô !")
+                if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
+                    await msgchannel.send("C'est moi !")
+                await references.references.process_message(msgtext,msgchannel)
+            #await bot.process_commands(msg)
+    except Exception as e:
+        print_message_error(msg,e)
 
 def get_last_user_traceback_line(tb):
     for frame in reversed(tb):
@@ -480,6 +496,13 @@ def print_command_error(interaction, error):
     tb = traceback.extract_tb(exc_tb)
     last_frame = get_last_user_traceback_line(tb)
     log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {interaction.guild.id if interaction.guild else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {interaction.user} | Serveur: {interaction.guild.name if interaction.guild else 'DM'} | Canal: {interaction.channel.name if interaction.guild else 'DM'} | Commande: {interaction.command.name}")
+
+
+def print_message_error(msg, error):
+    exc_type, exc_value, exc_tb = sys.exc_info()
+    tb = traceback.extract_tb(exc_tb)
+    last_frame = get_last_user_traceback_line(tb)
+    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {msg.guild.id if msg.guild else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {msg.author} | Serveur: {msg.guild.name if msg.guild else 'DM'} | Canal: {msg.channel.name if msg.guild else 'DM'} | Message: \"{msg.content.replace('\n','\\n')}\"")
 
 
 async def custom_response(inter,msg,duration=3):
@@ -519,16 +542,18 @@ async def generate_pdf():
     stdout, stderr = await process.communicate()
     
 
-async def update_specrights(inter):
+async def update_specrights():
     specrights = []
     if bot_disabled:
-        specrights.append("[O]")
+        specrights.append("Off")
     if ioloenabled:
-        specrights.append("[I]")
+        specrights.append("Iolô")
     if running_locally:
-        specrights.append("[L]")
-    await inter.guild.me.edit(nick=BOT_NAME+(" " if specrights else "")+" ".join(specrights))
-
+        specrights.append("Local")
+    await bot.change_presence(
+        activity=discord.Game(name=", ".join(specrights)),
+        status=discord.Status.online
+    )
 
 
 @bot.tree.command(name="bot", description="[A] Active/désactive le bot")
@@ -540,7 +565,7 @@ async def botstate(inter,state : str = "switch"):
     try:
         global bot_disabled
         for right in ADMINISTRATOR_RIGHTS:
-            if right in [r.name for r in inter.user.roles]:
+            if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                 if state == "switch":
                     bot_disabled = not bot_disabled
                 elif state == "on":
@@ -549,7 +574,7 @@ async def botstate(inter,state : str = "switch"):
                     bot_disabled = True
                 else:
                     await error_response(inter,ERROR_EMOJI+f" Paramètre state={state} non valide")
-                await update_specrights(inter)
+                await update_specrights()
                 await validation_response(inter,f"Le bot est bien {'désactivé' if bot_disabled else 'activé'}")
                 break
         else:
@@ -570,7 +595,7 @@ async def localstate(inter,state : str = "switch"):
         if not bot_disabled:
             global running_locally
             for right in ADMINISTRATOR_RIGHTS:
-                if right in [r.name for r in inter.user.roles]:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     if state == "switch":
                         running_locally = not running_locally
                     elif state == "on":
@@ -579,7 +604,7 @@ async def localstate(inter,state : str = "switch"):
                         running_locally = False
                     else:
                         await error_response(inter,ERROR_EMOJI+f" Paramètre state={state} non valide")
-                    await update_specrights(inter)
+                    await update_specrights()
                     await validation_response(inter,f"Paramètre d'état local fixé à state={'on' if running_locally else 'off'}")
                     break
             else:
@@ -596,9 +621,9 @@ async def logs(inter, limit : int = None):
     try:
         if (is_local or not running_locally) and not bot_disabled:
             for right in ADMINISTRATOR_RIGHTS:
-                if right in [r.name for r in inter.user.roles]:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     try:
-                        await inter.response.defer()
+                        await inter.response.defer(ephemeral=True)
                     except discord.HTTPException:
                         pass
                     if limit is None:
@@ -625,12 +650,12 @@ async def logs(inter, limit : int = None):
         print_command_error(inter,e)
         await error_response(inter,ERROR_MESSAGE)
 
-@bot.tree.command(name="dicopdf", description="[A] Édite le dictionnaire")
+@bot.tree.command(name="dicopdf", description="[D] Édite le dictionnaire")
 async def dictionnaire(inter):
     try:
         if (is_local or not running_locally) and not bot_disabled:
-            for right in ADMINISTRATOR_RIGHTS:
-                if right in [r.name for r in inter.user.roles]:
+            for right in DICO_RIGHTS:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     os.chdir("./tex/")
                     await inter.response.send_message(":arrows_counterclockwise: Edition du dictionnaire...", ephemeral=True)
                     await inter.edit_original_response(content=":arrow_down: Downloading file")
@@ -726,7 +751,7 @@ def nettoyer_texte(texte):
 
 def ernconvert(mot):
     mapping = lettre_frer
-    return ''.join(mapping[c] for c in mot if c in mapping)
+    return ''.join(mapping[c.lower()] for c in mot if c.lower() in mapping)
 
 def frconvert(mot):
     mapping = lettre_erfr
@@ -824,7 +849,7 @@ async def dico(inter, mot : str, sens : str = "*", statut : int = 1, update : in
                 await inter.response.send_message(":arrows_counterclockwise: Recherche...",ephemeral=True)
                 if update == 1:
                     for right in DICO_RIGHTS:
-                        if right in [r.name for r in inter.user.roles]:
+                        if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                             os.chdir("./tex/")
                             await download_file("1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q","ernestien.csv")
                             os.chdir("../")
@@ -853,7 +878,7 @@ async def dicoupdate(inter):
     try:
         if not bot_disabled:
             for right in DICO_RIGHTS:
-                if right in [r.name for r in inter.user.roles]:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     await inter.response.send_message(":arrow_down: Téléchargement du dictionnaire...", ephemeral=True)
                     os.chdir("./tex/")
                     await download_file("1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q","ernestien.csv")
@@ -1019,7 +1044,7 @@ async def dicochange(inter, mot : str, action : str = "auto", langue : str = "fe
     try:
         if not bot_disabled:
             for right in DICO_RIGHTS:
-                if right in [r.name for r in inter.user.roles]:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     t = time.time()
                     actiont = ""
                     df = pd.read_csv("tex/ernestien.csv", encoding="utf-8")
@@ -1075,7 +1100,7 @@ async def iolostate(inter, state : str = "switch"):
         if not bot_disabled:
             global ioloenabled
             for right in ADMINISTRATOR_RIGHTS:
-                if right in [r.name for r in inter.user.roles]:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     if state == "switch":
                         ioloenabled = not ioloenabled
                     elif state == "on":
@@ -1084,7 +1109,7 @@ async def iolostate(inter, state : str = "switch"):
                         ioloenabled = False
                     else:
                         await error_response(inter,ERROR_EMOJI+f" Paramètre state={state} non valide")
-                    await update_specrights(inter)
+                    await update_specrights()
                     await validation_response(inter,f"Iolô {'activé' if ioloenabled else 'désactivé'}")
                     break
             else:
@@ -1104,12 +1129,12 @@ async def statistiques(inter):
             normaliens = []
             touristes = []
             for m in inter.guild.members:
-                roles = [r.name for r in m.roles]
-                if CITOYENS_NAME in roles:
+                roles = [simplify_role_name(r.name) for r in m.roles]
+                if simplify_role_name(CITOYENS_NAME) in roles:
                     citoyens.append(m.display_name)
-                elif NORMALIENS_NAME in roles:
+                elif simplify_role_name(NORMALIENS_NAME) in roles:
                     normaliens.append(m.display_name)
-                elif TOURISTES_NAME in roles:
+                elif simplify_role_name(TOURISTES_NAME) in roles:
                     touristes.append(m.display_name)
 
             embed = discord.Embed(
@@ -1120,7 +1145,7 @@ async def statistiques(inter):
             if citoyens:
                 embed.add_field(name="Citoyens ("+str(len(citoyens))+")", value="- "+"\n- ".join(citoyens), inline=False)
             if normaliens:
-                embed.add_field(name="Normaliens ("+str(len(normaliens))+")", value="- "+"\n- ".join(normaliens), inline=False)
+                embed.add_field(name="Normaliens touristes ("+str(len(normaliens))+")", value="- "+"\n- ".join(normaliens), inline=False)
             if touristes:
                 embed.add_field(name="Touristes ("+str(len(touristes))+")", value="- "+"\n- ".join(touristes), inline=False)
 
@@ -1138,7 +1163,8 @@ async def statistiques(inter):
 async def citoyens(inter):
     try:
         if (is_local or not running_locally) and not bot_disabled:
-            response = inter.response
+            await inter.response.defer()
+
             citoyens = []
             anciens_citoyens = []
 
@@ -1146,8 +1172,24 @@ async def citoyens(inter):
 
             voters = {}
             icompteur = 0
+
+            guild_id = inter.guild.id
+            polls = load_polls()
+            for poll in polls:
+                if poll["channel_id"] == guild_id:
+                    if icompteur >= LIMIT_NUMBER_OF_POLLS:
+                        break
+                    for k in poll["votes"]:
+                        if int(k) not in voters:
+                            voters[int(k)] = 1
+                        else:
+                            voters[int(k)] += 1
+                    icompteur += 1
+            
             async for msg in canalvotes.history():
                 if msg.poll is not None:
+                    if icompteur >= LIMIT_NUMBER_OF_POLLS:
+                        break
                     for answer in msg.poll.answers:
                         async for voter in answer.voters():
                             if voter.id not in voters:
@@ -1155,8 +1197,6 @@ async def citoyens(inter):
                             else:
                                 voters[voter.id] += 1
                     icompteur += 1
-                    if icompteur >= LIMIT_NUMBER_OF_POLLS:
-                        break
             
             for m in inter.guild.members:
                 joined = m.joined_at.timestamp()
@@ -1168,8 +1208,8 @@ async def citoyens(inter):
                 else:
                     pollsanswered = 0
 
-                roles = [r.name for r in m.roles]
-                if CITOYENS_NAME in roles:
+                roles = [simplify_role_name(r.name) for r in m.roles]
+                if simplify_role_name(CITOYENS_NAME) in roles:
                     if difference >= ANCIENNETE*24*3600 and pollsanswered >= NUMBER_OF_POLLS_ANCIEN:
                         anciens_citoyens.append(m.display_name)
                     else:
@@ -1188,7 +1228,7 @@ async def citoyens(inter):
                             inline=False)
             embed.timestamp = inter.created_at
 
-            await response.send_message(embed=embed)
+            await inter.followup.send(embed=embed)
         elif bot_disabled:
             await error_response(inter,ERROR_BOT_DISABLED_MESSAGE)
     except Exception as e:
@@ -1205,7 +1245,7 @@ class PollView(discord.ui.View):
         self.channel_id = channel_id
         self.author_id = author_id
         self.message_id = message_id
-        self.PB_EMOJIS = PB_EMOJIS[guild_id]
+        self.PB_EMOJIS = PB_EMOJIS
 
         self.citoyens = citoyens
 
@@ -1338,19 +1378,22 @@ class PollView(discord.ui.View):
 
     def get_actual_max(self):
         citoyens_number = len(self.citoyens)
-        prop = (int(citoyens_number*self.proportion)+1)/citoyens_number
-        adv_oui = self.oui/citoyens_number/prop
-        adv_non = self.non/citoyens_number/prop
-        if adv_non == 0 and adv_oui == 0:
-            return "b"
-        elif adv_oui > adv_non:
-            return "o"
+        if citoyens_number > 0:
+            prop = (int(citoyens_number*self.proportion)+1)/citoyens_number
+            adv_oui = self.oui/citoyens_number/prop
+            adv_non = self.non/citoyens_number/prop
+            if adv_non == 0 and adv_oui == 0:
+                return "b"
+            elif adv_oui > adv_non:
+                return "o"
+            else:
+                return "n"
         else:
-            return "n"
+            return "b"
 
     def get_advancement(self):
         citoyens_number = len(self.citoyens)
-        if citoyens_number-self.blancs > 0:
+        if citoyens_number > 0:
             prop = (int(citoyens_number*self.proportion)+1)/citoyens_number
             adv_oui = self.oui/citoyens_number/prop
             adv_non = self.non/citoyens_number/prop
@@ -1364,14 +1407,20 @@ class PollView(discord.ui.View):
                 elif adv_oui*100 < 1:
                     return self.PB_EMOJIS["load_0"]
                 else:
-                    return self.PB_EMOJIS["load_"+str(int(adv_oui*10)*10)+"_o"]
+                    if int(adv_non*10)*10 > 0:
+                        return self.PB_EMOJIS["load_"+str(int(adv_oui*10)*10)+"_o"]
+                    else:
+                        return self.PB_EMOJIS["load_0"]
             else:
                 if adv_non >= 1:
                     return self.PB_EMOJIS["load_100_n"]
                 elif adv_non*100 < 1:
                     return self.PB_EMOJIS["load_0"]
                 else:
-                    return self.PB_EMOJIS["load_"+str(int(adv_non*10)*10)+"_n"]
+                    if int(adv_non*10)*10 > 0:
+                        return self.PB_EMOJIS["load_"+str(int(adv_non*10)*10)+"_n"]
+                    else:
+                        return self.PB_EMOJIS["load_0"]
         else:
             return self.PB_EMOJIS["load_0"]
 
@@ -1476,9 +1525,6 @@ class PollView(discord.ui.View):
         delay = self.timestamp+self.duration-time.time()
         if delay > 0:
             await asyncio.sleep(delay)
-            print("end")
-        else:
-            print("ended")
         self.termine = True
         polls = load_polls()
         for i in range(len(polls)):
@@ -1515,8 +1561,8 @@ class PollView(discord.ui.View):
             description=f"Le vote de {'loi' if self.vote_type == 'l' else 'révision constitutionnelle'} {link} : _\"{self.question}\"_ est clos.\n"+txtvotants+"\n"+txt,
             color=color
         )
-        roletoping = discord.utils.get(channel.guild.roles,name=PING_FIN_LOI)
-        await channel.send(roletoping.mention, embed=embed)
+        #roletoping = discord.utils.get(channel.guild.roles,name=PING_FIN_LOI)
+        await channel.send(PING_FIN_LOI, embed=embed)
 
 
 class PollButton(discord.ui.Button):
@@ -1526,59 +1572,62 @@ class PollButton(discord.ui.Button):
         self.vote_key = vote_key
 
     async def callback(self, interaction: discord.Interaction):
-        if self.vote_key != "i" and not self.poll_view.termine:
-            user_id = interaction.user.id
-            # Anti-vote multiple
-            change_vote = False
-            initial_vote = None
-            for k in self.poll_view.votes:
-                voters = self.poll_view.votes[k]
-                if user_id in voters:
-                    change_vote = True
-                    initial_vote = k
-                    voters.remove(user_id)
-                    if k == "o":
-                        self.poll_view.oui -= 1
-                    elif k == "n":
-                        self.poll_view.non -= 1
-                    elif k == "b":
-                        self.poll_view.blancs -= 1
+        if interaction.user.id in self.poll_view.citoyens:
+            if self.vote_key != "i" and not self.poll_view.termine:
+                user_id = interaction.user.id
+                # Anti-vote multiple
+                change_vote = False
+                initial_vote = None
+                for k in self.poll_view.votes:
+                    voters = self.poll_view.votes[k]
+                    if user_id in voters:
+                        change_vote = True
+                        initial_vote = k
+                        voters.remove(user_id)
+                        if k == "o":
+                            self.poll_view.oui -= 1
+                        elif k == "n":
+                            self.poll_view.non -= 1
+                        elif k == "b":
+                            self.poll_view.blancs -= 1
 
-            if self.vote_key == "o":
-                self.poll_view.oui += 1
-            elif self.vote_key == "n":
-                self.poll_view.non += 1
-            elif self.vote_key == "b":
-                self.poll_view.blancs += 1
-            
-            # Enregistre le vote
-            self.poll_view.votes[self.vote_key].append(user_id)
+                if self.vote_key == "o":
+                    self.poll_view.oui += 1
+                elif self.vote_key == "n":
+                    self.poll_view.non += 1
+                elif self.vote_key == "b":
+                    self.poll_view.blancs += 1
+                
+                # Enregistre le vote
+                self.poll_view.votes[self.vote_key].append(user_id)
 
-            # Mets à jour le fichier
-            polls = load_polls()
-            for poll in polls:
-                if poll["message_id"] == interaction.message.id:
-                    poll["votes"][str(user_id)] = self.vote_key
-                    break
-            save_polls(polls)
+                # Mets à jour le fichier
+                polls = load_polls()
+                for poll in polls:
+                    if poll["message_id"] == interaction.message.id:
+                        poll["votes"][str(user_id)] = self.vote_key
+                        break
+                save_polls(polls)
 
-            embed = self.poll_view.get_embed()
-            await interaction.response.edit_message(
-                embed=embed,
-                view=self.poll_view
-            )
-            vote = self.view.options[self.vote_key]
-            if not change_vote:
-                await custom_response(interaction, f"{vote['emoji']} Vote \"{vote['text']} / {ernconvert(vote['ernestien'])}\" enregistré.", duration=20)
+                embed = self.poll_view.get_embed()
+                await interaction.response.edit_message(
+                    embed=embed,
+                    view=self.poll_view
+                )
+                vote = self.view.options[self.vote_key]
+                if not change_vote:
+                    await custom_response(interaction, f"{vote['emoji']} Vote \"{vote['text']} / {ernconvert(vote['ernestien'])}\" enregistré.", duration=20)
+                else:
+                    ivote = self.view.options[initial_vote]
+                    await custom_response(interaction, f"{vote['emoji']} Vote \"{ivote['text']}\" changé en \"{vote['text']} / {ernconvert(vote['ernestien'])}\".", duration=20)
+            elif self.poll_view.termine and self.vote_key != "i":
+                await error_response(interaction, "Désolé, ce vote est clos...")
             else:
-                ivote = self.view.options[initial_vote]
-                await custom_response(interaction, f"{vote['emoji']} Vote \"{ivote['text']}\" changé en \"{vote['text']} / {ernconvert(vote['ernestien'])}\".", duration=20)
-        elif self.poll_view.termine and self.vote_key != "i":
-            await error_response(interaction, "Désolé, ce vote est clos...")
+                embed = await self.get_embed_infos(interaction)
+                await interaction.response.send_message(embed=embed,ephemeral=True, allowed_mentions=discord.AllowedMentions(users=False))
         else:
-            embed = await self.get_embed_infos(interaction)
-            await interaction.response.send_message(embed=embed,ephemeral=True, allowed_mentions=discord.AllowedMentions(users=False))
-
+            await error_response(interaction, "Désolé, vous ne pouvez voter que si vous étiez citoyen au début du vote.")
+    
     async def get_embed_infos(self, inter):
         citoyens_number = len(self.poll_view.citoyens)
         prop = (int(citoyens_number*self.poll_view.proportion)+1)/citoyens_number
@@ -1679,7 +1728,7 @@ class ConfirmView(discord.ui.View):
 
 @bot.tree.command(description="[C] Actualise les interfaces des votes en cas de problème.")
 async def votesupdate(inter):
-    await inter.response.defer()
+    await inter.response.defer(ephemeral=True)
     await recover_polls()
     await validation_response(inter, "Votes actualisés !")
 
@@ -1693,7 +1742,7 @@ async def deletevote(inter, identifiant: int, visible : int = 0):
     try:
         if (is_local or not running_locally) and not bot_disabled:
             for right in VOTE_RIGHTS:
-                if right in [r.name for r in inter.user.roles]:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     polls = load_polls()
                     for i, poll in enumerate(polls):
                         if poll["poll_id"] == identifiant:
@@ -1731,23 +1780,23 @@ async def deletevote(inter, identifiant: int, visible : int = 0):
 def get_current_citoyens(inter):
     citoyensl = []
     for m in inter.guild.members:
-        roles = [r.name for r in m.roles]
-        if CITOYENS_NAME in roles:
+        roles = [simplify_role_name(r.name) for r in m.roles]
+        if simplify_role_name(CITOYENS_NAME) in roles:
             citoyensl.append(m.id)
     return citoyensl
 
 
 @bot.tree.command(description="[C] Initie un vote.")
-@app_commands.describe(question="Question à voter")
+@app_commands.describe(question="Question à voter (loi par défaut)")
 @app_commands.choices(vote=[app_commands.Choice(name="Loi", value="l"),
                              app_commands.Choice(name="Révision constitutionnelle", value="r")])
 @app_commands.describe(vote="Type de vote")
 async def vote(inter, question: str, vote: str = "l"):
     try:
         if (is_local or not running_locally) and not bot_disabled:
-            await inter.response.defer()
+            await inter.response.defer(ephemeral=True)
             for right in VOTE_RIGHTS:
-                if right in [r.name for r in inter.user.roles]:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     if inter.channel.name == VOTES_NAME:
                         if vote == "l":
                             proportion = PROPORTION_LOI
@@ -1756,7 +1805,6 @@ async def vote(inter, question: str, vote: str = "l"):
                         else:
                             raise Exception(f"Le type de vote {vote} n'existe pas")
                         citoyensl = get_current_citoyens(inter)
-
                         poll = PollView(question, guild_id=inter.guild.id, author_id=inter.user.id, \
                                         channel_id=inter.channel.id, \
                                         proportion=proportion, \
@@ -1778,6 +1826,112 @@ async def vote(inter, question: str, vote: str = "l"):
         print_command_error(inter,e)
         await error_response(inter,ERROR_MESSAGE)
 
+
+class FormulaireModal2(discord.ui.Modal):
+    def __init__(self, title="", text=""):
+        super().__init__(title="")
+        self.inp1 = discord.ui.TextInput(
+            label="Titre",
+            placeholder="ex: La cité de la peur",
+            default=title,
+            required=True,
+            max_length=200
+        )
+
+        self.inp2 = discord.ui.TextInput(
+            label="Texte",
+            style=discord.TextStyle.paragraph,
+            default=text,
+            required=False,
+            max_length=600
+        )
+        
+        self.add_item(self.inp1)
+        self.add_item(self.inp2)
+
+
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            await interaction.response.send_message("En cours...", ephemeral=True)
+            mot_francais = self.inp1.value
+            mot_ernestien = self.inp2.value
+
+            try:
+                pass
+            except FileNotFoundError:
+                message = await interaction.edit_original_response(
+                    content=ERROR_EMOJI+f" Une erreur s'est produite. Essayez d'actualiser le dictionnaire en amont avec la commande `/dicoupdate`."
+                )
+                await asyncio.sleep(5)
+                await message.delete()
+        except Exception as e:
+            print_command_error(interaction,e)
+            await error_response(interaction,ERROR_MESSAGE)
+
+
+@bot.tree.command(description="[R] Ajoute ou modifie une référence.")
+@app_commands.describe(texte="La référence à ajoutée, formatée. Lire la doc. avant (`/referencedoc`).")
+@app_commands.describe(action="Action à effectuer : \"add\" pour ajouter, \"edit\" pour éditer, \"auto\" automatique (par défaut), \"forced add\" pour un ajout forcé.")
+@app_commands.choices(action=[app_commands.Choice(name="edit", value="edit"),
+                             app_commands.Choice(name="add", value="add"),
+                             app_commands.Choice(name="forced add", value="forced add"),
+                              app_commands.Choice(name="auto", value="auto")])
+async def reference(inter, texte : str, action : str = "auto"):
+    try:
+        if not bot_disabled:
+            for right in REFS_RIGHTS:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                    (mom,score, i_ref,i_repl,i_mom) = references.references.scoring(texte)
+                    refs = references.references.load_references()
+
+                    if score >= references.references.SEUIL:
+                        if action == "auto":
+                            #modif
+                            await inter.response.send_modal(FormulaireModal2())
+                        elif action == "add":
+                            await error_response(inter,f"Désolé, une référence similaire existe déjà : \"{mom}\" ({refs[i_ref]}). Si vous voulez l'éditer, renseignez `action=edit`. Si vous voulez ajouter une réf similaire malgré tout `action=force add`.")
+                        elif action == "forced add":
+                            #add
+                            pass
+                        elif action == "edit":
+                            #modif
+                            await inter.response.send_modal(FormulaireModal2())
+                    else:
+                        if action == "auto":
+                            #add
+                            pass
+                        elif action in ["add", "forced add"]:
+                            #add
+                            pass
+                        elif action == "edit":
+                            await error_response(inter,f"Aucune référence similaire n'a été trouvée.")
+                    break
+            else:
+                await error_response(inter, ERROR_RIGHTS_MESSAGE)
+        else:
+            await error_response(inter,ERROR_BOT_DISABLED_MESSAGE)
+    except Exception as e:
+        print_command_error(inter,e)
+        await error_response(inter,ERROR_MESSAGE)
+
+@bot.tree.command(description="[A] Recharger les émojis (en cas de problème)")
+async def emojisupdate(inter):
+    try:
+        if not bot_disabled:
+            global ioloenabled
+            for right in ADMINISTRATOR_RIGHTS:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                    load_emojis()
+                    await validation_response(inter,f"Émojis actualisés...")
+                    break
+            else:
+                await error_response(inter, ERROR_RIGHTS_MESSAGE)
+        else:
+            await error_response(inter,ERROR_BOT_DISABLED_MESSAGE)
+    except Exception as e:
+        print_command_error(inter,e)
+        await error_response(inter,ERROR_MESSAGE)
+    
 
 ftoken = open("SECRET/token_discord.txt","r")
 DISCORD_TOKEN = ftoken.read()
