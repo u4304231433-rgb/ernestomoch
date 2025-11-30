@@ -958,7 +958,7 @@ class FormulaireModal(discord.ui.Modal):
 
                         await interaction.delete_original_response()
                         await interaction.followup.send(
-                            content=DICO_EMOJI+f" {interaction.user.mention} a ajouté\n```{mot_francais} → {ernconvert(mot_ernestien)} ({mot_ernestien}){'\n' + mot_etymologie if mot_etymologie != '' else ''}```",
+                            content=DICO_EMOJI+f" {interaction.user.mention} a ajouté\n```{mot_francais} → {ernconvert(mot_ernestien)} ({mot_ernestien})"+('\n' + mot_etymologie if mot_etymologie != '' else '')+"```",
                             allowed_mentions=discord.AllowedMentions(users=False)
                         )
                     else:
