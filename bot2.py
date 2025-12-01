@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from discord import app_commands, Webhook
-import json
 import os
 import time
 import datetime
@@ -359,7 +358,7 @@ def get_closed_view(poll):
 
 @bot.event
 async def on_ready():
-    #await bot.tree.sync()
+    await bot.tree.sync()
     specrights = []
     if bot_disabled:
         specrights.append("[O]")
