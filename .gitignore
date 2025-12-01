@@ -1,2 +1,3 @@
-SECRET
+SECRET/token_discord.txt
 .log
+.gitignore
