@@ -1,4 +1,4 @@
 /SECRET/
 /.log
-/.gitignore
 /.git
+__pycache__/
