@@ -1,3 +1,4 @@
-SECRET/token_discord.txt
-.log
-.gitignore
+/SECRET/
+/.log
+/.gitignore
+/.git
