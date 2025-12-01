@@ -1915,6 +1915,21 @@ async def reference(inter, texte : str, action : str = "auto"):
         await error_response(inter,ERROR_MESSAGE)
 
 
+@bot.tree.command(description="[A] Télécharge les mises à jour du bot et le redémarre")
+async def upgradebot(inter):
+    if not bot_disabled:
+        for rights in ADMINISTRATOR_RIGHTS:
+            if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                os.system("./update.sh")
+                sys.exit()
+                break
+        else:
+            await error_response(inter, ERROR_RIGHTS_MESSAGE)
+    else:
+        await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
+    
+
+
 ftoken = open("SECRET/token_discord.txt","r")
 DISCORD_TOKEN = ftoken.read()
 ftoken.close()
