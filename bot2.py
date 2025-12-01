@@ -1836,7 +1836,84 @@ async def emojisupdate(inter):
     except Exception as e:
         print_command_error(inter,e)
         await error_response(inter,ERROR_MESSAGE)
-    
+
+class FormulaireModal2(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="")
+        self.inp1 = discord.ui.TextInput(
+            label="Français",
+            placeholder="ex: poisson",
+            default=francais[:200],
+            required=True,
+            max_length=200
+        )
+
+        self.inp2 = discord.ui.TextInput(
+            label="Étymologie (facultatif)",
+            style=discord.TextStyle.paragraph,
+            default=etymologie[:600],
+            required=False,
+            max_length=600
+        )
+        
+        self.add_item(self.inp1)
+        self.add_item(self.inp2)
+
+
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            await interaction.response.send_message("En cours...", ephemeral=True)
+            mot_francais = self.inp1.value
+            mot_ernestien = self.inp2.value
+
+            try:
+                pass
+            except FileNotFoundError:
+                message = await interaction.edit_original_response(
+                    content=ERROR_EMOJI+f" Une erreur s'est produite. Essayez d'actualiser le dictionnaire en amont avec la commande `/dicoupdate`."
+                )
+                await asyncio.sleep(5)
+                await message.delete()
+        except Exception as e:
+            print_command_error(interaction,e)
+            await error_response(interaction,ERROR_MESSAGE)
+
+
+@bot.tree.command(description="[R] Ajoute ou modifie une référence.")
+@app_commands.describe(texte="La référence à ajoutée, formatée. Lire la doc. avant (`/referencedoc`).")
+@app_commands.describe(action="Action à effectuer : \"add\" pour ajouter, \"edit\" pour éditer, \"auto\" automatique (par défaut), \"forced add\" pour un ajout forcé.")
+@app_commands.choices(action=[app_commands.Choice(name="edit", value="edit"),
+                             app_commands.Choice(name="add", value="add"),
+                             app_commands.Choice(name="forced add", value="forced add"),
+                              app_commands.Choice(name="auto", value="auto")])
+async def reference(inter, texte : str, action : str = "auto"):
+    try:
+        if not bot_disabled:
+            for right in REFS_RIGHTS:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                    (mom,score, i_ref,i_repl,i_mom) = references.references.scoring(txt)
+                    refs = references.references.load_references()
+
+                    if score >= references.references.SEUIL:
+                        if action == "auto":
+                            #modif
+                            await inter.response.send_modal(FormulaireModal2())
+                        elif action == "add":
+                            await error_response(inter,f"Désolé, une référence similaire existe déjà : \"{nom}\" ({refs[i_ref]}). Si vous voulez l'éditer, renseignez `action=edit`. Si vous voulez ajouter une réf similaire malgré tout `action=force add`.")
+                        elif action == "edit":
+                            #modif
+                            await inter.response.send_modal(FormulaireModal2())
+                    else:
+                        pass
+                    break
+            else:
+                await error_response(inter, ERROR_RIGHTS_MESSAGE)
+        else:
+            await error_response(inter,ERROR_BOT_DISABLED_MESSAGE)
+    except Exception as e:
+        print_command_error(inter,e)
+        await error_response(inter,ERROR_MESSAGE)
+
 
 ftoken = open("SECRET/token_discord.txt","r")
 DISCORD_TOKEN = ftoken.read()

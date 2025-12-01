@@ -11,11 +11,12 @@ def load_references():
     lines = c.split("\n")
     refs = []
     for l in lines[2:]:
-        ls = l.split(":")
-        gif = None
-        if len(ls) == 3:
-            gif = ls[2]
-        refs.append({"tag": ls[0], "text": ls[1], "gif": gif})
+        if l != "":
+            ls = l.split(":")
+            gif = None
+            if len(ls) == 3:
+                gif = ls[2]
+            refs.append({"tag": ls[0], "text": ls[1], "gif": gif})
     return refs
 
 def save_references(refs):
