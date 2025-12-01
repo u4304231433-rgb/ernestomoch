@@ -1838,12 +1838,12 @@ async def emojisupdate(inter):
         await error_response(inter,ERROR_MESSAGE)
 
 class FormulaireModal2(discord.ui.Modal):
-    def __init__(self):
+    def __init__(self, reftag="", reftext=""):
         super().__init__(title="")
         self.inp1 = discord.ui.TextInput(
             label="Français",
             placeholder="ex: poisson",
-            default=francais[:200],
+            default=reftag[:200],
             required=True,
             max_length=200
         )
@@ -1851,7 +1851,7 @@ class FormulaireModal2(discord.ui.Modal):
         self.inp2 = discord.ui.TextInput(
             label="Étymologie (facultatif)",
             style=discord.TextStyle.paragraph,
-            default=etymologie[:600],
+            default=reftext[:600],
             required=False,
             max_length=600
         )
