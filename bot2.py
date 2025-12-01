@@ -1845,7 +1845,7 @@ class FormulaireModal2(discord.ui.Modal):
             placeholder="ex: poisson",
             default=reftag[:200],
             required=True,
-            max_length=200
+            max_length=200 
         )
 
         self.inp2 = discord.ui.TextInput(
