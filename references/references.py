@@ -11,7 +11,7 @@ def load_references():
     lines = c.split("\n")
     refs = []
     for l in lines[2:]:
-        if l != "":
+        if l.replace(" ", "") != "":
             ls = l.split(":")
             gif = None
             if len(ls) == 3:
