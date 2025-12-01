@@ -24,7 +24,7 @@ def save_references(refs):
     text = fo.read()
     fo.close()
     t = "\n".join(text[:2])+"\n"
-    t += "\n".join([ref["tag"]+":"+ref["text"]+(":"+ref["gif"] if ref["gif"] is not None else "" for ref in refs)])
+    t += "\n".join([ref["tag"]+":"+ref["text"]+(":"+ref["gif"] if ref["gif"] is not None else "") for ref in refs])
     f = open(FILE, "w", encoding="utf-8")
     f.write(t)
     f.close()

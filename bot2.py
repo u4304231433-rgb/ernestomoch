@@ -1891,7 +1891,7 @@ async def reference(inter, texte : str, action : str = "auto"):
         if not bot_disabled:
             for right in REFS_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
-                    (mom,score, i_ref,i_repl,i_mom) = references.references.scoring(txt)
+                    (mom,score, i_ref,i_repl,i_mom) = references.references.scoring(texte)
                     refs = references.references.load_references()
 
                     if score >= references.references.SEUIL:
@@ -1899,7 +1899,7 @@ async def reference(inter, texte : str, action : str = "auto"):
                             #modif
                             await inter.response.send_modal(FormulaireModal2())
                         elif action == "add":
-                            await error_response(inter,f"Désolé, une référence similaire existe déjà : \"{nom}\" ({refs[i_ref]}). Si vous voulez l'éditer, renseignez `action=edit`. Si vous voulez ajouter une réf similaire malgré tout `action=force add`.")
+                            await error_response(inter,f"Désolé, une référence similaire existe déjà : \"{mom}\" ({refs[i_ref]}). Si vous voulez l'éditer, renseignez `action=edit`. Si vous voulez ajouter une réf similaire malgré tout `action=force add`.")
                         elif action == "edit":
                             #modif
                             await inter.response.send_modal(FormulaireModal2())
