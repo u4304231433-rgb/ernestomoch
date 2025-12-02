@@ -564,7 +564,7 @@ async def error_response(inter,msg, duration=3):
 
 async def generate_pdf():
     process = await asyncio.create_subprocess_exec(
-        "xelatex", "-synctex=1", "-interaction=nonstopmode", "tex/main.tex",
+        "xelatex", "-synctex=1", "-interaction=nonstopmode", "-output-directory=tex" "tex/main.tex",
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )

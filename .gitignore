@@ -11,4 +11,7 @@ __pycache__/
 /tex/main.aux
 /tex/main.out
 /upgrade.temp
+/tex/*.csv
+/tex/main.fls
+/tex/main.fdb_latexmk
 /params/local.txt
