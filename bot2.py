@@ -677,6 +677,7 @@ async def dictionnaire(inter):
         if (is_local or not running_locally) and not bot_disabled:
             for right in DICO_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                    os.environ["TEXINPUTS"] = ":./tex//:"
                     await inter.response.send_message(":arrows_counterclockwise: Edition du dictionnaire...", ephemeral=True)
                     await inter.edit_original_response(content=":arrow_down: Downloading file")
                     await download_file("1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q","tex/ernestien.csv")
