@@ -109,9 +109,9 @@ if os.path.exists("params/local.txt"):
     f.close()
 
 
-flog = open(".log","w", encoding="utf-8")
+"""flog = open(".log","w", encoding="utf-8")
 flog.write("")
-flog.close()
+flog.close()"""
 
 
 lettre_frer = {}
@@ -895,9 +895,7 @@ async def dicoupdate(inter):
             for right in DICO_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     await inter.response.send_message(":arrow_down: Téléchargement du dictionnaire...", ephemeral=True)
-                    os.chdir("./tex/")
-                    await download_file("1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q","ernestien.csv")
-                    os.chdir("../")
+                    await download_file("1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q","tex/ernestien.csv")
                     await inter.delete_original_response()
                     await inter.followup.send(content=DICO_EMOJI+f" {inter.user.mention} a actualisé le dictionnaire", allowed_mentions=discord.AllowedMentions(users=False))
                     break
