@@ -564,7 +564,7 @@ async def error_response(inter,msg, duration=3):
 
 async def generate_pdf():
     process = await asyncio.create_subprocess_exec(
-        "xelatex", "-synctex=1", "-interaction=nonstopmode", "-output-directory=tex" "tex/main.tex",
+        "xelatex", "-synctex=1", "-interaction=nonstopmode", "tex/main.tex",
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
@@ -1931,7 +1931,6 @@ async def reference(inter, texte : str, action : str = "auto"):
     except Exception as e:
         print_command_error(inter,e)
         await error_response(inter,ERROR_MESSAGE)
-
     
 
 class FormulaireModalAvent(discord.ui.Modal):
