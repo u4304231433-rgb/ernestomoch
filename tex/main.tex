@@ -1,6 +1,6 @@
 \documentclass[a4paper, 12pt] {report}
 \usepackage{fontspec}
-
+\usepackage{import}
 \usepackage{blindtext}
 \usepackage{csvsimple}
 \usepackage{ifthen}
@@ -261,7 +261,7 @@
   }%
 }
 
-\input{./package.tex}
+\subinput{./}{package.tex}
 
 
 \begin{document}
