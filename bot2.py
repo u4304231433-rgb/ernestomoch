@@ -695,6 +695,7 @@ async def logs(inter, limit : int = None):
         print_command_error(inter,e)
         await error_response(inter,ERROR_MESSAGE)
 
+
 @bot.tree.command(name="dicopdf", description="[D] Édite le dictionnaire")
 async def dictionnaire(inter):
     try:
