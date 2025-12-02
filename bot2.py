@@ -659,6 +659,7 @@ async def localstate(inter,state : str = "switch"):
         print_command_error(inter,e)
         await error_response(inter,ERROR_MESSAGE)
 
+
 @bot.tree.command(description="[A] Affiche le fichier des logs")
 @app_commands.describe(limit="Limite du nombre de lignes dans le fichier log, infinie par défaut.")
 async def logs(inter, limit : int = None):
