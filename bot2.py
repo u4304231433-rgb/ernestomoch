@@ -866,9 +866,7 @@ async def dico(inter, mot : str, sens : str = "*", statut : int = 1, update : in
                 if update == 1:
                     for right in DICO_RIGHTS:
                         if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
-                            os.chdir("./tex/")
-                            await download_file("1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q","ernestien.csv")
-                            os.chdir("../")
+                            await download_file("1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q","tex/ernestien.csv")
                             break
                     else:
                         await error_response(inter,ERROR_RIGHTS_MESSAGE+" (actualiser le dictionnaire). La recherche s'effectuera sur la dernière version actualisée.", duration=8)
@@ -955,13 +953,11 @@ class FormulaireModal(discord.ui.Modal):
             try:
                 if self.mode == "add":
                     if mot_ernestien != "":
-                        os.chdir("./tex/")
                         await ajouter_ligne_sheet(
                             spreadsheet_id="1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q",
                             range_target="Dico",
                             nouvelle_ligne=[mot_francais, mot_ernestien, mot_etymologie]
                         )
-                        os.chdir("../")
 
                         df = pd.read_csv("tex/ernestien.csv")
 
@@ -987,14 +983,12 @@ class FormulaireModal(discord.ui.Modal):
 
                 elif self.mode == "edit":
                     if mot_ernestien != "":
-                        os.chdir("./tex/")
                         await modifier_ligne_sheet(
                             spreadsheet_id="1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q",
                             ligne=self.linenumber,
                             range_target="Dico",
                             nouvelle_ligne=[mot_francais, mot_ernestien, mot_etymologie]
                         )
-                        os.chdir("../")
 
                         df = pd.read_csv("tex/ernestien.csv")
 
@@ -1010,13 +1004,11 @@ class FormulaireModal(discord.ui.Modal):
                         )
                     else:
                         if self.francais_val == mot_francais:
-                            os.chdir("./tex/")
                             await supprimer_ligne_sheet(
                                 spreadsheet_id="1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q",
                                 ligne=self.linenumber,
                                 range_target="Dico"
                             )
-                            os.chdir("../")
                             
                             df = pd.read_csv("tex/ernestien.csv")
                             df = df.drop(index=self.linenumber).reset_index(drop=True)
