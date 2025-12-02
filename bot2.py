@@ -361,7 +361,9 @@ async def chifoumi(inter):
     view = discord.ui.View(timeout=None)
     button = PollButton(label=" ", emoji="✂️", view=view, vote_key="c")
     view.add_item(button)
-    embed = self.get_embed(True)
+    embed = discord.Embed(
+        title="Chifoumi",
+    )
     await message.edit(embed=embed, view=view)
     
 
