@@ -8,5 +8,5 @@ __pycache__/
 /include/
 /tex/ernestien.csv
 /tex/main.tex
-upgrade.temp
-local.txt
+/upgrade.temp
+/local.txt

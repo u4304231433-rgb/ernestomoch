@@ -385,19 +385,24 @@ async def on_ready():
 
 
 async def donner_signe_de_vie():
-    if os.path.exists("upgrade.temp"):
-        f = open("upgrade.temp","r",encoding="utf-8")
-        t = f.read()
-        f.close()
-        if t.replace(" ", "") != "":
-            try:
-                channel = bot.get_channel(int(t.replace(" ", "")))
-                fw = open("upgrade.temp", "w", encoding="utf-8")
-                fw.write("")
-                fw.close()
-                await channel.send(":white_check_mark: Le bot a bien redémarré !")
-            except ValueError:
-                pass
+    if not os.path.exists("upgrade.temp"):
+        fw = open("upgrade.temp", "w", encoding="utf-8")
+        fw.write("")
+        fw.close()
+    
+    f = open("upgrade.temp","r",encoding="utf-8")
+    t = f.read()
+    f.close()
+
+    if t.replace(" ", "") != "":
+        try:
+            channel = bot.get_channel(int(t.replace(" ", "")))
+            fw = open("upgrade.temp", "w", encoding="utf-8")
+            fw.write("")
+            fw.close()
+            await channel.send(":white_check_mark: Le bot a bien redémarré !")
+        except ValueError:
+            pass
 
 
 # modification contextuelle par ernestomoch
@@ -1964,9 +1969,9 @@ class FormulaireModalAvent(discord.ui.Modal):
                     description="",
                     color=discord.Color.red()
                 )
-                embed.add_field(name="", value="", inline=True)
+                #embed.add_field(name="", value="", inline=True)
                 embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
-                embed.add_field(name="", value="", inline=True)
+                #embed.add_field(name="", value="", inline=True)
 
                 fl = f'fonts/avent/{daynumber}.png'
                 file = discord.File(fl, filename=f"{daynumber}.png")
