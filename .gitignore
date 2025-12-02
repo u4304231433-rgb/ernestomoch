@@ -2,3 +2,9 @@
 /.log
 /.git
 __pycache__/
+/bin/
+/fonts/
+/lib/
+/include/
+/tex/ernestien.csv
+/tex/main.tex

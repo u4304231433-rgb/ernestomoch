@@ -1991,8 +1991,28 @@ async def avent(inter):
         await error_response(inter,ERROR_MESSAGE)
 
 
+@bot.tree.command(description="[A] Met à jour ernestomôch et le redémarre")
+async def upgradebot(inter):
+    if not bot_disabled:
+        for right in ADMINISTRATOR_RIGHTS:
+            if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                os.system("./update.sh &")
+                await error_response(inter, "Redémarrage")
+                await bot.close()
+                break
+        else:
+            await error_response(inter, ERROR_RIGHTS_MESSAGE)
+    else:
+        await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
+    
+
+
 ftoken = open("SECRET/token_discord.txt","r")
 DISCORD_TOKEN = ftoken.read()
 ftoken.close()
 
 bot.run(DISCORD_TOKEN)
+
+
+
+
