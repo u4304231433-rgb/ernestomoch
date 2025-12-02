@@ -400,7 +400,7 @@ async def donner_signe_de_vie():
             fw = open("upgrade.temp", "w", encoding="utf-8")
             fw.write("")
             fw.close()
-            await channel.send(":wave: Je suis de retour !")
+            await channel.send(":white_check_mark: Le bot a bien redémarré !")
         except ValueError:
             pass
 
@@ -462,7 +462,7 @@ async def send_custom_message(channel, name, user, avatar_url, content, delete_o
             msg2 = await channel.fetch_message(msg_id)
             await msg2.delete()
 
-"""@bot.event
+@bot.event
 async def on_message(msg):
     try:
         if not msg.author.bot:
@@ -488,7 +488,7 @@ async def on_message(msg):
                     )
             if ioloenabled and not bot_disabled:
                 if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
-                    await msgchannel.send("iolô !!")
+                    await msgchannel.send("iolô !")
                 elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ][oô̥ô̥ô])|([ıi][oo0ô̥ô̥ô]))($|\s|\_|\*)(.*)",msgtext.lower()):
                     await msgchannel.send("ıoʟ̥ô !")
                 if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
@@ -502,7 +502,7 @@ def get_last_user_traceback_line(tb):
     for frame in reversed(tb):
         if os.getcwd() in frame.filename:  # filtre les fichiers dans ton projet
             return frame
-    return tb[-1]  # fallback : dernière ligne du traceback"""
+    return tb[-1]  # fallback : dernière ligne du traceback
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -526,7 +526,7 @@ def print_command_error(interaction, error):
 
 reactions_to_wait = {}
 
-@bot.event
+"""@bot.event
 async def on_reaction_add(reaction, user):
     global reactions_to_wait
     msg_id = reaction.message.id
@@ -540,7 +540,7 @@ async def on_reaction_add(reaction, user):
         if "emoji" in reaction:
             pass
         if "channel_id" in reaction:
-            pass
+            pass"""
 
 def replace_lbreaks(t):
     return t.replace('\n','\\n')
