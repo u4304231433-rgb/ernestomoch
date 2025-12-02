@@ -400,7 +400,7 @@ async def donner_signe_de_vie():
             fw = open("upgrade.temp", "w", encoding="utf-8")
             fw.write("")
             fw.close()
-            await channel.send(":white_check_mark: Le bot a bien redémarré !")
+            await channel.send(":wave: Je suis de retour !")
         except ValueError:
             pass
 
