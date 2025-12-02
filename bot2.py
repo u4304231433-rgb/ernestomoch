@@ -61,6 +61,10 @@ ANCIENNETE = PARAMS["ANCIENNETE"]
 NUMBER_OF_POLLS_ANCIEN = PARAMS["NUMBER_OF_POLLS_ANCIEN"]
 LIMIT_NUMBER_OF_POLLS = PARAMS["LIMIT_NUMBER_OF_POLLS"]
 
+AVENT_FREQUENCY = PARAMS["AVENT_FREQUENCY"]
+AVENT_CHANNEL = PARAMS["AVENT_CHANNEL"]
+AVENT_TITLE = PARAMS["AVENT_TITLE"]
+
 VOTES_NAME = PARAMS["VOTES_NAME"]
 
 COMMAND_PREFIX = PARAMS["COMMAND_PREFIX"]
@@ -1905,6 +1909,78 @@ async def reference(inter, texte : str, action : str = "auto"):
                             await inter.response.send_modal(FormulaireModal2())
                     else:
                         pass
+                    break
+            else:
+                await error_response(inter, ERROR_RIGHTS_MESSAGE)
+        else:
+            await error_response(inter,ERROR_BOT_DISABLED_MESSAGE)
+    except Exception as e:
+        print_command_error(inter,e)
+        await error_response(inter,ERROR_MESSAGE)
+
+
+class FormulaireModalAvent(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Case")
+        self.inp1 = discord.ui.TextInput(
+            label="Jour",
+            placeholder="1-24",
+            default=str(datetime.datetime.today().day),
+            required=True,
+            max_length=200 
+        )
+
+        self.inp2 = discord.ui.TextInput(
+            label="Corps",
+            style=discord.TextStyle.paragraph,
+            required=True,
+            max_length=600
+        )
+        
+        self.add_item(self.inp1)
+        self.add_item(self.inp2)
+
+
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            try:
+                daynumber = int(self.inp1.value)
+            except ValueError:
+                await error_response(interaction, "Veuillez entrer un jour valide (entier, dans la plage 1-24).")
+                return
+            if daynumber >= 1 and daynumber <= 24:
+                channel = discord.utils.get(bot.get_all_channels(), name=AVENT_CHANNEL)
+                embed = discord.Embed(
+                    title=AVENT_TITLE,
+                    description="",
+                    color=discord.Color.red()
+                )
+                embed.add_field(name="", value="", inline=True)
+                embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
+                embed.add_field(name="", value="", inline=True)
+
+                fl = f'fonts/avent/{daynumber}.png'
+                file = discord.File(fl, filename=f"{daynumber}.png")
+                embed.set_thumbnail(url=f"attachment://{daynumber}.png")
+
+                await interaction.response.send_message(embed=embed, file=file)
+        except Exception as e:
+            print_command_error(interaction,e)
+            await error_response(interaction,ERROR_MESSAGE)
+
+@bot.tree.command(description="[L] Affiche le calendrier de l'avent.")
+async def avent(inter):
+    try:
+        if not bot_disabled:
+            for right in DICO_RIGHTS:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                    if datetime.datetime.today().month == 12 and datetime.datetime.today().day >= 1 and datetime.datetime.today().day <= 24:
+                        if inter.channel.name == AVENT_CHANNEL:
+                            await inter.response.send_modal(FormulaireModalAvent())
+                        else:
+                            await error_response(inter, f"Désolé, allez dans \"{AVENT_CHANNEL}\"...")
+                    else:
+                        await error_response(inter, "Désolé, ça n'est pas le moment...")
                     break
             else:
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)

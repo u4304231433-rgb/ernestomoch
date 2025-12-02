@@ -10,6 +10,10 @@ LINGUISTE_NAME=Linguiste
 BOT_DEV_NAME=Dev de bot
 ANIM_PART_NAME=Animal préhistorique partouzeur de droite
 
+AVENT_FREQUENCY=1
+AVENT_CHANNEL=🤖-bip-bup
+AVENT_TITLE=𝒞𝒶𝓁ℯ𝓃𝒹𝓇𝒾ℯ𝓇 𝒹ℯ 𝓁'𝒜𝓋ℯ𝓃𝓉
+
 ANCIENNETE=5
 NUMBER_OF_POLLS_ANCIEN=3
 LIMIT_NUMBER_OF_POLLS=10

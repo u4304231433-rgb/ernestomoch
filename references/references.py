@@ -112,7 +112,7 @@ if __name__ != "__main__":
                     await channel.send(reform_text(refs[i_ref]["text"].split("/")[i_repl].replace(";"," ")))
                     #print(reform_text(refs[i_ref]["text"].split("/")[i_repl].replace(";"," ")))
                 if refs[i_ref]["gif"] is not None:
-                    await channel.send(file=File(f"references/gifs/{refs[i_ref]['gif']}_{refs[i_ref]['tag']}.gif"))
+                    await channel.send(refs[i_ref]['gif'].replace("{\deuxpoints}", ":"))
                     #print("gif", refs[i_ref]["gif"])
 
 else:
