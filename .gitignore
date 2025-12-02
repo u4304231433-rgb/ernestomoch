@@ -10,5 +10,5 @@ __pycache__/
 /tex/main.pdf
 /tex/main.aux
 /tex/main.out
-upgrade.temp
-local.txt
+/upgrade.temp
+/local.txt
