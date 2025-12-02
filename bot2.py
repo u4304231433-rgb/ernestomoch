@@ -1918,7 +1918,7 @@ async def reference(inter, texte : str, action : str = "auto"):
 @bot.tree.command(description="[A] Télécharge les mises à jour du bot et le redémarre")
 async def upgradebot(inter):
     if not bot_disabled:
-        for rights in ADMINISTRATOR_RIGHTS:
+        for right in ADMINISTRATOR_RIGHTS:
             if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                 os.system("./update.sh")
                 sys.exit()
