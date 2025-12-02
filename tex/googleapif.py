@@ -5,7 +5,7 @@ import io
 import os
 import json
 
-SERVICE_ACCOUNT_FILE = "../SECRET/service_account.json"
+SERVICE_ACCOUNT_FILE = "SECRET/service_account.json"
 
 SCOPES = ['https://www.googleapis.com/auth/drive','https://www.googleapis.com/auth/spreadsheets']
 
