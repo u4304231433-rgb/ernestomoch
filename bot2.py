@@ -1533,7 +1533,7 @@ class PollView(discord.ui.View):
 
     async def send(self, inter):
         embed = self.get_embed()
-        msg = await inter.followup.send(embed=embed, view=self, ephemeral=False)
+        msg = await inter.followup.send(embed=embed, view=self)
         return msg
 
     def save(self, msg_id):
