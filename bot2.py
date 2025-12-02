@@ -1964,6 +1964,23 @@ class FormulaireModalAvent(discord.ui.Modal):
                 embed.set_thumbnail(url=f"attachment://{daynumber}.png")
 
                 await interaction.response.send_message(embed=embed, file=file)
+                msg = await interaction.original_response()
+                await msg.add_reaction("🙉")
+
+                user_id = interaction.user.id
+                msg_id = msg.id
+
+                def check(x, xuser):
+                    return x.message.channel.id == channel.id
+                
+                reaction = await bot.wait_for("reaction_add", check=check, timeout=None)
+                if reaction[0].emoji == "❌":
+                    if reaction[1].id == user_id:
+                        msg2 = await interaction.channel.fetch_message(msg_id)
+                        await msg2.delete()
+                elif reaction[0].emoji == "🙉":
+                    print("afficher")
+
         except Exception as e:
             print_command_error(interaction,e)
             await error_response(interaction,ERROR_MESSAGE)
@@ -1997,7 +2014,7 @@ async def upgradebot(inter):
         for right in ADMINISTRATOR_RIGHTS:
             if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                 os.system("./update.sh &")
-                await error_response(inter, "Redémarrage")
+                await validation_response(inter, "Redémarrage")
                 await bot.close()
                 break
         else:
