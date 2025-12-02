@@ -193,14 +193,17 @@ def get_emoji(name: str) -> discord.PartialEmoji | None:
 
 def load_emojis():
     global PB_EMOJIS
-    values = [v.split(".")[0] for v in os.listdir("votes/imgs/")]
-    for v in values:
-        emoji_g = get_emoji(v)
-        for g in emoji_g:
-            if emoji_g[g] is not None:
-                PB_EMOJIS[v] = "<:"+v+":"+str(emoji_g[g].id)+">"
-            else:
-                pass
+    f = open("params/emojis.txt", "r", encoding="utf-8")
+    l = f.read().split("\n")
+    f.close()
+    for v in l:
+        if v.replace(" ", "") != "":
+            emoji_g = get_emoji(v)
+            for g in emoji_g:
+                if emoji_g[g] is not None:
+                    PB_EMOJIS[v] = "<:"+v+":"+str(emoji_g[g].id)+">"
+                else:
+                    pass
 
 load_emojis()
 
