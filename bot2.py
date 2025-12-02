@@ -392,6 +392,9 @@ async def donner_signe_de_vie():
         if t.replace(" ", "") != "":
             try:
                 channel = bot.get_channel(int(t.replace(" ", "")))
+                fw = open("upgrade.temp", "w", encoding="utf-8")
+                fw.write("")
+                fw.close()
                 await channel.send(":white_check_mark: Le bot a bien redémarré !")
             except ValueError:
                 pass
