@@ -524,6 +524,24 @@ def print_command_error(interaction, error):
     log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {interaction.guild.id if interaction.guild else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {interaction.user} | Serveur: {interaction.guild.name if interaction.guild else 'DM'} | Canal: {interaction.channel.name if interaction.guild else 'DM'} | Commande: {interaction.command.name}")
 
 
+reactions_to_wait = {}
+
+@bot.event
+async def on_reaction_add(reaction, user):
+    global reactions_to_wait
+    msg_id = reaction.message.id
+    if msg_id in reactions_to_wait:
+        reaction = reactions_to_wait[msg_id]
+        reacts = True
+        if "user_id" in reaction:
+            if reaction["user_id"] != user.id:
+                reacts = False
+            
+        if "emoji" in reaction:
+            pass
+        if "channel_id" in reaction:
+            pass
+
 def replace_lbreaks(t):
     return t.replace('\n','\\n')
 
