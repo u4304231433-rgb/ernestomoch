@@ -12,3 +12,6 @@ __pycache__/
 /tex/main.out
 /upgrade.temp
 /local.txt
+/tex/*.csv
+/tex/main.fls
+/tex/main.fdb_latexmk
