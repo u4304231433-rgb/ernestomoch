@@ -1822,7 +1822,6 @@ def get_current_citoyens(inter):
 async def vote(inter, question: str, vote: str = "l"):
     try:
         if (is_local or not running_locally) and not bot_disabled:
-            await inter.response.defer(ephemeral=True)
             for right in VOTE_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     if inter.channel.name == VOTES_NAME:
