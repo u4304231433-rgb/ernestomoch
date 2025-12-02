@@ -462,7 +462,7 @@ async def send_custom_message(channel, name, user, avatar_url, content, delete_o
             msg2 = await channel.fetch_message(msg_id)
             await msg2.delete()
 
-@bot.event
+"""@bot.event
 async def on_message(msg):
     try:
         if not msg.author.bot:
@@ -502,7 +502,7 @@ def get_last_user_traceback_line(tb):
     for frame in reversed(tb):
         if os.getcwd() in frame.filename:  # filtre les fichiers dans ton projet
             return frame
-    return tb[-1]  # fallback : dernière ligne du traceback
+    return tb[-1]  # fallback : dernière ligne du traceback"""
 
 @bot.event
 async def on_command_error(ctx, error):
