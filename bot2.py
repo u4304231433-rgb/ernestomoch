@@ -466,7 +466,7 @@ async def on_message(msg):
                     )
             if ioloenabled and not bot_disabled:
                 if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
-                    await msgchannel.send("iolô !")
+                    await msgchannel.send("iolô !!")
                 elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ][oô̥ô̥ô])|([ıi][oo0ô̥ô̥ô]))($|\s|\_|\*)(.*)",msgtext.lower()):
                     await msgchannel.send("ıoʟ̥ô !")
                 if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
