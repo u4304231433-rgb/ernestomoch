@@ -400,7 +400,7 @@ async def donner_signe_de_vie():
             fw = open("upgrade.temp", "w", encoding="utf-8")
             fw.write("")
             fw.close()
-            await channel.send(":white_check_mark: Le bot a bien redémarré !")
+            await channel.send(":wave: Je suis de retour !")
         except ValueError:
             pass
 
@@ -488,7 +488,7 @@ async def on_message(msg):
                     )
             if ioloenabled and not bot_disabled:
                 if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
-                    await msgchannel.send("iolô !")
+                    await msgchannel.send("iolô !!")
                 elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ][oô̥ô̥ô])|([ıi][oo0ô̥ô̥ô]))($|\s|\_|\*)(.*)",msgtext.lower()):
                     await msgchannel.send("ıoʟ̥ô !")
                 if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
