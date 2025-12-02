@@ -2,3 +2,7 @@
 /.log
 /.git
 __pycache__/
+/bin/
+/fonts/
+/lib/
+/include/

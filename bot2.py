@@ -459,7 +459,7 @@ async def on_message(msg):
                     )
             if ioloenabled and not bot_disabled:
                 if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
-                    await msgchannel.send("iolô !")
+                    await msgchannel.send("iolô !!")
                 elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ][oô̥ô̥ô])|([ıi][oo0ô̥ô̥ô]))($|\s|\_|\*)(.*)",msgtext.lower()):
                     await msgchannel.send("ıoʟ̥ô !")
                 if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
@@ -1915,8 +1915,27 @@ async def reference(inter, texte : str, action : str = "auto"):
         await error_response(inter,ERROR_MESSAGE)
 
 
+@bot.tree.command(description="[A] Met à jour ernestomôch et le redémarre")
+async def upgradebot(inter):
+    if not bot_disabled:
+        for right in ADMINISTRATOR_RIGHTS:
+            if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                os.system("./update.sh &")
+                await error_response(inter, "Redémarrage")
+                await bot.close()
+                break
+        else:
+            await error_response(inter, ERROR_RIGHTS_MESSAGE)
+    else:
+        await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
+    
+
+
 ftoken = open("SECRET/token_discord.txt","r")
 DISCORD_TOKEN = ftoken.read()
 ftoken.close()
 
 bot.run(DISCORD_TOKEN)
+
+
+
