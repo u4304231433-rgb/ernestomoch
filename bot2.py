@@ -1915,13 +1915,13 @@ async def reference(inter, texte : str, action : str = "auto"):
         await error_response(inter,ERROR_MESSAGE)
 
 
-@bot.tree.command(description="[A] Télécharge les mises à jour du bot et le redémarre")
+@bot.tree.command()
 async def upgradebot(inter):
     if not bot_disabled:
         for right in ADMINISTRATOR_RIGHTS:
             if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
-                os.system("./update.sh")
-                sys.exit()
+                #os.system("./update.sh")
+                inter.bot.logout()
                 break
         else:
             await error_response(inter, ERROR_RIGHTS_MESSAGE)
