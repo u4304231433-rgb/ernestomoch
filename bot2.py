@@ -375,6 +375,7 @@ async def on_ready():
         specrights.append("[L]")
     for guild in bot.guilds:
         await guild.me.edit(nick=BOT_NAME)
+    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] LOGGING")
     await update_specrights()
     log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: {bot.user} connecté à {';'.join([str(guild.id)+'#'+guild.name for guild in bot.guilds])}")
     load_emojis()
