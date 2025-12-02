@@ -356,6 +356,15 @@ def get_closed_view(poll):
     view.add_item(button)
     return view
 
+@bot.tree.command(description="Lance une partie de chifoumi")
+async def chifoumi(inter):
+    view = discord.ui.View(timeout=None)
+    button = PollButton(label=" ", emoji="✂️", view=view, vote_key="c")
+    view.add_item(button)
+    embed = self.get_embed(True)
+    await message.edit(embed=embed, view=view)
+    
+
 @bot.event
 async def on_ready():
     await bot.tree.sync()
