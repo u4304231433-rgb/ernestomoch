@@ -368,14 +368,17 @@ async def on_ready():
     #await bot.tree.sync()
     """for guild in bot.guilds:
         await guild.me.edit(nick=BOT_NAME)"""
-    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] RUNNING")
-    await update_specrights()
-    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: {bot.user} connecté à {';'.join([str(guild.id)+'#'+guild.name for guild in bot.guilds])}")
-    load_emojis()
-    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: Emojis chargés")
-    await recover_polls()
-    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: Votes actualisés")
-    await donner_signe_de_vie()
+    try:
+        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] RUNNING")
+        await update_specrights()
+        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: {bot.user} connecté à {';'.join([str(guild.id)+'#'+guild.name for guild in bot.guilds])}")
+        load_emojis()
+        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: Emojis chargés")
+        await recover_polls()
+        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: Votes actualisés")
+        await donner_signe_de_vie()
+    except Exception as e:
+        print_message_error(None,e)
 
 
 async def donner_signe_de_vie():
@@ -396,7 +399,7 @@ async def donner_signe_de_vie():
             fw.close()
             await channel.send(":white_check_mark: Le bot a bien redémarré !")
         except ValueError:
-            pass
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ERROR: value error in donner_signe_de_vie cannot parse (int) {t.replace(' ', '')}")
 
 
 # modification contextuelle par ernestomoch
