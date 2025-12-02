@@ -313,7 +313,7 @@ async def recover_polls():
                 embed = view.get_embed()
                 await message.edit(embed=embed, view=view)
             except Exception as e:
-                log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ERROR: impossible de reprendre le vote \"{poll['question']}\" suite à l'erreur : {e}")
+                log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ERROR: impossible de reprendre le vote #{poll['poll_id']} \"{poll['question']}\" suite à l'erreur : {e}")
         else:
             channel = bot.get_channel(poll["channel_id"])
             if not channel:
