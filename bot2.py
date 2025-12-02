@@ -381,6 +381,20 @@ async def on_ready():
     log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: Emojis chargés")
     await recover_polls()
     log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] OK: Votes actualisés")
+    await donner_signe_de_vie()
+
+
+async def donner_signe_de_vie():
+    if os.path.exists("upgrade.temp"):
+        f = open("upgrade.temp","r",encoding="utf-8")
+        t = f.read()
+        f.close()
+        if t.replace(" ", "") != "":
+            try:
+                channel = bot.get_channel(int(t.replace(" ", "")))
+                await channel.send(":white_check_mark: Le bot a bien redémarré !")
+            except ValueError:
+                pass
 
 
 # modification contextuelle par ernestomoch
@@ -542,7 +556,7 @@ async def error_response(inter,msg, duration=3):
 
 async def generate_pdf():
     process = await asyncio.create_subprocess_exec(
-        "xelatex", "-synctex=1", "-interaction=nonstopmode", "main.tex",
+        "xelatex", "-synctex=1", "-interaction=nonstopmode", "tex/main.tex",
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
@@ -663,10 +677,9 @@ async def dictionnaire(inter):
         if (is_local or not running_locally) and not bot_disabled:
             for right in DICO_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
-                    os.chdir("./tex/")
                     await inter.response.send_message(":arrows_counterclockwise: Edition du dictionnaire...", ephemeral=True)
                     await inter.edit_original_response(content=":arrow_down: Downloading file")
-                    await download_file("1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q","ernestien.csv")
+                    await download_file("1dhOPKsrHc8yShN8dJpp3eVmPXlZEL88LvCeYT6MJN0Q","tex/ernestien.csv")
                     await inter.edit_original_response(content=":robot: Conversion python")
                     await processcsv()
                     await inter.edit_original_response(content=":pencil: Première compilation XeLaTex")
@@ -674,10 +687,9 @@ async def dictionnaire(inter):
                     await inter.edit_original_response(content=":pencil: Deuxième compilation XeLaTex")
                     await generate_pdf()
                     now = datetime.datetime.now()
-                    file = discord.File("main.pdf", filename=f"dico-{now.year}-{now.month}-{now.day}.pdf")
+                    file = discord.File("tex/main.pdf", filename=f"dico-{now.year}-{now.month}-{now.day}.pdf")
                     await inter.delete_original_response()
                     await inter.followup.send(f"Dictionnaire édité par {inter.user.mention} :", file=file, allowed_mentions=discord.AllowedMentions(users=False))
-                    os.chdir("../")
                     break
             else:
                 await error_response(inter,ERROR_RIGHTS_MESSAGE)
@@ -2016,6 +2028,9 @@ async def upgradebot(inter):
     if not bot_disabled:
         for right in ADMINISTRATOR_RIGHTS:
             if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                f = open("upgrade.temp", "w", encoding="utf-8")
+                f.write(str(inter.channel.id))
+                f.close()
                 os.system("./update.sh &")
                 await validation_response(inter, "Redémarrage")
                 await bot.close()

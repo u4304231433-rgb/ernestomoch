@@ -60,15 +60,15 @@ def balisage(t):
 
 async def processcsv():
     # Lire le fichier CSV en respectant les guillemets
-    df = pd.read_csv("ernestien.csv", quotechar='"', sep=',', skip_blank_lines=True)
+    df = pd.read_csv("tex/ernestien.csv", quotechar='"', sep=',', skip_blank_lines=True)
 
     # Remplacer les virgules dans toutes les cellules
     df = df.map(lambda x: x.replace(',', '{|comma}') if isinstance(x, str) else x)
 
     # Sauvegarder le fichier modifié
-    df.to_csv("ernestien_comma.csv", index=False, quotechar='"')
+    df.to_csv("tex/ernestien_comma.csv", index=False, quotechar='"')
 
-    f = open("ernestien_comma.csv","rb")
+    f = open("tex/ernestien_comma.csv","rb")
     r = f.read().replace(b"\n,,\r\n",b"\n").replace(b"\x90",b"").decode(errors="replace").replace("·",".")
     f.close()
 
@@ -103,11 +103,11 @@ async def processcsv():
     rfrform = balisage(rfrform).replace("_","").replace("{|comma}","{\\comma}").encode(errors="replace")
     rerform = balisage(rerform).replace("_","").replace("{|comma}","{\\comma}").encode(errors="replace")
 
-    f2 = open("frer.csv","wb")
+    f2 = open("tex/frer.csv","wb")
     f2.write(rfrform)
     f2.close()
 
-    f3 = open("erfr.csv","wb")
+    f3 = open("tex/erfr.csv","wb")
     f3.write(rerform)
     f3.close()
 
