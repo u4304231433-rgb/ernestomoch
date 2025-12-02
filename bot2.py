@@ -1932,6 +1932,7 @@ async def reference(inter, texte : str, action : str = "auto"):
         print_command_error(inter,e)
         await error_response(inter,ERROR_MESSAGE)
 
+    
 
 class FormulaireModalAvent(discord.ui.Modal):
     def __init__(self):
@@ -1994,6 +1995,14 @@ class FormulaireModalAvent(discord.ui.Modal):
                         await msg2.delete()
                 elif reaction[0].emoji == "🙉":
                     print("afficher")
+                    embed = discord.Embed(
+                        title=AVENT_TITLE,
+                        description="",
+                        color=discord.Color.red()
+                    )
+                    #embed.add_field(name="", value="", inline=True)
+                    embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
+
 
         except Exception as e:
             print_command_error(interaction,e)
