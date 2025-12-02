@@ -295,25 +295,25 @@ async def recover_polls():
             channel = bot.get_channel(poll["channel_id"])
             if not channel:
                 continue
-            #try:
-            message = await channel.fetch_message(poll["message_id"])
-            view = PollView(question=poll["question"], guild_id=poll["guild_id"], \
-                            channel_id=poll["channel_id"], \
-                            author_id=poll["author_id"], \
-                            message_id=poll["message_id"], \
-                            proportion=poll["proportion"], \
-                            existing_votes=poll["votes"], \
-                            timestamp=poll["timestamp"], \
-                            duration=poll["duration"], \
-                            vote_type=poll["type"], \
-                            citoyens=poll["citoyens"], \
-                            poll_id=poll["poll_id"])
-            view.message = message
-            asyncio.create_task(view.wait_end())
-            embed = view.get_embed()
-            await message.edit(embed=embed, view=view)
-            #except Exception as e:
-            #    print(f"Erreur lors du rechargement du sondage : {e}")
+            try:
+                message = await channel.fetch_message(poll["message_id"])
+                view = PollView(question=poll["question"], guild_id=poll["guild_id"], \
+                                channel_id=poll["channel_id"], \
+                                author_id=poll["author_id"], \
+                                message_id=poll["message_id"], \
+                                proportion=poll["proportion"], \
+                                existing_votes=poll["votes"], \
+                                timestamp=poll["timestamp"], \
+                                duration=poll["duration"], \
+                                vote_type=poll["type"], \
+                                citoyens=poll["citoyens"], \
+                                poll_id=poll["poll_id"])
+                view.message = message
+                asyncio.create_task(view.wait_end())
+                embed = view.get_embed()
+                await message.edit(embed=embed, view=view)
+            except Exception as e:
+                log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ERROR: impossible de reprendre le vote \"{poll['question']}\" suite à l'erreur : {e}")
         else:
             channel = bot.get_channel(poll["channel_id"])
             if not channel:
