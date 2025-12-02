@@ -1921,7 +1921,6 @@ async def upgradebot(inter):
         for right in ADMINISTRATOR_RIGHTS:
             if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                 #os.system("./update.sh")
-                inter.bot.logout()
                 break
         else:
             await error_response(inter, ERROR_RIGHTS_MESSAGE)
