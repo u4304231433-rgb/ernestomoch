@@ -523,21 +523,33 @@ def print_command_error(interaction, error):
 
 reactions_to_wait = {}
 
-"""@bot.event
+def add_reaction(msg, function, user_id=None, emoji=None, channel_id=None):
+    global reactions_to_wait
+    r = {"function": function}
+    if user_id is not None:
+        pass
+    reactions_to_wait[msg.id] = r
+
+@bot.event
 async def on_reaction_add(reaction, user):
     global reactions_to_wait
     msg_id = reaction.message.id
     if msg_id in reactions_to_wait:
-        reaction = reactions_to_wait[msg_id]
+        reaction_waited = reactions_to_wait[msg_id]
         reacts = True
-        if "user_id" in reaction:
-            if reaction["user_id"] != user.id:
+        if "user_id" in reaction_waited:
+            if reaction_waited["user_id"] != user.id:
                 reacts = False
             
-        if "emoji" in reaction:
-            pass
-        if "channel_id" in reaction:
-            pass"""
+        if reacts and "emoji" in reaction_waited:
+            if reaction_waited["emoji"] != reaction.emoji.name:
+                reacts = False
+        
+        if reacts and "channel_id" in reaction:
+            if reaction_waited["emoji"] != reaction.channel.id:
+                reacts = False
+        if reacts:
+            reaction_waited["function"]()
 
 def replace_lbreaks(t):
     return t.replace('\n','\\n')
@@ -1648,12 +1660,12 @@ class PollButton(discord.ui.Button):
                     ivote = self.view.options[initial_vote]
                     await custom_response(interaction, f"{vote['emoji']} Vote \"{ivote['text']}\" changé en \"{vote['text']} / {ernconvert(vote['ernestien'])}\".", duration=20)
             elif self.poll_view.termine and self.vote_key != "i":
-                await error_response(interaction, "Désolé, ce vote est clos...")
+                await error_response(interaction, "Désolé, ce vote est clos...", duration=5)
             else:
                 embed = await self.get_embed_infos(interaction)
                 await interaction.response.send_message(embed=embed,ephemeral=True, allowed_mentions=discord.AllowedMentions(users=False))
         else:
-            await error_response(interaction, "Désolé, vous ne pouvez voter que si vous étiez citoyen au début du vote.")
+            await error_response(interaction, "Désolé, vous ne pouvez voter que si vous étiez citoyen au début du vote.", duration=20)
     
     async def get_embed_infos(self, inter):
         citoyens_number = len(self.poll_view.citoyens)
