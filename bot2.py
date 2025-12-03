@@ -255,6 +255,7 @@ def load_polls(path="votes/polls.csv"):
                     keys = l.split(";")
                 else:
                     poll = {}
+                    if l == "":continue
                     values = l.split(";")
                     if len(values) != len(keys):
                         raise Exception(f"Error while scanning {path} {values} {keys}")
