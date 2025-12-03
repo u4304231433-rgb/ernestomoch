@@ -482,8 +482,8 @@ async def on_message(msg):
         msgauthor = msg.author
         if bot_disabled:return
         if ioloenabled:
-            if re.search(r"[dÞD]([iîIÎı]|ı̂)", msgtext):
-                await msgchannel.send(re.split(r"dis |dit |([dÞD]'?([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1])
+            if re.search(r"dis |dit |([dÞD]['h]?([iîIÎıyŷ]|ı̂|ı))", msgtext):
+                await msgchannel.send(re.split(r"dis |dit |([dÞD]['h]?([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1])
             
             elif re.search(r"cri", msgtext):
                 await msgchannel.send(re.split(r"cri", msgtext, 1)[-1].upper()+" !!!")
