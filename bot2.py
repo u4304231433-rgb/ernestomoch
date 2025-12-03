@@ -1697,6 +1697,20 @@ class PollButton(discord.ui.Button):
         )
         guild = inter.message.guild
         author = guild.get_member(self.poll_view.author_id)
+        user_id = inter.user.id
+        if user_id in self.poll_view.votes["o"]:
+            vote_tag = "o"
+        elif user_id in self.poll_view.votes["n"]:
+            vote_tag = "n"
+        elif user_id in self.poll_view.votes["b"]:
+            vote_tag = "b"
+        else:
+            vote_tag = None
+
+        if vote_tag:
+            mon_vote = self.poll_view.options[vote_tag]["emoji"]+" "+self.poll_view.options[vote_tag]["text"] + " / " + ernconvert(self.poll_view.options[vote_tag]["ernestien"])
+            embed.add_field(name="**Mon vote**", value=mon_vote, inline=False)
+
         embed.add_field(name="**Auteur**", value=author.mention, inline=True)
         embed.add_field(name="**Identifiant**", value=f"#{self.poll_view.poll_id}", inline=True)
         votetypetxt = {"l": "Loi", "r": "Révision constitutionnelle"}
