@@ -1444,9 +1444,12 @@ class PollView(discord.ui.View):
     def get_advancement(self):
         citoyens_number = len(self.citoyens)
         if citoyens_number > 0:
-            prop = (int(citoyens_number*self.proportion)+1)/citoyens_number
-            adv_oui = self.oui/citoyens_number/prop
-            adv_non = self.non/citoyens_number/prop
+            prop = (int(citoyens_number*self.proportion)+1)
+            adv_oui = self.oui/prop
+            if citoyens_number_number == prop:
+                adv_non = 1
+            else:
+                adv_non = self.non/(citoyens_number - prop)
             if self.proportion == 0:
                 return self.PB_EMOJIS["load_100_o"]
             elif self.proportion == 1:
@@ -1454,18 +1457,14 @@ class PollView(discord.ui.View):
             if adv_oui > adv_non:
                 if adv_oui >= 1:
                     return self.PB_EMOJIS["load_100_o"]
-                elif adv_oui*100 < 1:
-                    return self.PB_EMOJIS["load_0"]
                 else:
-                    if int(adv_non*10)*10 > 0:
+                    if int(adv_oui*10)*10 > 0:
                         return self.PB_EMOJIS["load_"+str(int(adv_oui*10)*10)+"_o"]
                     else:
                         return self.PB_EMOJIS["load_0"]
             else:
                 if adv_non >= 1:
                     return self.PB_EMOJIS["load_100_n"]
-                elif adv_non*100 < 1:
-                    return self.PB_EMOJIS["load_0"]
                 else:
                     if int(adv_non*10)*10 > 0:
                         return self.PB_EMOJIS["load_"+str(int(adv_non*10)*10)+"_n"]
