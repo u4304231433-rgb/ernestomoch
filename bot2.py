@@ -674,7 +674,7 @@ async def localstate(inter,state : str = "switch"):
 
 @bot.tree.command(description="[A] Affiche le fichier des logs")
 @app_commands.describe(limit="Limite du nombre de lignes dans le fichier log, infinie par défaut.")
-async def logs(inter, limit : int = None):
+async def logs(inter, limit : int = 0):
     try:
         if (is_local or not running_locally) and not bot_disabled:
             for right in ADMINISTRATOR_RIGHTS:
@@ -683,21 +683,15 @@ async def logs(inter, limit : int = None):
                         await inter.response.defer(ephemeral=True)
                     except discord.HTTPException:
                         pass
-                    if limit is None:
-                        f = open(".log","r")
-                        f.close()
-                        file = discord.File(".log", filename=".log")
-                        await inter.followup.send("", file=file,ephemeral=True)
-                    else:
-                        flog = open(".log","r",encoding="utf-8")
-                        i = 0
-                        lines = flog.readlines()
-                        flog.close()
-                        fw = open("limit.log","w")
-                        fw.write("".join(lines[-limit:]))
-                        fw.close()
-                        file = discord.File("limit.log", filename=f".log")
-                        await inter.followup.send("", file=file,ephemeral=True)
+                    flog = open(".log","r",encoding="utf-8")
+                    i = 0
+                    lines = flog.readlines()
+                    flog.close()
+                    fw = open("limit.log","w")
+                    fw.write("".join(lines[:-limit:][::-1]))
+                    fw.close()
+                    file = discord.File("limit.log", filename=f".log")
+                    await inter.followup.send("", file=file,ephemeral=True)
                     break
             else:
                 await error_response(inter,ERROR_RIGHTS_MESSAGE)
