@@ -481,6 +481,7 @@ async def on_message(msg):
         msgchannel = msg.channel
         msgauthor = msg.author
         if bot_disabled:return
+        if "** ** ** **" in msg.content: return
         if ioloenabled:
             if re.search(r"10 |dis |dit |DIS |DIT |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext):
                 text = re.split(r"10 |dis |dit |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1]
