@@ -536,12 +536,23 @@ def print_command_error(interaction, error):
 
 reactions_to_wait = {}
 
-def add_reaction(msg, function, user_id=None, emoji=None, channel_id=None):
+def add_reaction(msg_id, function, user_id=None, emoji=None, channel_id=None):
     global reactions_to_wait
     r = {"function": function}
     if user_id is not None:
-        pass
-    reactions_to_wait[msg.id] = r
+        r["user_id"] = user_id
+    if emoji is not None:
+        r["emoji"] = emoji
+    if channel_id is not None:
+        r["channel_id"] = channel_id
+    if msg_id in reactions_to_wait:
+        reactions_to_wait[msg_id].append(r)
+    else:
+        reactions_to_wait[msg_id] = [r]
+    
+
+def remove_reaction(msg_id):
+    pass
 
 @bot.event
 async def on_reaction_add(reaction, user):
