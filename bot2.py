@@ -1457,7 +1457,7 @@ class PollView(discord.ui.View):
         if citoyens_number > 0:
             prop = (int(citoyens_number*self.proportion)+1)
             adv_oui = self.oui/prop
-            if citoyens_number_number == prop:
+            if citoyens_number == prop:
                 adv_non = 1
             else:
                 adv_non = self.non/(citoyens_number - prop)
