@@ -1457,7 +1457,7 @@ class PollView(discord.ui.View):
         if citoyens_number > 0:
             prop = (int(citoyens_number*self.proportion)+1)
             adv_oui = self.oui/prop
-            if citoyens_number == prop:
+            if citoyens_number_number == prop:
                 adv_non = 1
             else:
                 adv_non = self.non/(citoyens_number - prop)
@@ -2103,7 +2103,10 @@ async def upgradebot(inter):
                 f = open("upgrade.temp", "w", encoding="utf-8")
                 f.write(str(inter.channel.id))
                 f.close()
-                await validation_response(inter, "Redémarrage")
+                try:
+                    await validation_response(inter, "Redémarrage")
+                except Exception as e:
+                    print_command_error(inter,e)
                 os.system("./update.sh &")
                 await bot.close()
                 break
