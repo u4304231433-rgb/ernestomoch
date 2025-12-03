@@ -1648,60 +1648,65 @@ class PollButton(discord.ui.Button):
         self.vote_key = vote_key
 
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user.id in self.poll_view.citoyens and self.vote_key != "i":
-            if not self.poll_view.termine:
-                user_id = interaction.user.id
-                # Anti-vote multiple
-                change_vote = False
-                initial_vote = None
-                for k in self.poll_view.votes:
-                    voters = self.poll_view.votes[k]
-                    if user_id in voters:
-                        change_vote = True
-                        initial_vote = k
-                        voters.remove(user_id)
-                        if k == "o":
-                            self.poll_view.oui -= 1
-                        elif k == "n":
-                            self.poll_view.non -= 1
-                        elif k == "b":
-                            self.poll_view.blancs -= 1
+        try:
+            if interaction.user.id in self.poll_view.citoyens and self.vote_key != "i":
+                if not self.poll_view.termine:
+                    user_id = interaction.user.id
+                    # Anti-vote multiple
+                    change_vote = False
+                    initial_vote = None
+                    for k in self.poll_view.votes:
+                        voters = self.poll_view.votes[k]
+                        if user_id in voters:
+                            change_vote = True
+                            initial_vote = k
+                            voters.remove(user_id)
+                            if k == "o":
+                                self.poll_view.oui -= 1
+                            elif k == "n":
+                                self.poll_view.non -= 1
+                            elif k == "b":
+                                self.poll_view.blancs -= 1
 
-                if self.vote_key == "o":
-                    self.poll_view.oui += 1
-                elif self.vote_key == "n":
-                    self.poll_view.non += 1
-                elif self.vote_key == "b":
-                    self.poll_view.blancs += 1
-                
-                self.poll_view.votes[self.vote_key].append(user_id)
+                    if self.vote_key == "o":
+                        self.poll_view.oui += 1
+                    elif self.vote_key == "n":
+                        self.poll_view.non += 1
+                    elif self.vote_key == "b":
+                        self.poll_view.blancs += 1
+                    
+                    self.poll_view.votes[self.vote_key].append(user_id)
 
-                polls = load_polls()
-                for poll in polls:
-                    if poll["message_id"] == interaction.message.id:
-                        poll["votes"][str(user_id)] = self.vote_key
-                        break
-                save_polls(polls)
+                    polls = load_polls()
+                    for poll in polls:
+                        if poll["message_id"] == interaction.message.id:
+                            poll["votes"][str(user_id)] = self.vote_key
+                            break
+                    save_polls(polls)
 
-                embed = self.poll_view.get_embed()
-                await interaction.response.edit_message(
-                    embed=embed,
-                    view=self.poll_view
-                )
-                vote = self.view.options[self.vote_key]
-                if not change_vote:
-                    await custom_response(interaction, f"{vote['emoji']} Vote \"{vote['text']} / {ernconvert(vote['ernestien'])}\" enregistré.", duration=20)
-                else:
-                    ivote = self.view.options[initial_vote]
-                    await custom_response(interaction, f"{vote['emoji']} Vote \"{ivote['text']}\" changé en \"{vote['text']} / {ernconvert(vote['ernestien'])}\".", duration=20)
-            elif self.poll_view.termine:
-                await error_response(interaction, "Désolé, ce vote est clos...", duration=5)
-        elif self.vote_key == "i":
-            await interaction.response.send_message("Chargement...", ephemeral=True)
-            embed = await self.get_embed_infos(interaction)
-            await interaction.response.edit_message(embed=embed, allowed_mentions=discord.AllowedMentions(users=False))
-        else:
-            await error_response(interaction, f"Désolé, vous ne pouvez voter que si vous étiez citoyen au début du vote. {self.poll_view.citoyens}", duration=20)
+                    embed = self.poll_view.get_embed()
+                    await interaction.response.edit_message(
+                        embed=embed,
+                        view=self.poll_view
+                    )
+                    vote = self.view.options[self.vote_key]
+                    if not change_vote:
+                        await custom_response(interaction, f"{vote['emoji']} Vote \"{vote['text']} / {ernconvert(vote['ernestien'])}\" enregistré.", duration=20)
+                    else:
+                        ivote = self.view.options[initial_vote]
+                        await custom_response(interaction, f"{vote['emoji']} Vote \"{ivote['text']}\" changé en \"{vote['text']} / {ernconvert(vote['ernestien'])}\".", duration=20)
+                elif self.poll_view.termine:
+                    await error_response(interaction, "Désolé, ce vote est clos...", duration=5)
+            elif self.vote_key == "i":
+                await interaction.response.send_message("Chargement...", ephemeral=True)
+                embed = await self.get_embed_infos(interaction)
+                await interaction.response.edit_message(embed=embed, allowed_mentions=discord.AllowedMentions(users=False))
+            else:
+                await error_response(interaction, f"Désolé, vous ne pouvez voter que si vous étiez citoyen au début du vote. {self.poll_view.citoyens}", duration=20)
+        except Exception as e:
+            print_command_error(interaction, e)
+            await error_response(interaction,ERROR_MESSAGE)
+
     
     async def get_embed_infos(self, inter):
         citoyens_number = len(self.poll_view.citoyens) - self.blancs
