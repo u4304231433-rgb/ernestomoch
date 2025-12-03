@@ -1692,7 +1692,7 @@ class PollButton(discord.ui.Button):
             embed = await self.get_embed_infos(interaction)
             await interaction.response.send_message(embed=embed, ephemeral=True, allowed_mentions=discord.AllowedMentions(users=False))
         else:
-            await error_response(interaction, "Désolé, vous ne pouvez voter que si vous étiez citoyen au début du vote.", duration=20)
+            await error_response(interaction, f"Désolé, vous ne pouvez voter que si vous étiez citoyen au début du vote. {self.poll_view.citoyens}", duration=20)
     
     async def get_embed_infos(self, inter):
         citoyens_number = len(self.citoyens) - self.blancs
