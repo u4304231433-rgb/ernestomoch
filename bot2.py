@@ -511,6 +511,9 @@ async def on_message(msg):
         
             if re.search(r"[dÞD]([iîIÎı]|ı̂)", msgtext):
                 await msgchannel.send(re.split(r"dis |dit |([dÞD]'?([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1])
+            
+            elif re.search(r"cri", msgtext):
+                await msgchannel.send(re.split(r"cri", msgtext, 1)[-1].upper())
         #await bot.process_commands(msg)
     except Exception as e:
         print_message_error(msg,e)
