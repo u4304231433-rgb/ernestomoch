@@ -1695,7 +1695,7 @@ class PollButton(discord.ui.Button):
                     else:
                         ivote = self.view.options[initial_vote]
                         await custom_response(interaction, f"{vote['emoji']} Vote \"{ivote['text']}\" changé en \"{vote['text']} / {ernconvert(vote['ernestien'])}\".", duration=20)
-                elif self.poll_view.termine:
+                else:
                     await error_response(interaction, "Désolé, ce vote est clos...", duration=5)
             elif self.vote_key == "i":
                 await interaction.response.send_message("Chargement...", ephemeral=True)
