@@ -688,7 +688,7 @@ async def logs(inter, limit : int = 0):
                     lines = flog.readlines()
                     flog.close()
                     fw = open("limit.log","w")
-                    fw.write("".join(lines[:-limit:][::-1]))
+                    fw.write("".join(lines[-limit::][::-1]))
                     fw.close()
                     file = discord.File("limit.log", filename=f".log")
                     await inter.followup.send("", file=file,ephemeral=True)
