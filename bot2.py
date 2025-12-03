@@ -483,7 +483,9 @@ async def on_message(msg):
         if bot_disabled:return
         if ioloenabled:
             if re.search(r"10 |dis |dit |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext):
-                await msgchannel.send(re.split(r"10 |dis |dit |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1])
+                text = re.split(r"10 |dis |dit |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1]
+                if text:
+                    await msgchannel.send(text)
             
             elif re.search(r"cri", msgtext):
                 await msgchannel.send(re.split(r"cri", msgtext, 1)[-1].upper()+" !!!")
