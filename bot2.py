@@ -1547,7 +1547,8 @@ class PollView(discord.ui.View):
 
     async def send(self, inter):
         embed = self.get_embed()
-        msg = await inter.followup.send(embed=embed, view=self)
+        channel = inter.channel
+        msg = await channel.send_message(embed=embed, view=self)
         return msg
 
     def save(self, msg_id):
@@ -1711,14 +1712,14 @@ class PollButton(discord.ui.Button):
             mon_vote = self.poll_view.options[vote_tag]["emoji"]+" "+self.poll_view.options[vote_tag]["text"] + " / " + ernconvert(self.poll_view.options[vote_tag]["ernestien"])
             embed.add_field(name="**Mon vote**", value=mon_vote, inline=False)
 
-        embed.add_field(name="**Auteur**", value=author.mention, inline=True)
-        embed.add_field(name="**Identifiant**", value=f"#{self.poll_view.poll_id}", inline=True)
         votetypetxt = {"l": "Loi", "r": "Révision constitutionnelle"}
         embed.add_field(name="", value="", inline=False)
         embed.add_field(name="**Type**", value=votetypetxt[self.poll_view.vote_type], inline=True)
         embed.add_field(name="**Statut**", value=(f"clôt <t:{self.poll_view.timestamp+self.poll_view.duration}:R>" if self.poll_view.termine == 0 else "Terminé"), inline=True)
 
+
         empty = self.poll_view.PB_EMOJIS["empty"]
+
         embed.add_field(name="", value=f"**Votes** - {self.poll_view.oui+self.poll_view.non+self.poll_view.blancs}", inline=False)
         if self.poll_view.oui:
             ouis = []
@@ -1749,6 +1750,8 @@ class PollButton(discord.ui.Button):
                 except discord.errors.NotFound:
                     blancs.append(str(id_))
             embed.add_field(name=f"**Blanc** - {len(blancs)}", value="- "+("\n- ").join(blancs), inline=True)
+        
+        embed.set_footer(text=author.mention+empty+f"#{self.poll_view.poll_id}")
         return embed
 
 class ConfirmView(discord.ui.View):
