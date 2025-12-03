@@ -407,14 +407,14 @@ async def donner_signe_de_vie():
     if t.replace(" ", "") != "":
         try:
             channel = bot.get_channel(int(t.replace(" ", "")))
-            if channel is not None:
+            if channel is None:
                 raise ValueError()
             fw = open("upgrade.temp", "w", encoding="utf-8")
             fw.write("")
             fw.close()
             await channel.send(":white_check_mark: Le bot a bien redémarré !")
         except ValueError:
-            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ERROR: value error in donner_signe_de_vie cannot parse (int) {t.replace(' ', '')}")
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ERROR: value error in donner_signe_de_vie find channel {t.replace(' ', '')}")
 
 
 # modification contextuelle par ernestomoch
