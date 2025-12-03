@@ -1549,7 +1549,7 @@ class PollView(discord.ui.View):
         embed = self.get_embed()
         channel = inter.channel
         msg = await channel.send(embed=embed, view=self)
-        validation_response(inter, "Le vote a bien été initié !")
+        await validation_response(inter, "Le vote a bien été initié !")
         return msg
 
     def save(self, msg_id):
