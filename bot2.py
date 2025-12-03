@@ -477,11 +477,17 @@ async def send_custom_message(channel, name, user, avatar_url, content, delete_o
 @bot.event
 async def on_message(msg):
     try:
-        if msg.author.bot:return
         msgtext = msg.content
         msgchannel = msg.channel
         msgauthor = msg.author
         if bot_disabled:return
+        if ioloenabled:
+            if re.search(r"10 |dis |dit |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext):
+                await msgchannel.send(re.split(r"10 |dis |dit |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1])
+            
+            elif re.search(r"cri", msgtext):
+                await msgchannel.send(re.split(r"cri", msgtext, 1)[-1].upper()+" !!!")
+        if msg.author.bot:return
         if replacing_tags:
             balises = ["€","£",r"\$"]
             tomodify = False
@@ -509,8 +515,6 @@ async def on_message(msg):
             
             await references.references.process_message(msgtext,msgchannel)
         
-            if re.search(r"[dÞD]([iîIÎı]|ı̂)", msgtext):
-                await msgchannel.send(re.split(r"dis |dit |([dÞD]'?([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1])
         #await bot.process_commands(msg)
     except Exception as e:
         print_message_error(msg,e)
