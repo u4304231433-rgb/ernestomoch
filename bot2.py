@@ -507,8 +507,8 @@ async def on_message(msg):
             
             await references.references.process_message(msgtext,msgchannel)
         
-            if re.search(r"(dÞ)(i|î|ı|ı̂)"):
-                await msgchannel.send(re.split(r"(dÞ)(i|î|ı|ı̂)", txt, 1))
+            if re.search(r"[dÞD]([iîIÎı]|ı̂)", msgtext):
+                await msgchannel.send(re.split(r"[dÞD]([iîIÎı]|ı̂)", msgtext, 1)[1])
 
         #await bot.process_commands(msg)
     except Exception as e:
