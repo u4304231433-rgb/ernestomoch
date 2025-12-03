@@ -179,9 +179,21 @@ class CustomHelpCommand(commands.HelpCommand):
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents, help_command=CustomHelpCommand())
 
 def log_save(m):
-    flog = open(".log","a", encoding="utf-8")
-    flog.write(m+"\n")
-    flog.close()
+    with open(".log", "r", encoding="utf-8") as f:
+        nb_lines = sum(1 for _ in f)
+    
+    if nb_lines < 600:
+        with open(".log", "a", encoding="utf-8") as flog:
+            flog.write(m+"\n")
+
+    else:
+        with open(".log","r", encoding="utf-8") as flog:
+            lines = flog.readlines()[:500]
+        with open(".log","w", encoding="utf-8") as flog:
+            for l in lines:
+                flog.write(l)
+            flog.write(m+"\n")
+
     print(m)
 
 def get_emoji(name: str) -> discord.PartialEmoji | None:
@@ -255,9 +267,10 @@ def load_polls(path="votes/polls.csv"):
                     keys = l.split(";")
                 else:
                     poll = {}
+                    if l == "":continue
                     values = l.split(";")
                     if len(values) != len(keys):
-                        raise Exception(f"Error while scanning {path}")
+                        raise Exception(f"Error while scanning {path} {values} {keys}")
                     for j in range(len(keys)):
                         if keys[j] == "votes":
                             votesl = values[j].split(",")
@@ -486,7 +499,7 @@ async def on_message(msg):
             if ioloenabled and not bot_disabled:
                 if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
                     await msgchannel.send("iolô !")
-                elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ][oô̥ô̥ô])|([ıi][oo0ô̥ô̥ô]))($|\s|\_|\*)(.*)",msgtext.lower()):
+                elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ]([oô̥ô̥ô]|ô))|([ıiı]([oo0ô̥ô̥ô]|ô)))($|\s|\_|\*)(.*)",msgtext.lower()):
                     await msgchannel.send("ıoʟ̥ô !")
                 if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
                     await msgchannel.send("C'est moi !")
@@ -674,7 +687,7 @@ async def localstate(inter,state : str = "switch"):
 
 @bot.tree.command(description="[A] Affiche le fichier des logs")
 @app_commands.describe(limit="Limite du nombre de lignes dans le fichier log, infinie par défaut.")
-async def logs(inter, limit : int = None):
+async def logs(inter, limit : int = 0):
     try:
         if (is_local or not running_locally) and not bot_disabled:
             for right in ADMINISTRATOR_RIGHTS:
@@ -683,21 +696,15 @@ async def logs(inter, limit : int = None):
                         await inter.response.defer(ephemeral=True)
                     except discord.HTTPException:
                         pass
-                    if limit is None:
-                        f = open(".log","r")
-                        f.close()
-                        file = discord.File(".log", filename=".log")
-                        await inter.followup.send("", file=file,ephemeral=True)
-                    else:
-                        flog = open(".log","r",encoding="utf-8")
-                        i = 0
-                        lines = flog.readlines()
-                        flog.close()
-                        fw = open("limit.log","w")
-                        fw.write("".join(lines[-limit:]))
-                        fw.close()
-                        file = discord.File("limit.log", filename=f".log")
-                        await inter.followup.send("", file=file,ephemeral=True)
+                    flog = open(".log","r",encoding="utf-8")
+                    i = 0
+                    lines = flog.readlines()
+                    flog.close()
+                    fw = open("limit.log","w")
+                    fw.write("".join(lines[-limit::][::-1]))
+                    fw.close()
+                    file = discord.File("limit.log", filename=f".log")
+                    await inter.followup.send("", file=file,ephemeral=True)
                     break
             else:
                 await error_response(inter,ERROR_RIGHTS_MESSAGE)
