@@ -601,11 +601,11 @@ async def generate_pdf():
 async def update_specrights():
     specrights = []
     if bot_disabled:
-        specrights.append("Off")
+        specrights.append("off")
     if ioloenabled:
-        specrights.append("Iolô")
+        specrights.append("iolô")
     if running_locally:
-        specrights.append("Local")
+        specrights.append("local")
     await bot.change_presence(
         activity=discord.Game(name=", ".join(specrights)),
         status=discord.Status.online
