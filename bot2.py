@@ -2103,8 +2103,8 @@ async def upgradebot(inter):
                 f = open("upgrade.temp", "w", encoding="utf-8")
                 f.write(str(inter.channel.id))
                 f.close()
-                os.system("./update.sh &")
                 await validation_response(inter, "Redémarrage")
+                os.system("./update.sh &")
                 await bot.close()
                 break
         else:
