@@ -407,6 +407,8 @@ async def donner_signe_de_vie():
     if t.replace(" ", "") != "":
         try:
             channel = bot.get_channel(int(t.replace(" ", "")))
+            if channel is not None:
+                raise ValueError()
             fw = open("upgrade.temp", "w", encoding="utf-8")
             fw.write("")
             fw.close()
