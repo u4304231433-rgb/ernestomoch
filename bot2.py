@@ -179,9 +179,21 @@ class CustomHelpCommand(commands.HelpCommand):
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents, help_command=CustomHelpCommand())
 
 def log_save(m):
-    flog = open(".log","a", encoding="utf-8")
-    flog.write(m+"\n")
-    flog.close()
+    with open(".log", "r", encoding="utf-8") as f:
+        nb_lines = sum(1 for _ in f)
+    
+    if nb_lines < 600:
+        with open(".log", "a", encoding="utf-8") as flog:
+            flog.write(m+"\n")
+
+    else:
+        with open(".log","r", encoding="utf-8") as flog:
+            lines = flog.readlines()[:500]
+        with open(".log","w", encoding="utf-8") as flog:
+            for l in lines:
+                flog.write(l)
+            flog.write(m+"\n")
+
     print(m)
 
 def get_emoji(name: str) -> discord.PartialEmoji | None:
