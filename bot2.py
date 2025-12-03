@@ -499,9 +499,9 @@ async def on_message(msg):
             if ioloenabled and not bot_disabled:
                 if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
                     await msgchannel.send("iolô !")
-                elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o][lʟ̥ʟʟʟ̥ʟ]([oô̥ô̥ô]|ô))|([ıiı]([oo0ô̥ô̥ô]|ô)))($|\s|\_|\*)(.*)",msgtext.lower()):
+                elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o]([lʟʟʟ]|ʟ̥)([oô]|ô))|([ıiı]([oo0ô]|ô)))($|\s|\_|\*)(.*)",msgtext.lower()):
                     await msgchannel.send("ıoʟ̥ô !")
-                if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐôʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
+                if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐ(ô|ô|o)ʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
                     await msgchannel.send("C'est moi !")
                 await references.references.process_message(msgtext,msgchannel)
             #await bot.process_commands(msg)
@@ -1455,9 +1455,12 @@ class PollView(discord.ui.View):
     def get_advancement(self):
         citoyens_number = len(self.citoyens)
         if citoyens_number > 0:
-            prop = (int(citoyens_number*self.proportion)+1)/citoyens_number
-            adv_oui = self.oui/citoyens_number/prop
-            adv_non = self.non/citoyens_number/prop
+            prop = (int(citoyens_number*self.proportion)+1)
+            adv_oui = self.oui/prop
+            if citoyens_number_number == prop:
+                adv_non = 1
+            else:
+                adv_non = self.non/(citoyens_number - prop)
             if self.proportion == 0:
                 return self.PB_EMOJIS["load_100_o"]
             elif self.proportion == 1:
@@ -1465,18 +1468,14 @@ class PollView(discord.ui.View):
             if adv_oui > adv_non:
                 if adv_oui >= 1:
                     return self.PB_EMOJIS["load_100_o"]
-                elif adv_oui*100 < 1:
-                    return self.PB_EMOJIS["load_0"]
                 else:
-                    if int(adv_non*10)*10 > 0:
+                    if int(adv_oui*10)*10 > 0:
                         return self.PB_EMOJIS["load_"+str(int(adv_oui*10)*10)+"_o"]
                     else:
                         return self.PB_EMOJIS["load_0"]
             else:
                 if adv_non >= 1:
                     return self.PB_EMOJIS["load_100_n"]
-                elif adv_non*100 < 1:
-                    return self.PB_EMOJIS["load_0"]
                 else:
                     if int(adv_non*10)*10 > 0:
                         return self.PB_EMOJIS["load_"+str(int(adv_non*10)*10)+"_n"]
