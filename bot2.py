@@ -1548,7 +1548,7 @@ class PollView(discord.ui.View):
     async def send(self, inter):
         embed = self.get_embed()
         channel = inter.channel
-        msg = await channel.send_message(embed=embed, view=self)
+        msg = await channel.send(embed=embed, view=self)
         return msg
 
     def save(self, msg_id):
