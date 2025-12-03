@@ -1693,10 +1693,14 @@ class PollButton(discord.ui.Button):
             await error_response(interaction, "Désolé, vous ne pouvez voter que si vous étiez citoyen au début du vote.", duration=20)
     
     async def get_embed_infos(self, inter):
-        citoyens_number = len(self.poll_view.citoyens)
-        prop = (int(citoyens_number*self.poll_view.proportion)+1)/citoyens_number
-        adv_oui = self.poll_view.oui/citoyens_number/prop
-        adv_non = self.poll_view.non/citoyens_number/prop
+        citoyens_number = len(self.citoyens) - self.blancs
+        prop = (int(citoyens_number*self.proportion)+1)
+        adv_oui = self.oui/prop
+        if citoyens_number == prop:
+            adv_non = 1
+        else:
+            adv_non = self.non/(citoyens_number - prop)
+        
         if adv_non == 0 and adv_oui == 0:
             m = "b"
         elif adv_oui > adv_non:
