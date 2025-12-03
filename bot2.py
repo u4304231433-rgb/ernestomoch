@@ -475,36 +475,39 @@ async def send_custom_message(channel, name, user, avatar_url, content, delete_o
 @bot.event
 async def on_message(msg):
     try:
-        if not msg.author.bot:
-            msgtext = msg.content
-            msgchannel = msg.channel
-            msgauthor = msg.author
-            if not bot_disabled and replacing_tags:
-                balises = ["€","£",r"\$"]
-                tomodify = False
-                textcb = remove_code_blocks(msgtext)
-                for balise in balises:
-                    if re.search(balise+r".*?"+balise,textcb) is not None:
-                        tomodify = True
-                        break
-                if tomodify:
-                    await send_custom_message(
-                        msg.channel,
-                        name=msgauthor.display_name+" ft. "+BOT_NAME,
-                        user=msgauthor,
-                        avatar_url=msgauthor.display_avatar.url,
-                        content=replace_tags(msgtext),
-                        delete_old=msg
-                    )
-            if ioloenabled and not bot_disabled:
-                if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
-                    await msgchannel.send("iolô !")
-                elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o]([lʟʟʟ]|ʟ̥)([oô]|ô))|([ıiı]([oo0ô]|ô)))($|\s|\_|\*)(.*)",msgtext.lower()):
-                    await msgchannel.send("ıoʟ̥ô !")
-                if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐ(ô|ô|o)ʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
-                    await msgchannel.send("C'est moi !")
-                await references.references.process_message(msgtext,msgchannel)
-            #await bot.process_commands(msg)
+        if msg.author.bot:return
+        msgtext = msg.content
+        msgchannel = msg.channel
+        msgauthor = msg.author
+        if bot_disabled:return
+        if replacing_tags:
+            balises = ["€","£",r"\$"]
+            tomodify = False
+            textcb = remove_code_blocks(msgtext)
+            for balise in balises:
+                if re.search(balise+r".*?"+balise,textcb) is not None:
+                    tomodify = True
+                    break
+            if tomodify:
+                await send_custom_message(
+                    msg.channel,
+                    name=msgauthor.display_name+" ft. "+BOT_NAME,
+                    user=msgauthor,
+                    avatar_url=msgauthor.display_avatar.url,
+                    content=replace_tags(msgtext),
+                    delete_old=msg
+                )
+        if ioloenabled:
+            if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
+                await msgchannel.send("iolô !")
+            elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o]([lʟʟʟ]|ʟ̥)([oô]|ô))|([ıiı]([oo0ô]|ô)))($|\s|\_|\*)(.*)",msgtext.lower()):
+                await msgchannel.send("ıoʟ̥ô !")
+            if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐ(ô|ô|o)ʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
+                await msgchannel.send("C'est moi !")
+            await references.references.process_message(msgtext,msgchannel)
+        
+
+        #await bot.process_commands(msg)
     except Exception as e:
         print_message_error(msg,e)
 
@@ -1440,9 +1443,12 @@ class PollView(discord.ui.View):
     def get_actual_max(self):
         citoyens_number = len(self.citoyens)
         if citoyens_number > 0:
-            prop = (int(citoyens_number*self.proportion)+1)/citoyens_number
-            adv_oui = self.oui/citoyens_number/prop
-            adv_non = self.non/citoyens_number/prop
+            prop = (int(citoyens_number*self.proportion)+1)
+            adv_oui = self.oui/prop
+            if citoyens_number == prop:
+                adv_non = 1
+            else:
+                adv_non = self.non/(citoyens_number - prop)
             if adv_non == 0 and adv_oui == 0:
                 return "b"
             elif adv_oui > adv_non:
@@ -1453,7 +1459,7 @@ class PollView(discord.ui.View):
             return "b"
 
     def get_advancement(self):
-        citoyens_number = len(self.citoyens)
+        citoyens_number = len(self.citoyens) - self.blancs
         if citoyens_number > 0:
             prop = (int(citoyens_number*self.proportion)+1)
             adv_oui = self.oui/prop
