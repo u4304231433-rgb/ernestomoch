@@ -504,8 +504,11 @@ async def on_message(msg):
                 await msgchannel.send("ıoʟ̥ô !")
             if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernestom[oô]ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐ(ô|ô|o)ʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
                 await msgchannel.send("C'est moi !")
+            
             await references.references.process_message(msgtext,msgchannel)
         
+            if re.search(r"[dÞD]([iîIÎı]|ı̂)", msgtext):
+                await msgchannel.send(re.split(r"[dÞD]([iîIÎı]|ı̂)", msgtext, 1)[1])
 
         #await bot.process_commands(msg)
     except Exception as e:
