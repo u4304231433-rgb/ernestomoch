@@ -1632,8 +1632,8 @@ class PollButton(discord.ui.Button):
         self.vote_key = vote_key
 
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user.id in self.poll_view.citoyens:
-            if self.vote_key != "i" and not self.poll_view.termine:
+        if interaction.user.id in self.poll_view.citoyens and self.vote_key != "i":
+            if not self.poll_view.termine:
                 user_id = interaction.user.id
                 # Anti-vote multiple
                 change_vote = False
@@ -1678,11 +1678,11 @@ class PollButton(discord.ui.Button):
                 else:
                     ivote = self.view.options[initial_vote]
                     await custom_response(interaction, f"{vote['emoji']} Vote \"{ivote['text']}\" changé en \"{vote['text']} / {ernconvert(vote['ernestien'])}\".", duration=20)
-            elif self.poll_view.termine and self.vote_key != "i":
+            elif self.poll_view.termine:
                 await error_response(interaction, "Désolé, ce vote est clos...", duration=5)
-            else:
-                embed = await self.get_embed_infos(interaction)
-                await interaction.response.send_message(embed=embed,ephemeral=True, allowed_mentions=discord.AllowedMentions(users=False))
+        elif self.vote_key == "i":
+            embed = await self.get_embed_infos(interaction)
+            await interaction.response.send_message(embed=embed,ephemeral=True, allowed_mentions=discord.AllowedMentions(users=False))
         else:
             await error_response(interaction, "Désolé, vous ne pouvez voter que si vous étiez citoyen au début du vote.", duration=20)
     
