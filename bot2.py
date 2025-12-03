@@ -1549,6 +1549,7 @@ class PollView(discord.ui.View):
         embed = self.get_embed()
         channel = inter.channel
         msg = await channel.send(embed=embed, view=self)
+        validation_response(inter, "Le vote a bien été initié !")
         return msg
 
     def save(self, msg_id):
@@ -1850,7 +1851,7 @@ def get_current_citoyens(inter):
 @app_commands.describe(vote="Type de vote")
 async def vote(inter, question: str, vote: str = "l"):
     try:
-        await inter.response.defer()
+        await inter.response.defer(ephemeral=True)
         if (is_local or not running_locally) and not bot_disabled:
             for right in VOTE_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
