@@ -2141,7 +2141,7 @@ class FormulaireModalAvent(discord.ui.Modal):
             await error_response(interaction,ERROR_MESSAGE)
     
     async def get_paysage(self):
-        proportion_star = 0.2
+        proportion_star = 0.3
         proportion_sapin = 0.3
         width = 9
         height = 6
