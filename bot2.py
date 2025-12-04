@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 from discord import app_commands, Webhook
+
+import random
 import os
 import time
 import datetime
@@ -496,6 +498,8 @@ async def on_message(msg):
                 text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
                 await msgchannel.send(text)
         if msg.author.bot:return
+        if random.randint(1,200)==42:
+            await msgchannel.send("J'ai perdu...")
         if re.search(PARAMS["REGEX_QUOI"], msgtext):
             await msgchannel.send("Feur !")
         if replacing_tags:
