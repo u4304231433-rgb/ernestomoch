@@ -492,7 +492,7 @@ async def on_message(msg):
             if msgauthor.bot:
                 if selfresponse and not random.randint(0, 100) > FREQ_SELF_RESP:
                     await msgchannel.send("Bon j'en ai marre....")
-                    break
+                    return
                 selfresponse = True
             else:
                 selfresponse = False
