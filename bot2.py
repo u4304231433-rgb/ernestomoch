@@ -2104,6 +2104,15 @@ class FormulaireModalAvent(discord.ui.Modal):
             print_command_error(interaction,e)
             await error_response(interaction,ERROR_MESSAGE)
     
+    async def get_paysage(self):
+        proportion_star = 0.1
+        proportion_sapin = 0.2
+        width = 11
+        image_diametre = 3
+        margin_top = 1
+        return (image_diametre-margin_top)*(":fireworks:"*(width-image_diametre)+"\n")+(width*":fireworks:"+"\n")*5
+
+
     async def delete(self):
         log_save("delete calendrier")
     
