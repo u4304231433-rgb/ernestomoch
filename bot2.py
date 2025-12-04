@@ -2137,7 +2137,7 @@ class FormulaireModalAvent(discord.ui.Modal):
     async def get_paysage(self):
         proportion_star = 0.1
         proportion_sapin = 0.2
-        width = 11
+        width = 9
         image_diametre = 5
         margin_top = 1
         return (width*":fireworks:"+"\n")*7
