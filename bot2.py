@@ -532,7 +532,7 @@ async def on_message(msg):
                     delete_old=msg
                 )
         if ioloenabled:
-            if random.randint(1,2000)==42:
+            if random.randint(1,200)==42:
                 await msgchannel.send("J'ai perdu...")
             if re.search(PARAMS["REGEX_QUOI"], msgtext):
                 await msgchannel.send("Feur !")
