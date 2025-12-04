@@ -494,7 +494,7 @@ async def on_message(msg):
         if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             global selfresponse
             if msgauthor.bot:
-                if selfresponse and not random.randint(0, 100) > FREQ_SELF_RESP:
+                if selfresponse and random.randint(0, 100) > FREQ_SELF_RESP:
                     await msgchannel.send("Bon j'en ai marre....")
                     return
                 selfresponse = True
