@@ -2093,29 +2093,28 @@ class FormulaireModalAvent(discord.ui.Modal):
 
                 user_id = interaction.user.id
                 msg_id = msg.id
+                        
+                add_reaction(msg_id, "❌", lambda: self.delete, user_id=user_id)
 
-                def check(x, xuser):
-                    return x.message.channel.id == channel.id
-                
-                reaction = await bot.wait_for("reaction_add", check=check, timeout=None)
-                if reaction[0].emoji == "❌":
-                    if reaction[1].id == user_id:
-                        msg2 = await interaction.channel.fetch_message(msg_id)
-                        await msg2.delete()
-                elif reaction[0].emoji == "🙉":
-                    print("afficher")
-                    embed = discord.Embed(
-                        title=AVENT_TITLE,
-                        description="",
-                        color=discord.Color.red()
-                    )
-                    #embed.add_field(name="", value="", inline=True)
-                    embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
-
+                add_reaction(msg_id, "🙉", self.open_calendrier)
 
         except Exception as e:
             print_command_error(interaction,e)
             await error_response(interaction,ERROR_MESSAGE)
+    
+    async def delete(self):
+        log_save("delete calendrier")
+    
+    async def open_calendrier(self):
+        log_save("open_calendrier")
+        embed = discord.Embed(
+            title=AVENT_TITLE,
+            description="",
+            color=discord.Color.red()
+        )
+        #embed.add_field(name="", value="", inline=True)
+        embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
+
 
 @bot.tree.command(description="[L] Affiche le calendrier de l'avent.")
 async def avent(inter):
