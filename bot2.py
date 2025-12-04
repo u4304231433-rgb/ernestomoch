@@ -1967,6 +1967,8 @@ async def vote(inter, question: str, vote: str = "l"):
 @bot.tree.command(description="[A] Recharger les émojis (en cas de problème)")
 async def emojisupdate(inter):
     try:
+        if not (is_local or not running_locally): return
+        
         if not bot_disabled:
             global ioloenabled
             for right in ADMINISTRATOR_RIGHTS:
