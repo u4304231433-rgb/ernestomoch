@@ -512,11 +512,11 @@ async def on_message(msg):
             if matchs_di and ((not matchs_cri) or matchs_di.start() < matchs_cri.start()):
                 text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
                 if text:
-                    await msgchannel.send(text)
+                    await msgchannel.send(text, allowed_mentions=discord.AllowedMentions)
             
             elif matchs_cri:
                 text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
-                await msgchannel.send(text)
+                await msgchannel.send(text, allowed_mentions=discord.AllowedMentions)
 
 
         if msg.author.bot:return
@@ -2141,6 +2141,23 @@ class FormulaireModalAvent(discord.ui.Modal):
             await error_response(interaction,ERROR_MESSAGE)
     
     async def get_paysage(self):
+        proportion_star = 0.3
+        proportion_sapin = 0.3
+        width = 9
+        height = 6
+        t = ""
+        for i in range(height-1):
+            for j in range(width):
+                t += PB_EMOJIS["empty"]
+            t += "\n"
+        for j in range(width):
+            if random.random() <= proportion_sapin:
+                t += PB_EMOJIS["sapin"]
+            else:
+                t += PB_EMOJIS["empty"]
+        return t
+
+    async def balancer_la_neige(self):
         proportion_star = 0.3
         proportion_sapin = 0.3
         width = 9
