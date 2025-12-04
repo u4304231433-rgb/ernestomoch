@@ -44,3 +44,4 @@ progressbar_right_o_l
 yes_check_mark
 sapin
 neige
+lune
