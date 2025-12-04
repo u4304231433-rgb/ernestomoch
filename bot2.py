@@ -491,7 +491,8 @@ async def on_message(msg):
                     await msgchannel.send(text)
             
             elif re.search(REGEX_CRI, msgtext):
-                await msgchannel.send(re.split(REGEX_CRI, msgtext, 1)[-1].upper()+" !!!").strip().split(" ")[0]
+                text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
+                await msgchannel.send(text)
         if msg.author.bot:return
         if replacing_tags:
             balises = ["€","£",r"\$"]
