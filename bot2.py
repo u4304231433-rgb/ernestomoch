@@ -517,7 +517,7 @@ async def on_message(msg):
                     text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
 
                 if text:
-                    await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False))
+                    await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
             
             elif matchs_cri:
                 if matchs_cri.start() == 0:
@@ -525,7 +525,7 @@ async def on_message(msg):
                 
                 else:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
-                await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False))
+                    await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
 
 
         if msg.author.bot:return
