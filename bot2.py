@@ -599,10 +599,10 @@ async def on_raw_reaction_add(payload):
             for e in reaction_waited:
                 if e["emoji"] != payload.emoji.name:
                     continue
-                if "user_id" in reaction_waited:
-                    if reaction_waited["user_id"] != payload.user_id:
+                if "user_id" in e:
+                    if e["user_id"] != payload.user_id:
                         continue
-                reaction_waited["function"]()
+                e["function"]()
     except Exception as e:
         print_message_error(None,e)
 
