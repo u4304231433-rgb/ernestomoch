@@ -197,8 +197,7 @@ def log_save(m):
             for l in lines:
                 flog.write(l)
             flog.write(m+"\n")
-
-    print(m)
+    #print(m)
 
 def get_emoji(name: str) -> discord.PartialEmoji | None:
     l = {}
