@@ -49,7 +49,7 @@ REGEX_DI=10 |[dD][iI][sStT][ -]|([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))|[fF][aA][iI
 REGEX_CRI=[cCkK][hH]?[rR][iIyY]([ets]s? )?
 REGEX_QUOI=.*[qQkKcC]+[uUwW]*([aA]+|[oO]+[iI]+)[sS !\?\)\."]*$
 
-COMPLIMENT_FREQUENCY=100
+COMPLIMENT_FREQUENCY=5
 DI_FREQUENCY=100
 FREQ_SELF_RESP=85
 
