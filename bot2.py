@@ -573,7 +573,7 @@ def print_command_error(interaction, error):
     exc_type, exc_value, exc_tb = sys.exc_info()
     tb = traceback.extract_tb(exc_tb)
     last_frame = get_last_user_traceback_line(tb)
-    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {interaction.guild.id if interaction.guild else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {interaction.user} | Serveur: {interaction.guild.name if interaction.guild else 'DM'} | Canal: {interaction.channel.name if interaction.guild else 'DM'} | Commande: {interaction.command.name}")
+    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {interaction.guild.id if interaction.guild else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {interaction.user} | Serveur: {interaction.guild.name if interaction.guild else 'DM'} | Canal: {interaction.channel.name if interaction.guild else 'DM'} | Commande: {interaction.command.name if interaction.command else '?'}")
 
 
 reactions_to_wait = {}
@@ -2127,8 +2127,8 @@ class FormulaireModalAvent(discord.ui.Modal):
     async def get_paysage(self):
         proportion_star = 0.1
         proportion_sapin = 0.2
-        width = 11
-        image_diametre = 3
+        width = 16
+        image_diametre = 5
         margin_top = 1
         return (image_diametre-margin_top)*(":fireworks:"*(width-image_diametre)+"\n")+(width*":fireworks:"+"\n")*5
 
