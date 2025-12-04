@@ -2138,9 +2138,16 @@ class FormulaireModalAvent(discord.ui.Modal):
         proportion_star = 0.1
         proportion_sapin = 0.2
         width = 9
-        image_diametre = 5
-        margin_top = 1
-        return (width*":fireworks:"+"\n")*7
+        height = 7
+        t = ""
+        for i in range(height-1):
+            for j in range(width):
+                if random.random() <= proportion_star:
+                    t += PB_EMOJIS["neige"]
+                else:
+                    t += PB_EMOJIS["empty"]
+            t += "\n"
+        return t
 
 
     async def delete(self):
