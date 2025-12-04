@@ -557,44 +557,47 @@ def print_command_error(interaction, error):
 
 reactions_to_wait = {}
 
-def add_reaction(msg_id, function, user_id=None, emoji=None, channel_id=None):
+def add_reaction(msg_id, emoji, function, user_id=None):
     global reactions_to_wait
-    r = {"function": function}
+    r = {"function": function, "emoji": emoji}
     if user_id is not None:
         r["user_id"] = user_id
-    if emoji is not None:
-        r["emoji"] = emoji
-    if channel_id is not None:
-        r["channel_id"] = channel_id
     if msg_id in reactions_to_wait:
         reactions_to_wait[msg_id].append(r)
     else:
         reactions_to_wait[msg_id] = [r]
     
 
-def remove_reaction(msg_id):
-    pass
+def remove_reaction(msg_id, emoji=None):
+    global reactions_to_wait
+    if msg_id not in reactions_to_wait: return
+    if emoji is None:
+        del reactions_to_wait[msg_id]
+    else:
+        l2 = []
+        for e in reactions_to_wait[msg_id]:
+            if e["emoji"] != emoji:
+                l2.append(e)
+        if l2:
+            reactions_to_wait[msg_id] = l2
+        else:
+            del reactions_to_wait[msg_id]
+
 
 @bot.event
 async def on_reaction_add(reaction, user):
-    global reactions_to_wait
     msg_id = reaction.message.id
     if msg_id in reactions_to_wait:
         reaction_waited = reactions_to_wait[msg_id]
-        reacts = True
+
+        if reaction_waited["emoji"] != reaction.emoji.name:
+            return
+
         if "user_id" in reaction_waited:
             if reaction_waited["user_id"] != user.id:
-                reacts = False
+                return
             
-        if reacts and "emoji" in reaction_waited:
-            if reaction_waited["emoji"] != reaction.emoji.name:
-                reacts = False
-        
-        if reacts and "channel_id" in reaction:
-            if reaction_waited["emoji"] != reaction.channel.id:
-                reacts = False
-        if reacts:
-            reaction_waited["function"]()
+        reaction_waited["function"]()
 
 def replace_lbreaks(t):
     return t.replace('\n','\\n')
