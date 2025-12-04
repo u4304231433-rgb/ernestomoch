@@ -85,6 +85,8 @@ DUREE_VOTES = PARAMS["DUREE_VOTES"]
 
 PING_FIN_LOI = PARAMS["PING_FIN_LOI"]
 
+REGEX_DI = PARAMS["REGEX_DI"]
+REGEX_CRI = PARAMS["REGEX_CRI"]
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -483,13 +485,13 @@ async def on_message(msg):
         if bot_disabled:return
         if "** ** ** **" in msg.content: return
         if ioloenabled:
-            if re.search(r"10 |dis |dit |DIS |DIT |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext):
-                text = re.split(r"10 |dis |dit |DIS |DIT |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1]
+            if re.search(REGEX_DI, msgtext):
+                text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
                 if text:
                     await msgchannel.send(text)
             
-            elif re.search(r"[cCkK][hH]?[rR][iIyY]", msgtext):
-                await msgchannel.send(re.split(r"[cCkK][hH]?[rR][iIyY]", msgtext, 1)[-1].upper()+" !!!")
+            elif re.search(REGEX_CRI, msgtext):
+                await msgchannel.send(re.split(REGEX_CRI, msgtext, 1)[-1].upper()+" !!!").strip().split(" ")[0]
         if msg.author.bot:return
         if replacing_tags:
             balises = ["€","£",r"\$"]
