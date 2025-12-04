@@ -507,8 +507,6 @@ async def on_message(msg):
             else:
                 selfresponse = False
 
-            if str(ID_HUGO) in msgtext:
-                await msgchannel.send("hellgo")
             
             matchs_di = re.search(REGEX_DI, msgtext)
             matchs_cri = re.search(REGEX_CRI, msgtext)
@@ -562,6 +560,9 @@ async def on_message(msg):
                 await msgchannel.send("ıoʟ̥ô !")
             if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernesto*m[oô]*ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐ(ô|ô|o)*ʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
                 await msgchannel.send("C'est moi !")
+            
+            if str(ID_HUGO) in msgtext:
+                await msgchannel.send("hellgo")
             
             await references.references.process_message(msgtext,msgchannel)
         
