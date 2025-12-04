@@ -643,7 +643,7 @@ def print_message_error(msg, error):
     exc_type, exc_value, exc_tb = sys.exc_info()
     tb = traceback.extract_tb(exc_tb)
     last_frame = get_last_user_traceback_line(tb)
-    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {msg.guild.id if msg and msg.guild else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {msg.author if msg else "?"} | Serveur: {msg.guild.name if msg and msg.guild else 'DM'} | Canal: {msg.channel.name if msg and msg.guild else 'DM'} | Message: '{replace_lbreaks(msg.content) if msg else "?"}'")
+    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {msg.guild.id if hasattr(msg, "guild") else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {msg.author if hasattr(msg, "author") else "?"} | Serveur: {msg.guild.name if hasattr(msg, "guild") else 'DM'} | Canal: {msg.channel.name if hasattr(msg, "channel") else 'DM'} | Message: '{replace_lbreaks(msg.content) if hasattr(msg, "content") else "?"}'")
 
 
 async def custom_response(inter,msg,duration=3):
