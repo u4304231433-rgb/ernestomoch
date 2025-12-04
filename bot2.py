@@ -489,6 +489,7 @@ async def on_message(msg):
         msgchannel = msg.channel
         msgauthor = msg.author
         if bot_disabled:return
+        if not (is_local or not running_locally): return
         if msgchannel.category.name in DISABLE_CATEGORIES: return
         if "** ** ** **" in msg.content: return
         if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
@@ -2097,7 +2098,8 @@ class FormulaireModalAvent(discord.ui.Modal):
                 )
                 #embed.add_field(name="", value="", inline=True)
                 #embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
-                embed.add_field(name="", value=self.get_paysage(), inline=True)
+                paysage = await self.get_paysage()
+                embed.add_field(name="", value=paysage, inline=True)
                 
                 #embed.add_field(name="", value="", inline=True)
 
