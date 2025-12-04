@@ -592,19 +592,22 @@ def remove_reaction(msg_id, emoji=None):
 
 @bot.event
 async def on_raw_reaction_add(reaction, user):
-    msg_id = reaction.message.id
-    log_save(f"reaction detected to {msg_id} with {reaction.emoji.name}")
-    if msg_id in reactions_to_wait:
-        reaction_waited = reactions_to_wait[msg_id]
+    try:
+        msg_id = reaction.message.id
+        log_save(f"reaction detected to {msg_id} with {reaction.emoji.name}")
+        if msg_id in reactions_to_wait:
+            reaction_waited = reactions_to_wait[msg_id]
 
-        if reaction_waited["emoji"] != reaction.emoji.name:
-            return
-
-        if "user_id" in reaction_waited:
-            if reaction_waited["user_id"] != user.id:
+            if reaction_waited["emoji"] != reaction.emoji.name:
                 return
-            
-        reaction_waited["function"]()
+
+            if "user_id" in reaction_waited:
+                if reaction_waited["user_id"] != user.id:
+                    return
+                
+            reaction_waited["function"]()
+    except Exception as e:
+        print_message_error(None,e)
 
 def replace_lbreaks(t):
     return t.replace('\n','\\n')
