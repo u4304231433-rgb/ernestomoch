@@ -485,6 +485,7 @@ async def on_message(msg):
         msgchannel = msg.channel
         msgauthor = msg.author
         if bot_disabled:return
+        if msg.author.bot:return
         if "** ** ** **" in msg.content: return
         if ioloenabled:
             if str(PARAMS["ID_HUGO"]) in msgtext:
