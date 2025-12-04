@@ -605,7 +605,7 @@ async def on_raw_reaction_add(payload):
                     if e["user_id"] != payload.user_id:
                         continue
                 log_save(f"ok user")
-                e["function"]()
+                await e["function"]()
     except Exception as e:
         print_message_error(None,e)
 
