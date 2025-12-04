@@ -89,7 +89,8 @@ PING_FIN_LOI = PARAMS["PING_FIN_LOI"]
 
 REGEX_DI = PARAMS["REGEX_DI"]
 REGEX_CRI = PARAMS["REGEX_CRI"]
-FREQUENCY_DI = 20
+FREQUENCY_DI = 75
+FREQ_SELF_RESPONSE = 85
 
 DISABLE_CATEGORIES = PARAMS["DISABLE_CATEGORIES"].split(",")
 
@@ -101,6 +102,7 @@ intents.reactions = True
 intents.guilds = True
 
 ioloenabled = True
+selfresponse = False
 
 running_locally = False
 is_local = False
@@ -489,7 +491,16 @@ async def on_message(msg):
         if bot_disabled:return
         if msgchannel.category.name in DISABLE_CATEGORIES: return
         if "** ** ** **" in msg.content: return
-        if ioloenabled and random.randint(0,99) < FREQUENCY_DI :
+        if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
+            global selfresponse
+            if msgauthor.bot:
+                if selfresponse and not random.randint(0, 100) > FREQ_SELF_RESP:
+                    await msgchannel.send("Bon j'en ai marre....")
+                    return
+                selfresponse = True
+            else:
+                selfresponse = False
+
             if str(PARAMS["ID_HUGO"]) in msgtext:
                 await msgchannel.send("hellgo")
             if re.search(REGEX_DI, msgtext):
