@@ -484,12 +484,12 @@ async def on_message(msg):
         if "** ** ** **" in msg.content: return
         if ioloenabled:
             if re.search(r"10 |dis |dit |DIS |DIT |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext):
-                text = re.split(r"10 |dis |dit |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1]
+                text = re.split(r"10 |dis |dit |DIS |DIT |([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))", msgtext, 1)[-1]
                 if text:
                     await msgchannel.send(text)
             
             elif re.search(r"[cCkK][hH]?[rR][iIyY]", msgtext):
-                await msgchannel.send(re.split(r"cri", msgtext, 1)[-1].upper()+" !!!")
+                await msgchannel.send(re.split(r"[cCkK][hH]?[rR][iIyY]", msgtext, 1)[-1].upper()+" !!!")
         if msg.author.bot:return
         if replacing_tags:
             balises = ["€","£",r"\$"]
