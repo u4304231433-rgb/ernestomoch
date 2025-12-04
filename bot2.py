@@ -2096,7 +2096,9 @@ class FormulaireModalAvent(discord.ui.Modal):
                     color=discord.Color.red()
                 )
                 #embed.add_field(name="", value="", inline=True)
-                embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
+                #embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
+                embed.add_field(name="", value=self.get_paysage(), inline=True)
+                
                 #embed.add_field(name="", value="", inline=True)
 
                 fl = f'fonts/avent/{daynumber}.png'
