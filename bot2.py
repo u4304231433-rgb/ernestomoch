@@ -1877,7 +1877,9 @@ async def votesupdate(inter):
                              app_commands.Choice(name="Non", value=0)])
 async def deletevote(inter, identifiant: int, visible : int = 0):
     try:
-        if (is_local or not running_locally) and not bot_disabled:
+        if not (is_local or not running_locally): return
+
+        if not bot_disabled:
             for right in VOTE_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     polls = load_polls()
