@@ -490,7 +490,7 @@ async def on_message(msg):
         msgauthor = msg.author
         if bot_disabled:return
         if not (is_local or not running_locally): return
-        if msgchannel.category.name in DISABLE_CATEGORIES: return
+        if type(msgchannel) != discord.DMChannel and msgchannel.category.name in DISABLE_CATEGORIES: return
         if "** ** ** **" in msg.content: return
         if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             global selfresponse
