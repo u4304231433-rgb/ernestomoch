@@ -562,7 +562,6 @@ def print_command_error(interaction, error):
 reactions_to_wait = {}
 
 def add_reaction(msg_id, emoji, function, user_id=None):
-    log_save(f"adding reaction to {msg_id} on {emoji}")
     global reactions_to_wait
     r = {"function": function, "emoji": emoji}
     if user_id is not None:
@@ -595,16 +594,12 @@ async def on_raw_reaction_add(payload):
         msg_id = payload.message_id
         if msg_id in reactions_to_wait:
             reaction_waited = reactions_to_wait[msg_id]
-            log_save(f"reaction detected to {msg_id}")
             for e in reaction_waited:
-                log_save(f"testing {payload.emoji.name} == {e['emoji']}")
                 if e["emoji"] != payload.emoji.name:
                     continue
-                log_save(f"ok emoji")
                 if "user_id" in e:
                     if e["user_id"] != payload.user_id:
                         continue
-                log_save(f"ok user")
                 await e["function"]()
     except Exception as e:
         print_message_error(None,e)
@@ -2095,6 +2090,7 @@ class FormulaireModalAvent(discord.ui.Modal):
                 await interaction.response.send_message(embed=embed, file=file)
                 msg = await interaction.original_response()
                 await msg.add_reaction("🙉")
+                await msg.add_reaction("❄️")
 
                 user_id = interaction.user.id
                 msg_id = msg.id
@@ -2102,6 +2098,7 @@ class FormulaireModalAvent(discord.ui.Modal):
                 add_reaction(msg_id, "❌", lambda: self.delete, user_id=user_id)
 
                 add_reaction(msg_id, "🙉", self.open_calendrier)
+                add_reaction(msg_id, "❄️", self.faire_neiger)
 
         except Exception as e:
             print_command_error(interaction,e)
@@ -2119,6 +2116,9 @@ class FormulaireModalAvent(discord.ui.Modal):
         )
         #embed.add_field(name="", value="", inline=True)
         embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
+
+    async def faire_neiger(self):
+        pass
 
 
 @bot.tree.command(description="[L] Affiche le calendrier de l'avent.")
