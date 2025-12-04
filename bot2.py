@@ -2135,14 +2135,17 @@ class FormulaireModalAvent(discord.ui.Modal):
             await error_response(interaction,ERROR_MESSAGE)
     
     async def get_paysage(self):
-        proportion_star = 0.1
-        proportion_sapin = 0.2
+        proportion_star = 0.2
+        proportion_sapin = 0.3
         width = 9
-        height = 7
+        height = 6
         t = ""
         for i in range(height-1):
             for j in range(width):
-                if random.random() <= proportion_star:
+                m = 1
+                if i == 0 or j == 0 or i == height-2 or j == width-1:
+                    m = 0.5
+                if random.random() <= proportion_star*m:
                     t += PB_EMOJIS["neige"]
                 else:
                     t += PB_EMOJIS["empty"]
