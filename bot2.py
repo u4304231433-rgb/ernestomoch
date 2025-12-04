@@ -1,4 +1,4 @@
-importance discord
+import discord
 from discord.ext import commands
 from discord import app_commands, Webhook
 import os
@@ -2159,5 +2159,3 @@ ftoken.close()
 bot.run(DISCORD_TOKEN)
 
 
-
-# coucou
