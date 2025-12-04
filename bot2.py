@@ -649,8 +649,8 @@ async def custom_response(inter,msg,duration=3):
 async def validation_response(inter,msg,duration=3):
     try:
         await inter.response.defer(ephemeral=True)
-    except (discord.HTTPException,discord.InteractionResponded):
-        pass
+    except (discord.HTTPException,discord.InteractionResponded) as e:
+        print_message_error(msg,e)
     message = await inter.followup.send(VALIDATION_EMOJI+" "+msg, ephemeral=True)
     await asyncio.sleep(duration)
     await message.delete()
@@ -658,8 +658,8 @@ async def validation_response(inter,msg,duration=3):
 async def error_response(inter,msg, duration=3):
     try:
         await inter.response.defer(ephemeral=True)
-    except (discord.HTTPException,discord.InteractionResponded):
-        pass
+    except (discord.HTTPException,discord.InteractionResponded) as e:
+        print_message_error(msg,e)
     message = await inter.followup.send(ERROR_EMOJI+" "+msg, ephemeral=True)
     await asyncio.sleep(duration)
     await message.delete()
