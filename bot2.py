@@ -563,6 +563,7 @@ def print_command_error(interaction, error):
 reactions_to_wait = {}
 
 def add_reaction(msg_id, emoji, function, user_id=None):
+    log_save(f"adding reaction to {msg_id} on {emoji}")
     global reactions_to_wait
     r = {"function": function, "emoji": emoji}
     if user_id is not None:
@@ -592,6 +593,7 @@ def remove_reaction(msg_id, emoji=None):
 @bot.event
 async def on_reaction_add(reaction, user):
     msg_id = reaction.message.id
+    log_save(f"reaction detected to {msg_id} with {reaction.emoji.name}")
     if msg_id in reactions_to_wait:
         reaction_waited = reactions_to_wait[msg_id]
 
