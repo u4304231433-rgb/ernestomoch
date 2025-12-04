@@ -89,8 +89,12 @@ PING_FIN_LOI = PARAMS["PING_FIN_LOI"]
 
 REGEX_DI = PARAMS["REGEX_DI"]
 REGEX_CRI = PARAMS["REGEX_CRI"]
-FREQUENCY_DI = 100
-FREQ_SELF_RESP = 85
+FREQUENCY_DI = PARAMS["DI_FREQUENCY"]
+FREQ_SELF_RESP = PARAMS["FREQ_SELF_RESP"]
+
+COMPLIMENT_FREQ=PARAMS["COMPLIMENT_FREQUENCY"]
+ID_HUGO=PARAMS["ID_HUGO"]
+ID_LOUIS=PARAMS["ID_LOUIS"]
 
 DISABLE_CATEGORIES = PARAMS["DISABLE_CATEGORIES"].split(",")
 
@@ -503,7 +507,7 @@ async def on_message(msg):
             else:
                 selfresponse = False
 
-            if str(PARAMS["ID_HUGO"]) in msgtext:
+            if str(ID_HUGO) in msgtext:
                 await msgchannel.send("hellgo")
             
             matchs_di = re.search(REGEX_DI, msgtext)
@@ -561,6 +565,13 @@ async def on_message(msg):
             
             await references.references.process_message(msgtext,msgchannel)
         
+
+        if (msgauthor.id == ID_HUGO or msg.author.id == ID_LOUIS) and random.randint(0,99) < COMPLIMENT_FREQ:
+            with open("compliments.txt", "r") as file:
+                list_compliments = file.readlines()
+                text=f"<@{msgauthor.id}> {random.choice(list_compliments)}"
+                await msgchannel.send(text)
+
         #await bot.process_commands(msg)
     except Exception as e:
         print_message_error(msg,e)
