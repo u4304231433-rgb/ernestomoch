@@ -202,7 +202,7 @@ def log_save(m):
             for l in lines:
                 flog.write(l)
             flog.write(m+"\n")
-    #print(m)
+    print(m)
 
 def get_emoji(name: str) -> discord.PartialEmoji | None:
     l = {}
@@ -2099,7 +2099,8 @@ class FormulaireModalAvent(discord.ui.Modal):
                 #embed.add_field(name="", value="", inline=True)
                 #embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
                 paysage = await self.get_paysage()
-                embed.add_field(name="", value=paysage, inline=True)
+                for e in paysage.split("\n"):
+                    embed.add_field(name="", value=e, inline=False)
                 
                 #embed.add_field(name="", value="", inline=True)
 
@@ -2153,6 +2154,8 @@ class FormulaireModalAvent(discord.ui.Modal):
 @bot.tree.command(description="[L] Affiche le calendrier de l'avent.")
 async def avent(inter):
     try:
+        if not (is_local or not running_locally): return
+
         if not bot_disabled:
             for right in DICO_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
