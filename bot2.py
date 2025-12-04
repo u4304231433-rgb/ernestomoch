@@ -509,7 +509,7 @@ async def on_message(msg):
             matchs_di = re.search(REGEX_DI, msgtext)
             matchs_cri = re.search(REGEX_CRI, msgtext)
             
-            if matchs_di and ((not match_cri) or matchs_di.start() < matchs_cri.start()):
+            if matchs_di and ((not matchs_cri) or matchs_di.start() < matchs_cri.start()):
                 text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
                 if text:
                     await msgchannel.send(text)
