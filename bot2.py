@@ -594,6 +594,7 @@ async def on_raw_reaction_add(payload):
     try:
         msg_id = payload.message_id
         log_save(f"reaction detected to {msg_id} with {payload.emoji.name}")
+        log_save(str(reactions_to_wait))
         if msg_id in reactions_to_wait:
             reaction_waited = reactions_to_wait[msg_id]
             log_save(str(reaction_waited))
