@@ -510,12 +510,21 @@ async def on_message(msg):
             matchs_cri = re.search(REGEX_CRI, msgtext)
             
             if matchs_di and ((not matchs_cri) or matchs_di.start() < matchs_cri.start()):
-                text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
+                if matchs_di.start() == 0:
+                    text = re.split(REGEX_DI, msgtext, 1)[-1].strip()
+
+                else:
+                    text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
+
                 if text:
                     await msgchannel.send(text)
             
             elif matchs_cri:
-                text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
+                if matchs_cri.start() == 0:
+                    text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().upper() + " !!!"
+                
+                else:
+                    text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
                 await msgchannel.send(text)
 
 
