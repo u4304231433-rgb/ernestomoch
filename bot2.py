@@ -2166,9 +2166,16 @@ class FormulaireModalAvent(discord.ui.Modal):
         width = 9
         height = 6
         t = ""
+        i0 = random.randint(0,3)
+        if i0 == 3:
+            i0 = 1
+        j0 = random.randint(1,width-1)
         for i in range(height-1):
             for j in range(width):
-                t += PB_EMOJIS["empty"]
+                if i0 == i and j0 == j:
+                    t += PB_EMOJIS["lune"]
+                else:
+                    t += PB_EMOJIS["empty"]
             t += "\n"
         for j in range(width):
             if random.random() <= proportion_sapin:
