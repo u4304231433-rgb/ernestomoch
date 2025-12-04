@@ -49,6 +49,12 @@ REGEX_DI=10 |[dD][iI][sStT][ -]|([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))|[fF][aA][iI
 REGEX_CRI=[cCkK][hH]?[rR][iIyY]([ets]s? )?
 REGEX_QUOI=.*[qQkKcC]+[uUwW]*([aA]+|[oO]+[iI]+)[sS !\?\)\."]*$
 
-ID_HUGO=756865029067898960
+COMPLIMENT_FREQUENCY=100
+DI_FREQUENCY=100
+FREQ_SELF_RESP=85
 
 DISABLE_CATEGORIES=🏛️ Politique,📰 Presse,🏢 Institutions,Principal
+
+ID_HUGO=756865029067898960
+ID_LOUIS=1283005952509087755
+
