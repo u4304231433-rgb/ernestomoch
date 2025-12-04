@@ -486,7 +486,7 @@ async def on_message(msg):
         if "** ** ** **" in msg.content: return
         if ioloenabled:
             if str(PARAMS["ID_HUGO"]) in msgtext:
-                msgchannel.send("hellgo")
+                await msgchannel.send("hellgo")
             if re.search(REGEX_DI, msgtext):
                 text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
                 if text:
