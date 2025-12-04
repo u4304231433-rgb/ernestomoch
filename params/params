@@ -51,4 +51,4 @@ REGEX_QUOI=.*[qQkKcC]+[uUwW]*([aA]+|[oO]+[iI]+)[sS !\?\)\."]*$
 
 ID_HUGO=756865029067898960
 
-DISABLE_CATEGORIES=🏛️ Politique,📰 Presse
+DISABLE_CATEGORIES=🏛️ Politique,📰 Presse,🏢 Institutions,Principal
