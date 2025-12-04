@@ -1706,8 +1706,13 @@ class PollButton(discord.ui.Button):
                     await error_response(interaction, "Désolé, ce vote est clos...", duration=5)
             elif self.vote_key == "i":
                 log_save("3")
-                embed = await self.get_embed_infos(interaction)
-                await interaction.response.send_message(embed=embed, ephemeral=True, allowed_mentions=discord.AllowedMentions(users=False))
+                try:
+                    embed = await self.get_embed_infos(interaction)
+                    log_save("4")
+                    await interaction.response.send_message(embed=embed, ephemeral=True, allowed_mentions=discord.AllowedMentions(users=False))
+                    log_save("5")
+                except Exception as e:
+                    log_save(str(e))
             else:
                 log_save("4")
                 await error_response(interaction, f"Désolé, vous ne pouvez voter que si vous étiez citoyen au début du vote. {self.poll_view.citoyens}", duration=20)
