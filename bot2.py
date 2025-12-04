@@ -1269,7 +1269,8 @@ async def statistiques(inter):
 @bot.tree.command(description="Affiche la liste des citoyens et anciens citoyens")
 async def citoyens(inter):
     try:
-        if (is_local or not running_locally) and not bot_disabled:
+        if not (is_local or not running_locally): return
+        if not bot_disabled:
             await inter.response.defer()
 
             citoyens = []
@@ -2136,10 +2137,10 @@ class FormulaireModalAvent(discord.ui.Modal):
     async def get_paysage(self):
         proportion_star = 0.1
         proportion_sapin = 0.2
-        width = 16
+        width = 11
         image_diametre = 5
         margin_top = 1
-        return (image_diametre-margin_top)*(":fireworks:"*(width-image_diametre)+"\n")+(width*":fireworks:"+"\n")*5
+        return (width*":fireworks:"+"\n")*7
 
 
     async def delete(self):
