@@ -1,4 +1,4 @@
-import discord
+importance discord
 from discord.ext import commands
 from discord import app_commands, Webhook
 import os
@@ -485,6 +485,8 @@ async def on_message(msg):
         if bot_disabled:return
         if "** ** ** **" in msg.content: return
         if ioloenabled:
+            if str(PARAMS["ID_HUGO"]) in msgtext:
+                msgchannel.send("hellgo")
             if re.search(REGEX_DI, msgtext):
                 text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
                 if text:
