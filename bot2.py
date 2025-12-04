@@ -591,7 +591,7 @@ def remove_reaction(msg_id, emoji=None):
 
 
 @bot.event
-async def on_reaction_add(reaction, user):
+async def on_raw_reaction_add(reaction, user):
     msg_id = reaction.message.id
     log_save(f"reaction detected to {msg_id} with {reaction.emoji.name}")
     if msg_id in reactions_to_wait:
