@@ -498,10 +498,6 @@ async def on_message(msg):
                 text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
                 await msgchannel.send(text)
         if msg.author.bot:return
-        if random.randint(1,200)==42:
-            await msgchannel.send("J'ai perdu...")
-        if re.search(PARAMS["REGEX_QUOI"], msgtext):
-            await msgchannel.send("Feur !")
         if replacing_tags:
             balises = ["€","£",r"\$"]
             tomodify = False
@@ -520,6 +516,11 @@ async def on_message(msg):
                     delete_old=msg
                 )
         if ioloenabled:
+            if random.randint(1,2000)==42:
+                await msgchannel.send("J'ai perdu...")
+            if re.search(PARAMS["REGEX_QUOI"], msgtext):
+                await msgchannel.send("Feur !")
+
             if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
                 await msgchannel.send("iolô !")
             elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o]([lʟʟʟ]|ʟ̥)([oô]|ô))|([ıiı]([oo0ô]|ô)))($|\s|\_|\*)(.*)",msgtext.lower()):
@@ -561,44 +562,47 @@ def print_command_error(interaction, error):
 
 reactions_to_wait = {}
 
-def add_reaction(msg_id, function, user_id=None, emoji=None, channel_id=None):
+def add_reaction(msg_id, emoji, function, user_id=None):
     global reactions_to_wait
-    r = {"function": function}
+    r = {"function": function, "emoji": emoji}
     if user_id is not None:
         r["user_id"] = user_id
-    if emoji is not None:
-        r["emoji"] = emoji
-    if channel_id is not None:
-        r["channel_id"] = channel_id
     if msg_id in reactions_to_wait:
         reactions_to_wait[msg_id].append(r)
     else:
         reactions_to_wait[msg_id] = [r]
     
 
-def remove_reaction(msg_id):
-    pass
+def remove_reaction(msg_id, emoji=None):
+    global reactions_to_wait
+    if msg_id not in reactions_to_wait: return
+    if emoji is None:
+        del reactions_to_wait[msg_id]
+    else:
+        l2 = []
+        for e in reactions_to_wait[msg_id]:
+            if e["emoji"] != emoji:
+                l2.append(e)
+        if l2:
+            reactions_to_wait[msg_id] = l2
+        else:
+            del reactions_to_wait[msg_id]
+
 
 @bot.event
 async def on_reaction_add(reaction, user):
-    global reactions_to_wait
     msg_id = reaction.message.id
     if msg_id in reactions_to_wait:
         reaction_waited = reactions_to_wait[msg_id]
-        reacts = True
+
+        if reaction_waited["emoji"] != reaction.emoji.name:
+            return
+
         if "user_id" in reaction_waited:
             if reaction_waited["user_id"] != user.id:
-                reacts = False
+                return
             
-        if reacts and "emoji" in reaction_waited:
-            if reaction_waited["emoji"] != reaction.emoji.name:
-                reacts = False
-        
-        if reacts and "channel_id" in reaction:
-            if reaction_waited["emoji"] != reaction.channel.id:
-                reacts = False
-        if reacts:
-            reaction_waited["function"]()
+        reaction_waited["function"]()
 
 def replace_lbreaks(t):
     return t.replace('\n','\\n')
@@ -2089,29 +2093,28 @@ class FormulaireModalAvent(discord.ui.Modal):
 
                 user_id = interaction.user.id
                 msg_id = msg.id
+                        
+                add_reaction(msg_id, "❌", lambda: self.delete, user_id=user_id)
 
-                def check(x, xuser):
-                    return x.message.channel.id == channel.id
-                
-                reaction = await bot.wait_for("reaction_add", check=check, timeout=None)
-                if reaction[0].emoji == "❌":
-                    if reaction[1].id == user_id:
-                        msg2 = await interaction.channel.fetch_message(msg_id)
-                        await msg2.delete()
-                elif reaction[0].emoji == "🙉":
-                    print("afficher")
-                    embed = discord.Embed(
-                        title=AVENT_TITLE,
-                        description="",
-                        color=discord.Color.red()
-                    )
-                    #embed.add_field(name="", value="", inline=True)
-                    embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
-
+                add_reaction(msg_id, "🙉", self.open_calendrier)
 
         except Exception as e:
             print_command_error(interaction,e)
             await error_response(interaction,ERROR_MESSAGE)
+    
+    async def delete(self):
+        log_save("delete calendrier")
+    
+    async def open_calendrier(self):
+        log_save("open_calendrier")
+        embed = discord.Embed(
+            title=AVENT_TITLE,
+            description="",
+            color=discord.Color.red()
+        )
+        #embed.add_field(name="", value="", inline=True)
+        embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
+
 
 @bot.tree.command(description="[L] Affiche le calendrier de l'avent.")
 async def avent(inter):
