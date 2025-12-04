@@ -2173,7 +2173,7 @@ class FormulaireModalAvent(discord.ui.Modal):
         j0 = random.randint(1,width-1)
         for i in range(height-1):
             for j in range(width):
-                if i0 == i and j0 == j:
+                if i0+1 == i and j0 == j:
                     t += PB_EMOJIS["lune"]
                 else:
                     t += PB_EMOJIS["empty"]
