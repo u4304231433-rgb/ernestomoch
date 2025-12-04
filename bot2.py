@@ -596,14 +596,13 @@ async def on_raw_reaction_add(payload):
         if msg_id in reactions_to_wait:
             reaction_waited = reactions_to_wait[msg_id]
 
-            if reaction_waited["emoji"] != payload.emoji.name:
-                return
-
-            if "user_id" in reaction_waited:
-                if reaction_waited["user_id"] != payload.user_id:
-                    return
-
-            reaction_waited["function"]()
+            for e in reaction_waited:
+                if e["emoji"] != payload.emoji.name:
+                    continue
+                if "user_id" in reaction_waited:
+                    if reaction_waited["user_id"] != payload.user_id:
+                        continue
+                reaction_waited["function"]()
     except Exception as e:
         print_message_error(None,e)
 
