@@ -2033,6 +2033,8 @@ class FormulaireModal2(discord.ui.Modal):
                               app_commands.Choice(name="auto", value="auto")])
 async def reference(inter, texte : str, action : str = "auto"):
     try:
+        if not (is_local or not running_locally): return
+
         if not bot_disabled:
             for right in REFS_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
