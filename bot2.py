@@ -485,7 +485,6 @@ async def on_message(msg):
         msgchannel = msg.channel
         msgauthor = msg.author
         if bot_disabled:return
-        if msg.author.bot:return
         if "** ** ** **" in msg.content: return
         if ioloenabled:
             if str(PARAMS["ID_HUGO"]) in msgtext:
@@ -498,10 +497,7 @@ async def on_message(msg):
             elif re.search(REGEX_CRI, msgtext):
                 text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
                 await msgchannel.send(text)
-            if random.randint(1,200)==42:
-                await msgchannel.send("J'ai perdu...")
-            if re.search(PARAMS["REGEX_QUOI"], msgtext):
-                await msgchannel.send("Feur !")
+        if msg.author.bot:return
         if replacing_tags:
             balises = ["€","£",r"\$"]
             tomodify = False
@@ -520,6 +516,11 @@ async def on_message(msg):
                     delete_old=msg
                 )
         if ioloenabled:
+            if random.randint(1,200)==42:
+                await msgchannel.send("J'ai perdu...")
+            if re.search(PARAMS["REGEX_QUOI"], msgtext):
+                await msgchannel.send("Feur !")
+
             if re.search(r"(.*)(^|\s|\_|\*)(([i][oo0][l][oô])|([i][ooô̥]))($|\s|\_|\*)(.*)",msgtext.lower()):
                 await msgchannel.send("iolô !")
             elif re.search(r"(.*)(^|\s|\_|\*)(([ııi][oo0o]([lʟʟʟ]|ʟ̥)([oô]|ô))|([ıiı]([oo0ô]|ô)))($|\s|\_|\*)(.*)",msgtext.lower()):
