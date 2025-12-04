@@ -91,6 +91,8 @@ REGEX_DI = PARAMS["REGEX_DI"]
 REGEX_CRI = PARAMS["REGEX_CRI"]
 FREQUENCY_DI = 20
 
+DISABLE_CATEGORIES = PARAMS["DISABLE_CATEGORIES"].split(",")
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -485,6 +487,7 @@ async def on_message(msg):
         msgchannel = msg.channel
         msgauthor = msg.author
         if bot_disabled:return
+        if msgchannel.category.name in DISABLE_CATEGORIES: return
         if "** ** ** **" in msg.content: return
         if ioloenabled and random.randint(0,99) < FREQUENCY_DI :
             if str(PARAMS["ID_HUGO"]) in msgtext:
