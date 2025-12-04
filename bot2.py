@@ -89,6 +89,7 @@ PING_FIN_LOI = PARAMS["PING_FIN_LOI"]
 
 REGEX_DI = PARAMS["REGEX_DI"]
 REGEX_CRI = PARAMS["REGEX_CRI"]
+FREQUENCY_DI = 20
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -485,7 +486,7 @@ async def on_message(msg):
         msgauthor = msg.author
         if bot_disabled:return
         if "** ** ** **" in msg.content: return
-        if ioloenabled:
+        if ioloenabled and random.randint(0,99) < FREQUENCY_DI :
             if str(PARAMS["ID_HUGO"]) in msgtext:
                 await msgchannel.send("hellgo")
             if re.search(REGEX_DI, msgtext):
