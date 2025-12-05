@@ -483,21 +483,23 @@ def score_modify(type,id,f,default):
             split = line.split(':')
             if split[0] == str(id):
                 id_found = True
-                lines[i] = str(id) + ":" + f(split[1])
+                lines[i] = str(id) + ":" + (new_value := f(split[1]))
                 break
         if not id_found:
             lines.append(str(id)+":"+default)
+            new_value = default
         result = "\n".join([line for line in lines if line])
         with open(r"./scores/"+type+".txt", 'w') as file:
             file.write(result)
+        return new_value
     except Exception as e:
         print_message_error(None,e)
 
 def score_increment(type,id):
-    score_modify(type,id,lambda x: str(int(x)+1),"1")
+    return score_modify(type,id,lambda x: str(int(x)+1),"1")
 
 def score_set(type,id,value):
-    score_modify(type,id,lambda x: value,value)
+    return score_modify(type,id,lambda x: value,value)
 
 async def score_message(msg):
     split = msg.content.split(' ')
@@ -550,6 +552,7 @@ async def on_message(msg):
         if msgauthor.id == PARAMS['ID_VIVIEN'] and len(msgtext)>2 and msgtext[:2]=="ππ":
             await score_message(msg)
             return
+        
         if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             global selfresponse
             if msgauthor.bot:
