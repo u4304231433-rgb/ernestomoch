@@ -2251,7 +2251,7 @@ class FormulaireModalAvent(discord.ui.Modal):
             i0 = 1
         def lorentzienne(x):
             return (((x-0.5)*1.4)/(1+((x-0.5)*1.4)**(2)))+0.5
-        j0 = lorentzienne(random.random())*(width-1)
+        j0 = round(lorentzienne(random.random())*(width-1))
         for i in range(height-1):
             for j in range(width):
                 if i0 == i and j0 == j:
