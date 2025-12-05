@@ -1939,7 +1939,7 @@ class PollButton(discord.ui.Button):
             embed.add_field(name=f"**Blanc** - {len(blancs)}", value="- "+("\n- ").join(blancs), inline=True)
         
         embed.add_field(name="", value="", inline=False)
-        embed.add_field(name="", value=author.mention+empty+f"#{self.poll_view.poll_id}")
+        embed.add_field(name="", value="-# "+author.mention+empty+f"#{self.poll_view.poll_id}")
         return embed
 
 class ConfirmView(discord.ui.View):
