@@ -45,3 +45,4 @@ yes_check_mark
 sapin
 neige
 lune
+etoile
