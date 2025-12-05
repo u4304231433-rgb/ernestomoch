@@ -46,3 +46,5 @@ sapin
 neige
 lune
 etoile
+traineau_1
+traineau_2

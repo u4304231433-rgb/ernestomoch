@@ -2190,7 +2190,7 @@ class FormulaireModalAvent(discord.ui.Modal):
             label="Corps",
             style=discord.TextStyle.paragraph,
             required=True,
-            max_length=600
+            max_length=1000
         )
 
         self.opened = False
@@ -2310,9 +2310,7 @@ class FormulaireModalAvent(discord.ui.Modal):
 
 
     async def delete(self, msgid=None, channel_id=None, userid=None):
-        print(channel_id)
         channel = bot.get_channel(channel_id)
-        print(channel)
         msg = await channel.fetch_message(msgid)
         await msg.delete()
     
@@ -2320,16 +2318,25 @@ class FormulaireModalAvent(discord.ui.Modal):
         if self.opened: return
         self.opened = True
         channel = bot.get_channel(channel_id)
-        print(channel)
         msg = await channel.fetch_message(msgid)
 
-        textequivalent = 3
+        try:
+            await msg.clear_reactions()
+        except Exception as e:
+            print_message_error(None,e)
+
+        textequivalent = 4
         num_emojis = 5
         time_period = 0.5
         k = 0
         for i in range(len(self.text[::num_emojis])):
             t = time.time()
-            self.t[i] = self.text[textequivalent*i*num_emojis:textequivalent*(i+1)*num_emojis]
+            if i+2 < len(self.t):
+                self.t[i] = self.text[textequivalent*i*num_emojis:textequivalent*(i+1)*num_emojis]
+                self.t[i+1] = " "+PB_EMOJIS["traineau_1"]
+                self.t[i+2] = PB_EMOJIS["traineau_2"]
+            else:
+                self.t.append(self.text[textequivalent*i*num_emojis:textequivalent*(i+1)*num_emojis])
             k += 1
             if k == num_emojis:
                 k = 0
@@ -2346,13 +2353,20 @@ class FormulaireModalAvent(discord.ui.Modal):
 
                 await msg.edit(embed=embed)
                 tf = time.time()
-                print((tf-t))
                 if time_period - (tf-t) > 0:
                     await asyncio.sleep(time_period - (tf-t))
 
-
-        #embed.add_field(name="", value="", inline=True)
-        embed.add_field(name="", value=self.text, inline=True)
+        embed = discord.Embed(
+            title=AVENT_TITLE,
+            description="",
+            color=discord.Color.red()
+        )
+        for l in self.text.split("\n"):
+            embed.add_field(name="", value=l, inline=False)
+        
+        embed.set_thumbnail(url=f"attachment://{self.daynumber}.png")
+        
+        await msg.edit(embed=embed)
 
     async def faire_neiger(self, msgid=None, channel_id=None, userid=None):
         pass
