@@ -682,9 +682,11 @@ def print_command_error(interaction, error):
 
 reactions_to_wait = {}
 
-def add_reaction(msg_id, emoji, function, user_id=None):
+def add_reaction(msg, emoji, function, user_id=None):
+    msg_id = msg.id
+    channel_id = msg.channel.id
     global reactions_to_wait
-    r = {"function": function, "emoji": emoji}
+    r = {"function": function, "emoji": emoji, "channel_id": channel_id}
     if user_id is not None:
         r["user_id"] = user_id
     if msg_id in reactions_to_wait:
@@ -721,7 +723,6 @@ async def on_raw_reaction_add(payload):
                 if "user_id" in e:
                     if e["user_id"] != payload.user_id:
                         continue
-                print(e["function"].__name__)
                 await e["function"](msg_id, payload.user_id)
     except Exception as e:
         print_message_error(None,e)
@@ -2228,12 +2229,11 @@ class FormulaireModalAvent(discord.ui.Modal):
                 await msg.add_reaction("❄️")
 
                 user_id = interaction.user.id
-                msg_id = msg.id
-                        
-                add_reaction(msg_id, "❌", self.delete, user_id=user_id)
+                
+                add_reaction(msg, "❌", self.delete, user_id=user_id)
 
-                add_reaction(msg_id, "🙉", self.open_calendrier)
-                add_reaction(msg_id, "❄️", self.faire_neiger)
+                add_reaction(msg, "🙉", self.open_calendrier)
+                add_reaction(msg, "❄️", self.faire_neiger)
 
         except Exception as e:
             print_command_error(interaction,e)
@@ -2297,10 +2297,10 @@ class FormulaireModalAvent(discord.ui.Modal):
         return t
 
 
-    async def delete(self, msgid=None, userid=None):
-        log_save("delete calendrier")
+    async def delete(self, msgid=None, channel_id=None, userid=None):
+        bot.fetch_channel(channel_id)
     
-    async def open_calendrier(self, msgid=None, userid=None):
+    async def open_calendrier(self, msgid=None, channel_id=None, userid=None):
         log_save("open_calendrier")
         embed = discord.Embed(
             title=AVENT_TITLE,
@@ -2310,7 +2310,7 @@ class FormulaireModalAvent(discord.ui.Modal):
         #embed.add_field(name="", value="", inline=True)
         embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
 
-    async def faire_neiger(self, msgid=None, userid=None):
+    async def faire_neiger(self, msgid=None, channel_id=None, userid=None):
         pass
 
 
