@@ -501,20 +501,26 @@ def score_increment(type,id):
 def score_set(type,id,value):
     return score_modify(type,id,lambda x: value,value)
 
+def filter_digits(text):
+    result = ""
+    for c in text:
+        if c in "0123456789":
+            result += ""
+    return result
+
 async def score_message(msg):
     split = msg.content.split(' ')
     if split[1]=="io":
         await msg.channel.send("ıoʟ̥ô 🐷")
     if split[1]=="set":
-        score_set(split[2],split[3],split[4])
+        score_set(split[2],filter_digits(split[3]),split[4])
         await msg.channel.send("set !")
     if split[1]=="incr":
-        score_increment(split[2],split[3])
+        score_increment(split[2],filter_digits(split[3]))
         await msg.channel.send("incr !")
     if split[1]=="read":
         lines = score_read(split[2])
         await msg.channel.send("\n".join(["> <@"+line.split(":")[0] + "> : " + line.split(":")[1] for line in lines]), allowed_mentions=NO_MENTION)
-    
 
 async def send_custom_message(channel, name, user, avatar_url, content, delete_old=None):
     async with aiohttp.ClientSession() as session:
