@@ -723,7 +723,7 @@ async def on_raw_reaction_add(payload):
                 if "user_id" in e:
                     if e["user_id"] != payload.user_id:
                         continue
-                await e["function"](msg_id, payload.user_id)
+                await e["function"](msg_id, payload.channel_id, payload.user_id)
     except Exception as e:
         print_message_error(None,e)
 
@@ -2199,6 +2199,7 @@ class FormulaireModalAvent(discord.ui.Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         try:
+            self.text = self.inp2.value
             try:
                 daynumber = int(self.inp1.value)
             except ValueError:
@@ -2264,7 +2265,7 @@ class FormulaireModalAvent(discord.ui.Modal):
                         m *= 0.6
                     
                     if random.random() <= proportion_star*m*lastm:
-                        lastm = 0.6
+                        lastm = 0.4
                         t += PB_EMOJIS["etoile"]
                     else:
                         t += PB_EMOJIS["empty"]
@@ -2276,6 +2277,7 @@ class FormulaireModalAvent(discord.ui.Modal):
                 t += PB_EMOJIS["sapin"]
             else:
                 t += PB_EMOJIS["empty"]
+        self.t = t
         return t
 
     async def balancer_la_neige(self):
@@ -2298,7 +2300,9 @@ class FormulaireModalAvent(discord.ui.Modal):
 
 
     async def delete(self, msgid=None, channel_id=None, userid=None):
-        channel = await bot.fetch_channel(channel_id)
+        print(channel_id)
+        channel = bot.get_channel(channel_id)
+        print(channel)
         msg = await channel.fetch_message(msgid)
         await msg.delete()
     
