@@ -552,7 +552,9 @@ async def on_message(msg):
         if msgauthor.id == PARAMS['ID_VIVIEN'] and len(msgtext)>2 and msgtext[:2]=="ππ":
             await score_message(msg)
             return
-        
+        score = score_increment("msg",msgauthor.id)
+        if score[-1]=="0":
+            await msgchannel.send("Bravo <@"+msgauthor.id+">, tu a envoyé "+score+" messsages")
         if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             global selfresponse
             if msgauthor.bot:
