@@ -464,6 +464,50 @@ def replace_tags(text):
         text = ''.join(new_text)
     return text
 
+def score_read(type):
+    try:
+        with open(r"./scores/"+type+".txt", "r") as file:
+            lines = file.read().split("\n")
+        return lines
+    except Exception as e:
+        print_message_error(None,e)
+
+def score_modify(type,id,f,default):
+    lines = score_read
+    try:
+        id_found = False
+        for i in range(len(lines)):
+            line = lines[i]
+            split = line.split(':')
+            if split[0] == str(id):
+                id_found = True
+                lines[i] = str(id) + ":" + f(split[1])
+                break
+        if not id_found:
+            lines.append(str(id)+":"+default)
+        result = "\n".join([line for line in lines if line])
+        with open(r"./scores/"+type+".txt", 'w') as file:
+            file.write(result)
+    except Exception as e:
+        print_message_error(None,e)
+
+def score_increment(type,id):
+    score_modify(type,id,lambda x: str(int(x)+1),"1")
+
+def score_set(type,id,value):
+    score_modify(type,id,lambda x: value,value)
+
+async def score_message(msg):
+    split = msg.text.split(' ')
+    if split[1]=="set":
+        score_set(split[2],split[3],split[4])
+    if split[1]=="incr":
+        score_increment(split[2],split[3])
+    if split[1]=="read":
+        lines = score_read(split[2])
+        await msg.channel.send("\n".join(lines))
+    
+
 async def send_custom_message(channel, name, user, avatar_url, content, delete_old=None):
     async with aiohttp.ClientSession() as session:
         webhook = await channel.create_webhook(name="TempWebhook")
@@ -496,6 +540,10 @@ async def on_message(msg):
         if not (is_local or not running_locally): return
         if hasattr(msgchannel,"category") and msgchannel.category.name in DISABLE_CATEGORIES: return
         if "** ** ** **" in msg.content: return
+        # ↓ c'est juste pour tester mes fonctionnalités, ça n'a pas pour but de rester
+        if msgauthor.id == PARAMS['ID_VIVIEN'] and len(msgtext)>2 and msgtext[:2]=="ππ":
+            await score_message(msg)
+            return
         if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             global selfresponse
             if msgauthor.bot:
