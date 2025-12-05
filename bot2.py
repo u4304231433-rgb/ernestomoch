@@ -524,6 +524,7 @@ async def on_message(msg):
             elif matchs_cri:
                 if matchs_cri.start() == 0:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().upper() + " !!!"
+                    await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
                 
                 else:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
