@@ -509,7 +509,7 @@ async def score_message(msg):
         await msg.channel.send("incr !")
     if split[1]=="read":
         lines = score_read(split[2])
-        await msg.channel.send("\n".join(lines))
+        await msg.channel.send("\n".join(["<@"+line.split(":")[0] + ">:" + line.split(":")[1] for line in lines]))
     
 
 async def send_custom_message(channel, name, user, avatar_url, content, delete_old=None):
