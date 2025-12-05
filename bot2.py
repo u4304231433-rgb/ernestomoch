@@ -721,7 +721,8 @@ async def on_raw_reaction_add(payload):
                 if "user_id" in e:
                     if e["user_id"] != payload.user_id:
                         continue
-                await e["function"]()
+                print(e["function"].__name__)
+                await e["function"](msg_id, payload.user_id)
     except Exception as e:
         print_message_error(None,e)
 
@@ -2229,7 +2230,7 @@ class FormulaireModalAvent(discord.ui.Modal):
                 user_id = interaction.user.id
                 msg_id = msg.id
                         
-                add_reaction(msg_id, "❌", lambda: self.delete, user_id=user_id)
+                add_reaction(msg_id, "❌", self.delete, user_id=user_id)
 
                 add_reaction(msg_id, "🙉", self.open_calendrier)
                 add_reaction(msg_id, "❄️", self.faire_neiger)
@@ -2239,29 +2240,37 @@ class FormulaireModalAvent(discord.ui.Modal):
             await error_response(interaction,ERROR_MESSAGE)
     
     async def get_paysage(self):
-        proportion_star = 0.3
-        proportion_sapin = 0.5
+        proportion_star = 0.5
+        proportion_sapin = 0.4
         width = 9
-        height = 6
+        height = 5
         t = ""
-        i0 = random.randint(0,3)
+        lastm = 1
+        i0 = random.randint(1,2)
         if i0 == 3:
             i0 = 1
-        j0 = random.randint(1,width-1)
+        def lorentzienne(x):
+            return (((x-0.5)*1.4)/(1+((x-0.5)*1.4)**(2)))+0.5
+        j0 = lorentzienne(random.random())*(width-1)
         for i in range(height-1):
             for j in range(width):
-                if i0+1 == i and j0 == j:
+                if i0 == i and j0 == j:
                     t += PB_EMOJIS["lune"]
                 else:
                     m = 1
-                    if i == 0 or j == 0 or i == height-2 or j == width-1:
-                        m = 0.5
-
-                    if random.random() <= proportion_star*m:
+                    if i == 0 or i == height-2:
+                        m *= 0.6
+                    if j == 0 or j == width-1:
+                        m *= 0.6
+                    
+                    if random.random() <= proportion_star*m*lastm:
+                        lastm = 0.6
                         t += PB_EMOJIS["etoile"]
                     else:
                         t += PB_EMOJIS["empty"]
+                        lastm = 1
             t += "\n"
+            lastm = 1
         for j in range(width):
             if random.random() <= proportion_sapin:
                 t += PB_EMOJIS["sapin"]
@@ -2288,10 +2297,10 @@ class FormulaireModalAvent(discord.ui.Modal):
         return t
 
 
-    async def delete(self):
+    async def delete(self, msgid=None, userid=None):
         log_save("delete calendrier")
     
-    async def open_calendrier(self):
+    async def open_calendrier(self, msgid=None, userid=None):
         log_save("open_calendrier")
         embed = discord.Embed(
             title=AVENT_TITLE,
@@ -2301,7 +2310,7 @@ class FormulaireModalAvent(discord.ui.Modal):
         #embed.add_field(name="", value="", inline=True)
         embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
 
-    async def faire_neiger(self):
+    async def faire_neiger(self, msgid=None, userid=None):
         pass
 
 
