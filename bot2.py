@@ -2163,7 +2163,7 @@ class FormulaireModalAvent(discord.ui.Modal):
     
     async def get_paysage(self):
         proportion_star = 0.3
-        proportion_sapin = 0.3
+        proportion_sapin = 0.5
         width = 9
         height = 6
         t = ""
@@ -2176,7 +2176,10 @@ class FormulaireModalAvent(discord.ui.Modal):
                 if i0+1 == i and j0 == j:
                     t += PB_EMOJIS["lune"]
                 else:
-                    t += PB_EMOJIS["empty"]
+                    if random.random() <= proportion_star*m:
+                        t += PB_EMOJIS["etoile"]
+                    else:
+                        t += PB_EMOJIS["empty"]
             t += "\n"
         for j in range(width):
             if random.random() <= proportion_sapin:
