@@ -563,7 +563,6 @@ async def on_message(msg):
         msgauthor = msg.author
         if bot_disabled:return
         if not (is_local or not running_locally): return
-        print(msgchannel.category.name)
         if hasattr(msgchannel,"category") and simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES]: return
         if "** ** ** **" in msg.content: return
         # ↓ c'est juste pour tester mes fonctionnalités, ça n'a pas pour but de rester
