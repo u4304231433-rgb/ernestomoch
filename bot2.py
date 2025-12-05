@@ -98,6 +98,8 @@ ID_LOUIS=PARAMS["ID_LOUIS"]
 
 DISABLE_CATEGORIES = PARAMS["DISABLE_CATEGORIES"].split(",")
 
+NO_MENTION = discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False)
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -464,6 +466,73 @@ def replace_tags(text):
         text = ''.join(new_text)
     return text
 
+def score_read(type):
+    try:
+        with open(r"./scores/"+type+".txt", "r") as file:
+            lines = file.read().split("\n")
+        return lines
+    except Exception as e:
+        print_message_error(None,e)
+
+def score_remove(type,id):
+    lines = score_read(type)
+    try:
+        for i in range(len(lines)):
+            if lines[i].split(':')[0] == id:
+                return lines.pop(i)
+    except Exception as e:
+        print_message_error(None,e)
+
+def score_modify(type,id,f,default):
+    lines = score_read(type)
+    try:
+        id_found = False
+        for i in range(len(lines)):
+            line = lines[i]
+            split = line.split(':')
+            if split[0] == str(id):
+                id_found = True
+                lines[i] = str(id) + ":" + (new_value := f(split[1]))
+                break
+        if not id_found:
+            lines.append(str(id)+":"+default)
+            new_value = default
+        result = "\n".join([line for line in lines if line])
+        with open(r"./scores/"+type+".txt", 'w') as file:
+            file.write(result)
+        return new_value
+    except Exception as e:
+        print_message_error(None,e)
+
+def score_increment(type,id):
+    return score_modify(type,id,lambda x: str(int(x)+1),"1")
+
+def score_set(type,id,value):
+    return score_modify(type,id,lambda x: value,value)
+
+def filter_digits(text):
+    result = ""
+    for c in text:
+        if c in "0123456789":
+            result += c
+    return result
+
+async def score_message(msg):
+    split = msg.content.split(' ')
+    if split[1]=="io":
+        await msg.channel.send("ıoʟ̥ô 🐷")
+    if split[1]=="set":
+        score_set(split[2],filter_digits(split[3]),split[4])
+        await msg.channel.send("set !")
+    if split[1]=="incr":
+        score_increment(split[2],filter_digits(split[3]))
+        await msg.channel.send("incr !")
+    if split[1]=="read":
+        lines = score_read(split[2])
+        await msg.channel.send("\n".join(["> <@"+line.split(":")[0] + "> : " + line.split(":")[1] for line in lines]), allowed_mentions=NO_MENTION)
+    if split[1]=="remove":
+        score_remove(split[3],filter_digits(split[3]))
+
 async def send_custom_message(channel, name, user, avatar_url, content, delete_old=None):
     async with aiohttp.ClientSession() as session:
         webhook = await channel.create_webhook(name="TempWebhook")
@@ -496,6 +565,13 @@ async def on_message(msg):
         if not (is_local or not running_locally): return
         if hasattr(msgchannel,"category") and msgchannel.category.name in DISABLE_CATEGORIES: return
         if "** ** ** **" in msg.content: return
+        # ↓ c'est juste pour tester mes fonctionnalités, ça n'a pas pour but de rester
+        if msgauthor.id == PARAMS['ID_VIVIEN'] and len(msgtext)>2 and msgtext[:2]=="ππ":
+            await score_message(msg)
+            return
+        score = score_increment("msg",msgauthor.id)
+        if len(score)>2 and score[-2:]=="00":
+            await msgchannel.send("-# Bravo <@"+str(msgauthor.id)+">, tu a envoyé "+score+" messsages sur ce serveur !", allowed_mentions=NO_MENTION)
         if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             global selfresponse
             if msgauthor.bot:
@@ -524,6 +600,7 @@ async def on_message(msg):
             elif matchs_cri:
                 if matchs_cri.start() == 0:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().upper() + " !!!"
+                    await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
                 
                 else:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
