@@ -645,7 +645,7 @@ async def on_message(msg):
         
 
         if (msgauthor.id == ID_HUGO or msg.author.id == ID_LOUIS) and random.randint(0,99) < COMPLIMENT_FREQ:
-            with open("compliments.txt", "r") as file:
+            with open("compliments.txt", "r", encoding="utf-8") as file:
                 list_compliments = file.readlines()
                 text=f"<@{msgauthor.id}> {random.choice(list_compliments)}"
                 await msgchannel.send(text)
