@@ -553,10 +553,8 @@ async def on_message(msg):
             await score_message(msg)
             return
         score = score_increment("msg",msgauthor.id)
-        if msgauthor.id == PARAMS['ID_VIVIEN']:
-            await msgchannel.send("Piggy DEBUG: "+score+".")
-        if score[-1]=="0":
-            await msgchannel.send("Bravo <@"+str(msgauthor.id)+">, tu a envoyé "+score+" messsages")
+        if len(score)>2 and score[-2:-1]=="00":
+            await msgchannel.send("Bravo <@"+str(msgauthor.id)+">, tu a envoyé "+score+" messsages", allowed_mentions=NO_MENTION)
         if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             global selfresponse
             if msgauthor.bot:
