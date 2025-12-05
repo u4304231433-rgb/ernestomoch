@@ -505,7 +505,7 @@ def filter_digits(text):
     result = ""
     for c in text:
         if c in "0123456789":
-            result += ""
+            result += c
     return result
 
 async def score_message(msg):
