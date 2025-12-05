@@ -2253,6 +2253,10 @@ class FormulaireModalAvent(discord.ui.Modal):
                 if i0+1 == i and j0 == j:
                     t += PB_EMOJIS["lune"]
                 else:
+                    m = 1
+                    if i == 0 or j == 0 or i == height-2 or j == width-1:
+                        m = 0.5
+
                     if random.random() <= proportion_star*m:
                         t += PB_EMOJIS["etoile"]
                     else:
