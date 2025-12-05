@@ -677,7 +677,7 @@ def print_command_error(interaction, error):
     exc_type, exc_value, exc_tb = sys.exc_info()
     tb = traceback.extract_tb(exc_tb)
     last_frame = get_last_user_traceback_line(tb)
-    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {interaction.guild.id if interaction.guild else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {interaction.user} | Serveur: {interaction.guild.name if interaction.guild else 'DM'} | Canal: {interaction.channel.name if interaction.guild else 'DM'} | Commande: {interaction.command.name if interaction.command else '?'}")
+    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {interaction.guild.id if interaction.guild else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {interaction.user} | Serveur: {interaction.guild.name if hasattr(interaction, "guild") else 'DM'} | Canal: {interaction.channel.name if hasattr(interaction, "channel") and hasattr(interaction.channel, "name") else 'DM'} | Commande: {interaction.command.name if hasattr(interaction, "command") and hasattr(interaction.command, "name") else '?'}")
 
 
 reactions_to_wait = {}
@@ -732,7 +732,7 @@ def print_message_error(msg, error):
     exc_type, exc_value, exc_tb = sys.exc_info()
     tb = traceback.extract_tb(exc_tb)
     last_frame = get_last_user_traceback_line(tb)
-    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {msg.guild.id if hasattr(msg, "guild") else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {msg.author if hasattr(msg, "author") else "?"} | Serveur: {msg.guild.name if hasattr(msg, "guild") else 'DM'} | Canal: {msg.channel.name if hasattr(msg, "channel") else 'DM'} | Message: '{replace_lbreaks(msg.content) if hasattr(msg, "content") else "?"}'")
+    log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {msg.guild.id if hasattr(msg, "guild") and hasattr(msg.guild, "id") else 'DM'} ERREUR: {error} dans {last_frame.filename} ligne {last_frame.lineno} | Auteur: {msg.author if hasattr(msg, "author") else "?"} | Serveur: {msg.guild.name if hasattr(msg, "guild") and hasattr(msg.guild, "name") else 'DM'} | Canal: {msg.channel.name if hasattr(msg, "channel") and hasattr(msg.channel, "name") else 'DM'} | Message: '{replace_lbreaks(msg.content) if hasattr(msg, "content") else "?"}'")
 
 
 async def custom_response(inter,msg,duration=3):
