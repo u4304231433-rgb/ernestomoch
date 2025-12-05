@@ -2298,7 +2298,9 @@ class FormulaireModalAvent(discord.ui.Modal):
 
 
     async def delete(self, msgid=None, channel_id=None, userid=None):
-        bot.fetch_channel(channel_id)
+        channel = bot.fetch_channel(channel_id)
+        msg = channel.fetch_message(msgid)
+        await msg.delete()
     
     async def open_calendrier(self, msgid=None, channel_id=None, userid=None):
         log_save("open_calendrier")
