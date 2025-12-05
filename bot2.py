@@ -2192,6 +2192,8 @@ class FormulaireModalAvent(discord.ui.Modal):
             required=True,
             max_length=600
         )
+
+        self.opened = False
         
         self.add_item(self.inp1)
         self.add_item(self.inp2)
@@ -2199,9 +2201,10 @@ class FormulaireModalAvent(discord.ui.Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         try:
-            self.text = self.inp2.value
+            self.text = replace_tags(self.inp2.value)
             try:
                 daynumber = int(self.inp1.value)
+                self.daynumber = daynumber
             except ValueError:
                 await error_response(interaction, "Veuillez entrer un jour valide (entier, dans la plage 1-24).")
                 return
@@ -2246,6 +2249,7 @@ class FormulaireModalAvent(discord.ui.Modal):
         width = 9
         height = 5
         t = ""
+        t0 = []
         lastm = 1
         i0 = random.randint(1,2)
         if i0 == 3:
@@ -2257,6 +2261,7 @@ class FormulaireModalAvent(discord.ui.Modal):
             for j in range(width):
                 if i0 == i and j0 == j:
                     t += PB_EMOJIS["lune"]
+                    t0.append(PB_EMOJIS["lune"])
                 else:
                     m = 1
                     if i == 0 or i == height-2:
@@ -2267,17 +2272,22 @@ class FormulaireModalAvent(discord.ui.Modal):
                     if random.random() <= proportion_star*m*lastm:
                         lastm = 0.4
                         t += PB_EMOJIS["etoile"]
+                        t0.append(PB_EMOJIS["etoile"])
                     else:
                         t += PB_EMOJIS["empty"]
                         lastm = 1
+                        t0.append(PB_EMOJIS["empty"])
             t += "\n"
+            t0.append("\n")
             lastm = 1
         for j in range(width):
             if random.random() <= proportion_sapin:
                 t += PB_EMOJIS["sapin"]
+                t0.append(PB_EMOJIS["sapin"])
             else:
                 t += PB_EMOJIS["empty"]
-        self.t = t
+                t0.append(PB_EMOJIS["empty"])
+        self.t = t0
         return t
 
     async def balancer_la_neige(self):
@@ -2307,14 +2317,42 @@ class FormulaireModalAvent(discord.ui.Modal):
         await msg.delete()
     
     async def open_calendrier(self, msgid=None, channel_id=None, userid=None):
-        log_save("open_calendrier")
-        embed = discord.Embed(
-            title=AVENT_TITLE,
-            description="",
-            color=discord.Color.red()
-        )
+        if self.opened: return
+        self.opened = True
+        channel = bot.get_channel(channel_id)
+        print(channel)
+        msg = await channel.fetch_message(msgid)
+
+        textequivalent = 3
+        num_emojis = 5
+        time_period = 0.5
+        k = 0
+        for i in range(len(self.text[::num_emojis])):
+            t = time.time()
+            self.t[i] = self.text[textequivalent*i*num_emojis:textequivalent*(i+1)*num_emojis]
+            k += 1
+            if k == num_emojis:
+                k = 0
+                embed = discord.Embed(
+                    title=AVENT_TITLE,
+                    description="",
+                    color=discord.Color.red()
+                )
+                txt = "".join(self.t)
+                for l in txt.split("\n"):
+                    embed.add_field(name="", value=l, inline=False)
+                
+                embed.set_thumbnail(url=f"attachment://{self.daynumber}.png")
+
+                await msg.edit(embed=embed)
+                tf = time.time()
+                print((tf-t))
+                if time_period - (tf-t) > 0:
+                    await asyncio.sleep(time_period - (tf-t))
+
+
         #embed.add_field(name="", value="", inline=True)
-        embed.add_field(name="", value=replace_tags(self.inp2.value), inline=True)
+        embed.add_field(name="", value=self.text, inline=True)
 
     async def faire_neiger(self, msgid=None, channel_id=None, userid=None):
         pass
