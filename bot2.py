@@ -498,11 +498,15 @@ def score_set(type,id,value):
     score_modify(type,id,lambda x: value,value)
 
 async def score_message(msg):
-    split = msg.text.split(' ')
+    split = msg.content.split(' ')
+    if split[1]=="io":
+        await msg.channel.send("ıoʟ̥ô 🐷")
     if split[1]=="set":
         score_set(split[2],split[3],split[4])
+        await msg.channel.send("set !")
     if split[1]=="incr":
         score_increment(split[2],split[3])
+        await msg.channel.send("incr !")
     if split[1]=="read":
         lines = score_read(split[2])
         await msg.channel.send("\n".join(lines))
