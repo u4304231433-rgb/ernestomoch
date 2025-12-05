@@ -474,6 +474,15 @@ def score_read(type):
     except Exception as e:
         print_message_error(None,e)
 
+def score_remove(type,id):
+    lines = score_read(type)
+    try:
+        for i in range(len(lines)):
+            if lines[i].split(':')[0] == id:
+                return lines.pop(i)
+    except Exception as e:
+        print_message_error(None,e)
+
 def score_modify(type,id,f,default):
     lines = score_read(type)
     try:
@@ -521,6 +530,8 @@ async def score_message(msg):
     if split[1]=="read":
         lines = score_read(split[2])
         await msg.channel.send("\n".join(["> <@"+line.split(":")[0] + "> : " + line.split(":")[1] for line in lines]), allowed_mentions=NO_MENTION)
+    if split[1]=="remove":
+        score_remove(split[3],filter_digits(split[3]))
 
 async def send_custom_message(channel, name, user, avatar_url, content, delete_old=None):
     async with aiohttp.ClientSession() as session:
