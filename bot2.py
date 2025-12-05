@@ -2291,6 +2291,7 @@ class FormulaireModalAvent(discord.ui.Modal):
         return t
 
     async def balancer_la_neige(self):
+        if self.opened: return
         proportion_star = 0.3
         proportion_sapin = 0.3
         width = 9
