@@ -473,7 +473,7 @@ def score_read(type):
         print_message_error(None,e)
 
 def score_modify(type,id,f,default):
-    lines = score_read
+    lines = score_read(type)
     try:
         id_found = False
         for i in range(len(lines)):
