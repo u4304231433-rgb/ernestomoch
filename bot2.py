@@ -98,6 +98,8 @@ ID_LOUIS=PARAMS["ID_LOUIS"]
 
 DISABLE_CATEGORIES = PARAMS["DISABLE_CATEGORIES"].split(",")
 
+NO_MENTION = discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False)
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -509,7 +511,7 @@ async def score_message(msg):
         await msg.channel.send("incr !")
     if split[1]=="read":
         lines = score_read(split[2])
-        await msg.channel.send(repr(discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))+"\n".join(["> <@"+line.split(":")[0] + "> : " + line.split(":")[1] for line in lines]), allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
+        await msg.channel.send("\n".join(["> <@"+line.split(":")[0] + "> : " + line.split(":")[1] for line in lines]), allowed_mentions=NO_MENTION)
     
 
 async def send_custom_message(channel, name, user, avatar_url, content, delete_old=None):
