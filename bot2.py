@@ -563,7 +563,8 @@ async def on_message(msg):
         msgauthor = msg.author
         if bot_disabled:return
         if not (is_local or not running_locally): return
-        if hasattr(msgchannel,"category") and simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES]: return
+        if isinstance(msgchannel, discord.DMChannel) or (hasattr(msgchannel,"category") and  simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES]): return
+
         if "** ** ** **" in msg.content: return
         # ↓ c'est juste pour tester mes fonctionnalités, ça n'a pas pour but de rester
         if msgauthor.id == PARAMS['ID_VIVIEN'] and len(msgtext)>2 and msgtext[:2]=="ππ":
