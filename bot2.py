@@ -595,7 +595,7 @@ async def on_message(msg):
                 else:
                     text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
 
-                if text:
+                if text and text != "re": #Oui j'ai la flemme de réfléchir à une meilleure façon de dégager faire
                     await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
             
             elif matchs_cri:
