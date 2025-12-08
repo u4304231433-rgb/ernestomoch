@@ -626,7 +626,7 @@ async def on_message(msg):
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
                     await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
         
-        if msg.autor.bot: return
+        if msg.author.bot: return
 
         if ioloenabled:
             if random.randint(1,200)==42:
