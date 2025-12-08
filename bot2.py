@@ -563,6 +563,25 @@ async def on_message(msg):
         msgauthor = msg.author
         if bot_disabled:return
         if not (is_local or not running_locally): return
+
+        if not msg.author.bot and replacing_tags:
+            balises = ["€","£",r"\$"]
+            tomodify = False
+            textcb = remove_code_blocks(msgtext)
+            for balise in balises:
+                if re.search(balise+r".*?"+balise,textcb) is not None:
+                    tomodify = True
+                    break
+            if tomodify:
+                await send_custom_message(
+                    msg.channel,
+                    name=msgauthor.display_name+" ft. "+BOT_NAME,
+                    user=msgauthor,
+                    avatar_url=msgauthor.display_avatar.url,
+                    content=replace_tags(msgtext),
+                    delete_old=msg
+                )
+        
         if isinstance(msgchannel, discord.DMChannel) or (hasattr(msgchannel,"category") and  simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES]): return
 
         if "** ** ** **" in msg.content: return
@@ -606,26 +625,9 @@ async def on_message(msg):
                 else:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
                     await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
+        
+        if msg.autor.bot: return
 
-
-        if msg.author.bot:return
-        if replacing_tags:
-            balises = ["€","£",r"\$"]
-            tomodify = False
-            textcb = remove_code_blocks(msgtext)
-            for balise in balises:
-                if re.search(balise+r".*?"+balise,textcb) is not None:
-                    tomodify = True
-                    break
-            if tomodify:
-                await send_custom_message(
-                    msg.channel,
-                    name=msgauthor.display_name+" ft. "+BOT_NAME,
-                    user=msgauthor,
-                    avatar_url=msgauthor.display_avatar.url,
-                    content=replace_tags(msgtext),
-                    delete_old=msg
-                )
         if ioloenabled:
             if random.randint(1,200)==42:
                 await msgchannel.send("J'ai perdu...")
