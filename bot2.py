@@ -582,7 +582,7 @@ async def on_message(msg):
                     delete_old=msg
                 )
         
-        if isinstance(msgchannel, discord.DMChannel) or (hasattr(msgchannel,"category") and  simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES]): return
+        if (isinstance(msgchannel, discord.DMChannel) or (hasattr(msgchannel,"category") and  simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES])) and not "** ** ** ** ** **" in msgtext: return
 
         if "** ** ** **" in msg.content: return
         # ↓ c'est juste pour tester mes fonctionnalités, ça n'a pas pour but de rester
