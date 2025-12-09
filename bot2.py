@@ -89,6 +89,7 @@ PING_FIN_LOI = PARAMS["PING_FIN_LOI"]
 
 REGEX_DI = PARAMS["REGEX_DI"]
 REGEX_CRI = PARAMS["REGEX_CRI"]
+REGEX_SUS = PARAMS["REGEX_SUS"]
 FREQUENCY_DI = PARAMS["DI_FREQUENCY"]
 FREQ_SELF_RESP = PARAMS["FREQ_SELF_RESP"]
 
@@ -583,7 +584,7 @@ async def on_message(msg):
                     delete_old=msg
                 )
         
-        if isinstance(msgchannel, discord.DMChannel) or (hasattr(msgchannel,"category") and  simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES]): return
+        if (isinstance(msgchannel, discord.DMChannel) or (hasattr(msgchannel,"category") and  simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES])) and not "** ** ** ** ** **" in msgtext: return
 
         if "** ** ** **" in msg.content: return
         # ↓ c'est juste pour tester mes fonctionnalités, ça n'a pas pour but de rester
@@ -607,6 +608,7 @@ async def on_message(msg):
             
             matchs_di = re.search(REGEX_DI, msgtext)
             matchs_cri = re.search(REGEX_CRI, msgtext)
+            matchs_sus = re.search(REGEX_SUS, msgtext)
             
             if matchs_di and ((not matchs_cri) or matchs_di.start() < matchs_cri.start()):
                 if matchs_di.start() == 0:
@@ -616,17 +618,21 @@ async def on_message(msg):
                     text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
 
                 if text and not text.startswith("re"): #Oui j'ai la flemme de réfléchir à une meilleure façon de dégager faire
-                    await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
+                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
             
             elif matchs_cri:
                 if matchs_cri.start() == 0:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().upper() + " !!!"
-                    await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
+                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
                 
                 else:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
-                    await msgchannel.send(text, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
+                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
         
+            elif matchs_sus:
+                text = "C'est qui " + re.split(REGEX_SUS, msgtext, 1)[-1].strip().split(" ")[0] + " ?"
+                await msgchannel.send(text, allowed_mentions=NO_MENTION)
+
         if msg.author.bot: return
 
         if ioloenabled:
