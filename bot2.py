@@ -543,7 +543,8 @@ async def send_custom_message(channel, name, user, avatar_url, content, delete_o
             content,
             username=name,
             avatar_url=avatar_url,
-            wait=True
+            wait=True,
+            allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False)
         )
         msg_id = msg.id
         await webhook.delete()
