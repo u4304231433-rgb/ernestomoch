@@ -361,6 +361,24 @@ def get_closed_view(poll):
     view.message_id = poll["message_id"]
     view.PB_EMOJIS = PB_EMOJIS
 
+    view.options = {
+            "o": {
+                "text": "Oui",
+                "ernestien": "chlorên",
+                "emoji": PB_EMOJIS["yes_check_mark"]
+                },
+            "b": {
+                "text": "Blanc",
+                "ernestien": "ketvôg",
+                "emoji": "🏳️"
+                },
+            "n": {
+                "text": "Non",
+                "ernestien": "rôz",
+                "emoji": PB_EMOJIS["no_x_mark"]
+                }
+            }
+
     view.citoyens = poll["citoyens"]
 
     view.poll_id = poll["poll_id"]
