@@ -635,7 +635,7 @@ async def on_message(msg):
                 else:
                     text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
 
-                if text and not text.startswith("re"): #Oui j'ai la flemme de réfléchir à une meilleure façon de dégager faire
+                if text and not text.startswith("re "): #Oui j'ai la flemme de réfléchir à une meilleure façon de dégager faire
                     await msgchannel.send(text, allowed_mentions=NO_MENTION)
             
             elif matchs_cri:
