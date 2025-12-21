@@ -48,7 +48,7 @@ PING_FIN_LOI=<@&1424803382773944440>
 
 REGEX_DI=10 |[dD][iI][sStT][ -]|([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))|[fF][aA][iI][sStT][ -]|[fF]([aAeE][iI]|[eE][tT][ -])
 REGEX_CRI=[cCkK][hH]?[rR][iIyY]([ets]s? )?
-REGEX_QUOI=.*[qQkKcC]+[uUwW]+([aA]+|[oO]+[iI]+)[sS !\?\)\."]*$
+REGEX_QUOI=.*[qQkKcC]+([uUwW]+[aA]+|[uUwW]*[oO]+[iI]+)[sS !\?\)\."]*$
 REGEX_SUS=([sS][uU][sS][ -]|[sS][uU][sS])
 
 COMPLIMENT_FREQUENCY=5
