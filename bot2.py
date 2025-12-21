@@ -650,6 +650,7 @@ async def on_message(msg):
                         await msgchannel.send(text, allowed_mentions=NO_MENTION)
                     selfresponse = True
                 else:
+                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
                     selfresponse = False
 
 
