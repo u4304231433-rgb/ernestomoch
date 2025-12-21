@@ -613,21 +613,13 @@ async def on_message(msg):
         if len(score)>2 and score[-2:]=="00":
             await msgchannel.send("-# Bravo <@"+str(msgauthor.id)+">, tu a envoyé "+score+" messsages sur ce serveur !", allowed_mentions=NO_MENTION)
         if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
-            global selfresponse
-            if msgauthor.bot:
-                if selfresponse and random.randint(0, 100) > FREQ_SELF_RESP:
-                    await msgchannel.send("Bon j'en ai marre....")
-                    selfresponse = False
-                    return
-                selfresponse = True
-            else:
-                selfresponse = False
-
             
             matchs_di = re.search(REGEX_DI, msgtext)
             matchs_cri = re.search(REGEX_CRI, msgtext)
             matchs_sus = re.search(REGEX_SUS, msgtext)
-            
+
+            text = None
+
             if matchs_di and ((not matchs_cri) or matchs_di.start() < matchs_cri.start()):
                 if matchs_di.start() == 0:
                     text = re.split(REGEX_DI, msgtext, 1)[-1].strip()
@@ -635,21 +627,31 @@ async def on_message(msg):
                 else:
                     text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
 
-                if text and not text.startswith("re "): #Oui j'ai la flemme de réfléchir à une meilleure façon de dégager faire
-                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
+                if text.startswith("re ") or text == "re": #Oui j'ai la flemme de réfléchir à une meilleure façon de dégager faire
+                    text = None
             
             elif matchs_cri:
                 if matchs_cri.start() == 0:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().upper() + " !!!"
-                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
                 
                 else:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
-                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
         
             elif matchs_sus:
                 text = "C'est qui " + re.split(REGEX_SUS, msgtext, 1)[-1].strip().split(" ")[0] + " ?"
-                await msgchannel.send(text, allowed_mentions=NO_MENTION)
+            
+            if text:
+                global selfresponse
+                if msgauthor.bot:
+                    if selfresponse and random.randint(0, 100) > FREQ_SELF_RESP:
+                        await msgchannel.send("Bon j'en ai marre....")
+                        return
+                    else:
+                        await msgchannel.send(text, allowed_mentions=NO_MENTION)
+                    selfresponse = True
+                else:
+                    selfresponse = False
+
 
         if msg.author.bot: return
 
