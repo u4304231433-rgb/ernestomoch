@@ -672,7 +672,7 @@ async def on_message(msg):
             if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernesto*m[oô]*ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐ(ô|ô|o)*ʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
                 await msgchannel.send("C'est moi !")
             
-            if (f"<@{str(ID_HUGO)}>" in msgtext or f"<@{str(ID_LOUIS)}>")in msgtext and \
+            if (f"<@{str(ID_HUGO)}>" in msgtext or f"<@{str(ID_LOUIS)}>" in msgtext) and \
                 msgauthor.id in {ID_VIVIEN, ID_FELIX, ID_ALICE}:
                 await msg.channel.send("Comment tu parles à papa ?")
 
