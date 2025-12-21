@@ -53,7 +53,7 @@ REGEX_SUS=([sS][uU][sS][ -]|[sS][uU][sS])
 
 COMPLIMENT_FREQUENCY=5
 DI_FREQUENCY=100
-FREQ_SELF_RESP=85
+FREQ_SELF_RESP=75
 
 DISABLE_CATEGORIES=🏛️ Politique,📰 Presse,🏢 Institutions,Principal
 
