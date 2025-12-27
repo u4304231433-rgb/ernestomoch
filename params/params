@@ -55,7 +55,7 @@ COMPLIMENT_FREQUENCY=5
 DI_FREQUENCY=100
 FREQ_SELF_RESP=75
 
-DISABLE_CATEGORIES=🏛️ Politique,📰 Presse,🏢 Institutions,Principal
+DISABLE_CATEGORIES=🏛️ Politique,📰 Presse,🏢 Institutions,Principal,⚽ Coupe du monde 2026 ⚽
 
 ID_HUGO=756865029067898960
 ID_LOUIS=1283005952509087755
