@@ -1382,11 +1382,11 @@ async def statistiques(inter):
             for m in inter.guild.members:
                 roles = [simplify_role_name(r.name) for r in m.roles]
                 if simplify_role_name(CITOYENS_NAME) in roles:
-                    citoyens.append(m.display_name)
+                    citoyens.append(m.mention)
                 elif simplify_role_name(NORMALIENS_NAME) in roles:
-                    normaliens.append(m.display_name)
+                    normaliens.append(m.mention)
                 elif simplify_role_name(TOURISTES_NAME) in roles:
-                    touristes.append(m.display_name)
+                    touristes.append(m.mention)
 
             embed = discord.Embed(
                 title=":bar_chart: Statistiques",
@@ -1394,15 +1394,15 @@ async def statistiques(inter):
                 color=discord.Color.blue()
             )
             if citoyens:
-                embed.add_field(name="Citoyens ("+str(len(citoyens))+")", value="- "+"\n- ".join(citoyens), inline=False)
+                embed.add_field(name="Citoyens ("+str(len(citoyens))+")", value=" ".join(citoyens), inline=False)
             if normaliens:
-                embed.add_field(name="Normaliens touristes ("+str(len(normaliens))+")", value="- "+"\n- ".join(normaliens), inline=False)
+                embed.add_field(name="Normaliens touristes ("+str(len(normaliens))+")", value=" ".join(normaliens), inline=False)
             if touristes:
-                embed.add_field(name="Touristes ("+str(len(touristes))+")", value="- "+"\n- ".join(touristes), inline=False)
+                embed.add_field(name="Touristes ("+str(len(touristes))+")", value=" ".join(touristes), inline=False)
 
             embed.timestamp = inter.created_at
 
-            await response.send_message(embed=embed)
+            await response.send_message(embed=embed, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
         elif bot_disabled:
             await error_response(inter,ERROR_BOT_DISABLED_MESSAGE)
     except Exception as e:
