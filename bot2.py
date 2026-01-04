@@ -96,6 +96,9 @@ FREQ_SELF_RESP = PARAMS["FREQ_SELF_RESP"]
 COMPLIMENT_FREQ=PARAMS["COMPLIMENT_FREQUENCY"]
 ID_HUGO=PARAMS["ID_HUGO"]
 ID_LOUIS=PARAMS["ID_LOUIS"]
+ID_VIVIEN=PARAMS["ID_VIVIEN"]
+ID_ALICE=PARAMS["ID_ALICE"]
+ID_FELIX=PARAMS["ID_FELIX"]
 
 DISABLE_CATEGORIES = PARAMS["DISABLE_CATEGORIES"].split(",")
 
@@ -613,21 +616,13 @@ async def on_message(msg):
         if len(score)>2 and score[-2:]=="00":
             await msgchannel.send("-# Bravo <@"+str(msgauthor.id)+">, tu a envoyé "+score+" messsages sur ce serveur !", allowed_mentions=NO_MENTION)
         if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
-            global selfresponse
-            if msgauthor.bot:
-                if selfresponse and random.randint(0, 100) > FREQ_SELF_RESP:
-                    await msgchannel.send("Bon j'en ai marre....")
-                    selfresponse = False
-                    return
-                selfresponse = True
-            else:
-                selfresponse = False
-
             
             matchs_di = re.search(REGEX_DI, msgtext)
             matchs_cri = re.search(REGEX_CRI, msgtext)
             matchs_sus = re.search(REGEX_SUS, msgtext)
-            
+
+            text = None
+
             if matchs_di and ((not matchs_cri) or matchs_di.start() < matchs_cri.start()):
                 if matchs_di.start() == 0:
                     text = re.split(REGEX_DI, msgtext, 1)[-1].strip()
@@ -635,21 +630,32 @@ async def on_message(msg):
                 else:
                     text = re.split(REGEX_DI, msgtext, 1)[-1].strip().split(" ")[0]
 
-                if text and not text.startswith("re"): #Oui j'ai la flemme de réfléchir à une meilleure façon de dégager faire
-                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
+                if text.startswith("re ") or text == "re": #Oui j'ai la flemme de réfléchir à une meilleure façon de dégager faire
+                    text = None
             
             elif matchs_cri:
                 if matchs_cri.start() == 0:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().upper() + " !!!"
-                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
                 
                 else:
                     text = re.split(REGEX_CRI, msgtext, 1)[-1].strip().split(" ")[0].upper() + " !!!"
-                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
         
             elif matchs_sus:
                 text = "C'est qui " + re.split(REGEX_SUS, msgtext, 1)[-1].strip().split(" ")[0] + " ?"
-                await msgchannel.send(text, allowed_mentions=NO_MENTION)
+            
+            if text:
+                global selfresponse
+                if msgauthor.bot:
+                    if selfresponse and random.randint(0, 100) > FREQ_SELF_RESP:
+                        await msgchannel.send("Bon j'en ai marre....")
+                        return
+                    else:
+                        await msgchannel.send(text, allowed_mentions=NO_MENTION)
+                    selfresponse = True
+                else:
+                    await msgchannel.send(text, allowed_mentions=NO_MENTION)
+                    selfresponse = False
+
 
         if msg.author.bot: return
 
@@ -666,7 +672,11 @@ async def on_message(msg):
             if re.search(r"(.*)(^|\s|'|:|,|\(|\_|\*)(ernesto*m[oô]*ch|\<@1435667613865742406\>|cꞁ̊ᒉcc̥⟊oᒐ(ô|ô|o)*ʃ)($|\s|,|:|\)|\_|\*)(.*)", msgtext.lower()):
                 await msgchannel.send("C'est moi !")
             
-            if str(ID_HUGO) in msgtext:
+            if (f"<@{str(ID_HUGO)}>" in msgtext or f"<@{str(ID_LOUIS)}>" in msgtext) and \
+                msgauthor.id in {ID_VIVIEN, ID_FELIX, ID_ALICE}:
+                await msg.channel.send("Comment tu parles à papa ?")
+
+            if f"<@{str(ID_HUGO)}>" in msgtext:
                 await msgchannel.send("hellgo")
             
             await references.references.process_message(msgtext,msgchannel)
