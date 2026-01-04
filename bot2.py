@@ -1427,6 +1427,7 @@ async def citoyens(inter):
             polls = load_polls()
             for poll in polls[::-1]:
                 if poll["channel_id"] == guild_id:
+                    log_save(str(poll))
                     if icompteur >= LIMIT_NUMBER_OF_POLLS:
                         break
                     for k in poll["votes"]:
