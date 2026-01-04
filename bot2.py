@@ -1394,11 +1394,19 @@ async def statistiques(inter):
                 color=discord.Color.blue()
             )
             if citoyens:
-                embed.add_field(name="Citoyens ("+str(len(citoyens))+")", value=" ".join(citoyens), inline=False)
+                embed.add_field(name="Citoyens ("+str(len(citoyens))+")", value=" ".join(citoyens[:30]), inline=False)
+                for i in range(1, (len(citoyens)-1)//30+1):
+                    embed.add_field(name="", value=" ".join(citoyens[30*i:30*(i+1)]), inline=False)
+
             if normaliens:
-                embed.add_field(name="Normaliens touristes ("+str(len(normaliens))+")", value=" ".join(normaliens), inline=False)
+                embed.add_field(name="Normaliens touristes ("+str(len(normaliens))+")", value=" ".join(normaliens[:30]), inline=False)
+                for i in range(1, (len(normaliens)-1)//30+1):
+                    embed.add_field(name="", value=" ".join(normaliens[30*i:30*(i+1)]), inline=False)
+
             if touristes:
-                embed.add_field(name="Touristes ("+str(len(touristes))+")", value=" ".join(touristes), inline=False)
+                embed.add_field(name="Touristes ("+str(len(touristes))+")", value=" ".join(touristes[:30]), inline=False)
+                for i in range(1, (len(touristes)-1)//30+1):
+                    embed.add_field(name="", value=" ".join(touristes[30*i:30*(i+1)]), inline=False)
 
             embed.timestamp = inter.created_at
 
