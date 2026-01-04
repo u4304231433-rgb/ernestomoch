@@ -1426,9 +1426,7 @@ async def citoyens(inter):
             guild_id = inter.guild.id
             polls = load_polls()
             for poll in polls[::-1]:
-                log_save(str(poll))
-                break
-                if poll["channel_id"] == guild_id:
+                if poll["guild_id"] == guild_id:
                     if icompteur >= LIMIT_NUMBER_OF_POLLS:
                         break
                     for k in poll["votes"]:
@@ -1437,7 +1435,7 @@ async def citoyens(inter):
                         else:
                             voters[int(k)] += 1
                     icompteur += 1
-            log_save(str(voters))
+
             for m in inter.guild.members:
                 joined = m.joined_at.timestamp()
                 now = datetime.datetime.now().timestamp()
