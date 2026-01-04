@@ -1435,7 +1435,7 @@ async def citoyens(inter):
                         else:
                             voters[int(k)] += 1
                     icompteur += 1
-            
+            log_save(str(voters))
             for m in inter.guild.members:
                 joined = m.joined_at.timestamp()
                 now = datetime.datetime.now().timestamp()
