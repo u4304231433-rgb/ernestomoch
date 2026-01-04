@@ -1410,14 +1410,12 @@ async def citoyens(inter):
             citoyens = []
             anciens_citoyens = []
 
-            canalvotes = discord.utils.get(inter.guild.text_channels, name=VOTES_NAME)
-
             voters = {}
             icompteur = 0
 
             guild_id = inter.guild.id
             polls = load_polls()
-            for poll in polls:
+            for poll in polls[::-1]:
                 if poll["channel_id"] == guild_id:
                     if icompteur >= LIMIT_NUMBER_OF_POLLS:
                         break
@@ -1426,18 +1424,6 @@ async def citoyens(inter):
                             voters[int(k)] = 1
                         else:
                             voters[int(k)] += 1
-                    icompteur += 1
-            
-            async for msg in canalvotes.history():
-                if msg.poll is not None:
-                    if icompteur >= LIMIT_NUMBER_OF_POLLS:
-                        break
-                    for answer in msg.poll.answers:
-                        async for voter in answer.voters():
-                            if voter.id not in voters:
-                                voters[voter.id] = 1
-                            else:
-                                voters[voter.id] += 1
                     icompteur += 1
             
             for m in inter.guild.members:
