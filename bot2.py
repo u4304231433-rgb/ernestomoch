@@ -1467,11 +1467,15 @@ async def citoyens(inter):
                 color=discord.Color.blue()
             )
             if anciens_citoyens:
-                embed.add_field(name="Anciens citoyens ("+str(len(anciens_citoyens))+")", value=" ".join(anciens_citoyens), \
-                            inline=False)
+                embed.add_field(name="Anciens citoyens ("+str(len(anciens_citoyens))+")", value=" ".join(anciens_citoyens[:30]), inline=False)
+                for i in range(1, (len(anciens_citoyens)-1)//30+1):
+                    embed.add_field(name="", value=" ".join(anciens_citoyens[30*i:30*(i+1)]), inline=False)
+
             if citoyens:
-                embed.add_field(name="Citoyens ("+str(len(citoyens))+")", value=" ".join(citoyens), \
-                            inline=False)
+                embed.add_field(name="Citoyens ("+str(len(citoyens))+")", value=" ".join(citoyens[:30]), inline=False)
+                for i in range(1, (len(citoyens)-1)//30+1):
+                    embed.add_field(name="", value=" ".join(citoyens[30*i:30*(i+1)]), inline=False)
+
             embed.timestamp = inter.created_at
 
             await inter.followup.send(embed=embed, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
