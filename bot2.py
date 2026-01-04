@@ -1449,9 +1449,9 @@ async def citoyens(inter):
                 roles = [simplify_role_name(r.name) for r in m.roles]
                 if simplify_role_name(CITOYENS_NAME) in roles:
                     if difference >= ANCIENNETE*24*3600 and pollsanswered >= NUMBER_OF_POLLS_ANCIEN:
-                        anciens_citoyens.append(m.display_name)
+                        anciens_citoyens.append(m.mention)
                     else:
-                        citoyens.append(m.display_name)
+                        citoyens.append(m.mention)
             
             embed = discord.Embed(
                 title=":ballot_box: Citoyenneté",
@@ -1459,14 +1459,14 @@ async def citoyens(inter):
                 color=discord.Color.blue()
             )
             if anciens_citoyens:
-                embed.add_field(name="Anciens citoyens ("+str(len(anciens_citoyens))+")", value="- "+"\n- ".join(anciens_citoyens), \
+                embed.add_field(name="Anciens citoyens ("+str(len(anciens_citoyens))+")", value=" ".join(anciens_citoyens), \
                             inline=False)
             if citoyens:
-                embed.add_field(name="Citoyens ("+str(len(citoyens))+")", value="- "+"\n- ".join(citoyens), \
+                embed.add_field(name="Citoyens ("+str(len(citoyens))+")", value=" ".join(citoyens), \
                             inline=False)
             embed.timestamp = inter.created_at
 
-            await inter.followup.send(embed=embed)
+            await inter.followup.send(embed=embed, allowed_mentions=discord.AllowedMentions(users=False, everyone=False, roles=False, replied_user=False))
         elif bot_disabled:
             await error_response(inter,ERROR_BOT_DISABLED_MESSAGE)
     except Exception as e:
