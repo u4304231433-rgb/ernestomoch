@@ -552,7 +552,7 @@ async def score_message(msg):
         await msg.channel.send("incr !")
     if split[1]=="read":
         lines = score_read(split[2])
-        await msg.channel.send("\n".join(["> <@"+line.split(":")[0] + "> : " + line.split(":")[1] for line in lines]), allowed_mentions=NO_MENTION)
+        await msg.channel.send("\n".join(["> <@"+line.split(":")[0] + "> "+line.split(":")[0] + " : " + line.split(":")[1] for line in lines]), allowed_mentions=NO_MENTION)
     if split[1]=="remove":
         score_remove(split[3],filter_digits(split[3]))
 
