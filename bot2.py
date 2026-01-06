@@ -68,6 +68,7 @@ AVENT_CHANNEL = PARAMS["AVENT_CHANNEL"]
 AVENT_TITLE = PARAMS["AVENT_TITLE"]
 
 VOTES_NAME = PARAMS["VOTES_NAME"]
+RESULTATS_VOTES_ID = PARAMS["RESULTATS_VOTES_ID"]
 
 COMMAND_PREFIX = PARAMS["COMMAND_PREFIX"]
 BOT_NAME = PARAMS["BOT_NAME"]
@@ -1134,7 +1135,9 @@ async def dico(inter, mot : str, sens : str = "*", statut : int = 1, update : in
 
 @bot.tree.command(description="[D] Actualise le dictionnaire")
 async def dicoupdate(inter):
-    try:
+    ch = bot.get_channel(RESULTATS_VOTES_ID)
+    await ch.send("coucou")
+    """try:
         if not bot_disabled:
             for right in DICO_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
@@ -1147,7 +1150,7 @@ async def dicoupdate(inter):
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
     except Exception as e:
         print_command_error(inter,e)
-        await error_response(inter,ERROR_MESSAGE)    
+        await error_response(inter,ERROR_MESSAGE)  """  
 
 
 class FormulaireModal(discord.ui.Modal):
@@ -1792,7 +1795,7 @@ class PollView(discord.ui.View):
         await self.send_compterendu()
 
     async def send_compterendu(self):
-        channel = bot.get_channel(self.channel_id)
+        channel = bot.get_channel(RESULTATS_VOTES_ID)
         if self.non+self.oui == 0:
             txt = "En l'absence de votants, la proposition est **rejetée**."
             txtvotants = ""
