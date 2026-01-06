@@ -1135,9 +1135,7 @@ async def dico(inter, mot : str, sens : str = "*", statut : int = 1, update : in
 
 @bot.tree.command(description="[D] Actualise le dictionnaire")
 async def dicoupdate(inter):
-    ch = bot.get_channel(RESULTATS_VOTES_ID)
-    await ch.send("coucou")
-    """try:
+    try:
         if not bot_disabled:
             for right in DICO_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
@@ -1150,7 +1148,7 @@ async def dicoupdate(inter):
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
     except Exception as e:
         print_command_error(inter,e)
-        await error_response(inter,ERROR_MESSAGE)  """  
+        await error_response(inter,ERROR_MESSAGE)
 
 
 class FormulaireModal(discord.ui.Modal):
