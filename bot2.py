@@ -73,6 +73,8 @@ RESULTATS_VOTES_ID = PARAMS["RESULTATS_VOTES_ID"]
 COMMAND_PREFIX = PARAMS["COMMAND_PREFIX"]
 BOT_NAME = PARAMS["BOT_NAME"]
 
+SPAM_CHANNEL_NAME = PARAMS["SPAM_CHANNEL_NAME"]
+
 ERROR_RIGHTS_MESSAGE = PARAMS["ERROR_RIGHTS_MESSAGE"]
 ERROR_MESSAGE = PARAMS["ERROR_MESSAGE"]
 ERROR_BOT_DISABLED_MESSAGE = PARAMS["ERROR_BOT_DISABLED_MESSAGE"]
@@ -660,7 +662,7 @@ async def on_message(msg):
 
         if msg.author.bot: return
 
-        if ioloenabled:
+        if ioloenabled or simplify_role_name(msg.channel.name) == simplify_role_name(SPAM_CHANNEL_NAME):
             if random.randint(1,200)==42:
                 await msgchannel.send("J'ai perdu...")
             if re.search(PARAMS["REGEX_QUOI"], msgtext):
