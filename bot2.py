@@ -618,7 +618,7 @@ async def on_message(msg):
         score = score_increment("msg",msgauthor.id)
         if len(score)>2 and score[-2:]=="00":
             await msgchannel.send("-# Bravo <@"+str(msgauthor.id)+">, tu a envoyé "+score+" messsages sur ce serveur !", allowed_mentions=NO_MENTION)
-        if ioloenabled and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
+        if (ioloenabled or simplify_role_name(msg.channel.name) == simplify_role_name(SPAM_CHANNEL_NAME)) and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             
             matchs_di = re.search(REGEX_DI, msgtext)
             matchs_cri = re.search(REGEX_CRI, msgtext)
