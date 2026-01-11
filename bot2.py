@@ -114,7 +114,7 @@ intents.members = True
 intents.reactions = True
 intents.guilds = True
 
-ioloenabled = True
+ioloenabled = False
 selfresponse = False
 
 running_locally = False
