@@ -1158,7 +1158,7 @@ class FormulaireModal(discord.ui.Modal):
         if warning != "":
             super().__init__(title=(warning[:42]+"..." if len(warning) > 45 else warning))
         else:
-            super().__init__(title=(f"Édition de \"{francais}\"" if mode == "edit" else "Ajouter un mot au dictionnaire"))
+            super().__init__(title=((f"Édition de \"{francais}\"" if len(francais) < 32 else francais[:45]) if mode == "edit" else "Ajouter un mot au dictionnaire"))
         self.mode = mode
         self.linenumber = linenumber
         self.francais_val = francais
