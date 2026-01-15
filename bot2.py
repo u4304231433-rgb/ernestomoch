@@ -1763,7 +1763,6 @@ class PollView(discord.ui.View):
     async def send(self, channel):
         embed = self.get_embed()
         msg = await channel.send(embed=embed, view=self)
-        await validation_response(inter, "Le vote a bien été initié !")
         return msg
 
     def save(self, msg_id):
@@ -1812,7 +1811,7 @@ class PollView(discord.ui.View):
 
                 txt = "En conséquence, la proposition est **rejetée**."
                 color = discord.Color.dark_purple()
-        link = f"https://discord.com/channels/{self.guild_id}/{self.channel_id}/{self.message_id}"
+        link = f"https://discord.com/channels/{self.guild_id}/{self.channel_id}"
         embed = discord.Embed(
             title=f"",
             description=f"Le vote de {'loi' if self.vote_type == 'l' else 'révision constitutionnelle'} {link} : _\"{self.question}\"_ est clos.\n"+txtvotants+"\n"+txt,
@@ -2073,8 +2072,9 @@ def get_current_citoyens(inter):
 
 
 class FormulaireModalVote(discord.ui.Modal):
-    def __init__(self, type):
+    def __init__(self, type, channel_id):
         super().__init__(title="Créer un vote")
+        self.channel_id = channel_id
 
         self.titre = discord.ui.TextInput(
             label="Titre",
@@ -2095,7 +2095,7 @@ class FormulaireModalVote(discord.ui.Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         try:
-            await interaction.response.send_message("En cours...", ephemeral=True)
+            await interaction.response.defer()
             t_type = self.t_type
             t_titre = self.titre.value
             t_texte = self.texte.value
@@ -2107,15 +2107,17 @@ class FormulaireModalVote(discord.ui.Modal):
                 raise Exception(f"Le type de vote {t_type} n'existe pas")
             citoyensl = get_current_citoyens(interaction)
             poll = PollView(t_titre, guild_id=interaction.guild.id, author_id=interaction.user.id, \
-                            channel_id=interaction.channel.id, \
+                            channel_id=self.channel_id, \
                             proportion=proportion, \
                             vote_type=vote,
                             timestamp=int(time.time()), duration=DUREE_VOTES*24*3600, \
                             citoyens=citoyensl)
             votes_channel = bot.get_channel(VOTES_ID)
-            role = await interaction.guild.get_role(CITOYENS_ID)
+            role = interaction.guild.get_role(CITOYENS_ID)
 
-            await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.jump_url)#+"\n"+role.mention)
+            await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url)#+"\n"+role.mention)
+            
+            await interaction.followup.send(":ballot_box: La proposition a été mise au vote")
 
             msg = await poll.send(votes_channel)
             poll_id = poll.save(msg.id)
@@ -2140,7 +2142,7 @@ async def vote(inter, type : str = "l"):
             for right in VOTE_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     if hasattr(inter.channel, "parent_id") and inter.channel.parent_id == AGORA_ID:
-                        modal_vote = FormulaireModalVote(type)
+                        modal_vote = FormulaireModalVote(type, inter.channel.id)
                         await inter.response.send_modal(modal_vote)
                     else:
                         await error_response(inter, f"Désolé, vous ne pouvez initier de vote que dans un post dans l'agora.")
