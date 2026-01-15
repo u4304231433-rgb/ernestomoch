@@ -2077,7 +2077,8 @@ class FormulaireModalVote(discord.ui.Modal):
         self.channel_id = channel_id
 
         self.titre = discord.ui.TextInput(
-            label=titre,
+            label="Titre",
+            default=titre,
             required=True,
             max_length=500
         )
