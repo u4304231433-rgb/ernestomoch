@@ -46,6 +46,7 @@ def simplify_role_name(r):
     return unidecode(r.split("/")[0].replace(" ", "").replace(".","").lower()).replace("*","")
 
 CITOYENS_NAME = PARAMS["CITOYENS_NAME"]
+CITOYENS_ID = PARAMS["CITOYENS_ID"]
 NORMALIENS_NAME = PARAMS["NORMALIENS_NAME"]
 TOURISTES_NAME = PARAMS["TOURISTES_NAME"]
 POLICIERS_NAME = PARAMS["POLICIERS_NAME"]
@@ -69,6 +70,8 @@ AVENT_TITLE = PARAMS["AVENT_TITLE"]
 
 VOTES_NAME = PARAMS["VOTES_NAME"]
 RESULTATS_VOTES_ID = PARAMS["RESULTATS_VOTES_ID"]
+VOTES_ID = PARAMS["VOTES_ID"]
+AGORA_ID = PARAMS["AGORA_ID"]
 
 COMMAND_PREFIX = PARAMS["COMMAND_PREFIX"]
 BOT_NAME = PARAMS["BOT_NAME"]
@@ -417,7 +420,7 @@ def get_closed_view(poll):
 
 @bot.event
 async def on_ready():
-    #await bot.tree.sync()
+    await bot.tree.sync()
     """for guild in bot.guilds:
         await guild.me.edit(nick=BOT_NAME)"""
     try:
@@ -554,7 +557,7 @@ async def score_message(msg):
         await msg.channel.send("incr !")
     if split[1]=="read":
         lines = score_read(split[2])
-        await msg.channel.send("\n".join(["> <@"+line.split(":")[0] + "> "+line.split(":")[0] + " : " + line.split(":")[1] for line in lines]), allowed_mentions=NO_MENTION)
+        await msg.channel.send("\n".join(["> <@"+line.split(":")[0] + "> " + line.split(":")[1] for line in lines]), allowed_mentions=NO_MENTION)
     if split[1]=="remove":
         score_remove(split[3],filter_digits(split[3]))
 
@@ -1757,9 +1760,8 @@ class PollView(discord.ui.View):
         embed.add_field(name=emptyem, value=txt, inline=False)
         return embed
 
-    async def send(self, inter):
+    async def send(self, channel):
         embed = self.get_embed()
-        channel = inter.channel
         msg = await channel.send(embed=embed, view=self)
         await validation_response(inter, "Le vote a bien été initié !")
         return msg
@@ -2070,12 +2072,71 @@ def get_current_citoyens(inter):
     return citoyensl
 
 
+class FormulaireModalVote(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Créer un vote")
+        self.type = discord.ui.SelectMenu(
+            label="Type de vote",
+            placeholder="Loi",
+            options=[discord.SelectOption(label="Loi", value="l", default=True),discord.SelectOption(label="Révision constitutionnelle", value="r")],
+            required=True,
+        )
+
+        self.titre = discord.ui.TextInput(
+            label="Titre",
+            required=True,
+            max_length=500
+        )
+
+        self.texte = discord.ui.TextInput(
+            label="Texte",
+            style=discord.TextStyle.paragraph,
+            required=True,
+            max_length=1300
+        )
+        
+        self.add_item(self.type)
+        self.add_item(self.titre)
+        self.add_item(self.texte)
+
+
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            await interaction.response.send_message("En cours...", ephemeral=True)
+            t_type = self.type.value
+            t_titre = self.titre.value
+            t_texte = self.texte.value
+            if t_type == "l":
+                proportion = PROPORTION_LOI
+            elif t_type == "r":
+                proportion = PROPORTION_REVISION
+            else:
+                raise Exception(f"Le type de vote {t_type} n'existe pas")
+            citoyensl = get_current_citoyens(interaction)
+            poll = PollView(t_titre, guild_id=interaction.guild.id, author_id=interaction.user.id, \
+                            channel_id=interaction.channel.id, \
+                            proportion=proportion, \
+                            vote_type=vote,
+                            timestamp=int(time.time()), duration=DUREE_VOTES*24*3600, \
+                            citoyens=citoyensl)
+            votes_channel = bot.get_channel(VOTES_ID)
+            role = await interaction.guild.get_role(CITOYENS_ID)
+
+            await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.jump_url)#+"\n"+role.mention)
+
+            msg = await poll.send(votes_channel)
+            poll_id = poll.save(msg.id)
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {interaction.guild.id if interaction.guild else 'DM'} ADD: vote \"{t_titre}\" #{poll_id} | Auteur: {interaction.user} | Serveur: {interaction.guild.name if interaction.guild else 'DM'} | Canal: {interaction.channel.name if interaction.guild else 'DM'} | Commande: {interaction.command.name}")
+            asyncio.create_task(poll.wait_end())
+
+        except Exception as e:
+            print_command_error(interaction,e)
+            await error_response(interaction,ERROR_MESSAGE)    
+
+
+
 @bot.tree.command(description="[C] Initie un vote.")
-@app_commands.describe(question="Question à voter (loi par défaut)")
-@app_commands.choices(vote=[app_commands.Choice(name="Loi", value="l"),
-                             app_commands.Choice(name="Révision constitutionnelle", value="r")])
-@app_commands.describe(vote="Type de vote")
-async def vote(inter, question: str, vote: str = "l"):
+async def vote(inter):
     try:
         await inter.response.defer(ephemeral=True)
         if not (is_local or not running_locally): return
@@ -2083,26 +2144,11 @@ async def vote(inter, question: str, vote: str = "l"):
         if not bot_disabled:
             for right in VOTE_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
-                    if inter.channel.name == VOTES_NAME:
-                        if vote == "l":
-                            proportion = PROPORTION_LOI
-                        elif vote == "r":
-                            proportion = PROPORTION_REVISION
-                        else:
-                            raise Exception(f"Le type de vote {vote} n'existe pas")
-                        citoyensl = get_current_citoyens(inter)
-                        poll = PollView(question, guild_id=inter.guild.id, author_id=inter.user.id, \
-                                        channel_id=inter.channel.id, \
-                                        proportion=proportion, \
-                                        vote_type=vote,
-                                        timestamp=int(time.time()), duration=DUREE_VOTES*24*3600, \
-                                        citoyens=citoyensl)
-                        msg = await poll.send(inter)
-                        poll_id = poll.save(msg.id)
-                        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {inter.guild.id if inter.guild else 'DM'} ADD: vote \"{question}\" #{poll_id} | Auteur: {inter.user} | Serveur: {inter.guild.name if inter.guild else 'DM'} | Canal: {inter.channel.name if inter.guild else 'DM'} | Commande: {inter.command.name}")
-                        asyncio.create_task(poll.wait_end())
+                    if hasattr(inter.channel, "parent_id") and inter.channel == AGORA_ID:
+                        modal_vote = FormulaireModalVote()
+                        inter.response.send_modal(modal_vote)
                     else:
-                        await error_response(inter, f"Désolé, vous ne pouvez initier de vote que dans le salon \"{VOTES_NAME}\" prévu à cet effet.")
+                        await error_response(inter, f"Désolé, vous ne pouvez initier de vote que dans un post dans l'agora.")
                     break
             else:
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
