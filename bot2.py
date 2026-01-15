@@ -2072,12 +2072,12 @@ def get_current_citoyens(inter):
 
 
 class FormulaireModalVote(discord.ui.Modal):
-    def __init__(self, type, channel_id):
+    def __init__(self, type, channel_id, titre=""):
         super().__init__(title="Créer un vote")
         self.channel_id = channel_id
 
         self.titre = discord.ui.TextInput(
-            label="Titre",
+            label=titre,
             required=True,
             max_length=500
         )
@@ -2142,7 +2142,7 @@ async def vote(inter, type : str = "l"):
             for right in VOTE_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     if hasattr(inter.channel, "parent_id") and inter.channel.parent_id == AGORA_ID:
-                        modal_vote = FormulaireModalVote(type, inter.channel.id)
+                        modal_vote = FormulaireModalVote(type, inter.channel.id, titre=inter.channel.name)
                         await inter.response.send_modal(modal_vote)
                     else:
                         await error_response(inter, f"Désolé, vous ne pouvez initier de vote que dans un post dans l'agora.")
