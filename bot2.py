@@ -2094,7 +2094,7 @@ class FormulaireModalVote(discord.ui.Modal):
             max_length=1300
         )
         
-        self.add_item(self.type)
+        #self.add_item(self.type)
         self.add_item(self.titre)
         self.add_item(self.texte)
 
