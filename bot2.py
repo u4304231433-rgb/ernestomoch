@@ -2073,13 +2073,8 @@ def get_current_citoyens(inter):
 
 
 class FormulaireModalVote(discord.ui.Modal):
-    def __init__(self):
+    def __init__(self, type):
         super().__init__(title="Créer un vote")
-        """self.type = discord.ui.Select(
-            placeholder="Type",
-            options=[discord.SelectOption(label="Loi", value="l", default=True),discord.SelectOption(label="Révision constitutionnelle", value="r")],
-            required=True,
-        )"""
 
         self.titre = discord.ui.TextInput(
             label="Titre",
@@ -2093,8 +2088,7 @@ class FormulaireModalVote(discord.ui.Modal):
             required=True,
             max_length=1300
         )
-        
-        #self.add_item(self.type)
+        self.t_type = type
         self.add_item(self.titre)
         self.add_item(self.texte)
 
@@ -2102,7 +2096,7 @@ class FormulaireModalVote(discord.ui.Modal):
     async def on_submit(self, interaction: discord.Interaction):
         try:
             await interaction.response.send_message("En cours...", ephemeral=True)
-            t_type = self.type.value
+            t_type = self.t_type
             t_titre = self.titre.value
             t_texte = self.texte.value
             if t_type == "l":
@@ -2135,17 +2129,19 @@ class FormulaireModalVote(discord.ui.Modal):
 
 
 @bot.tree.command(description="[C] Initie un vote.")
-async def vote(inter):
+@app_commands.describe(type="Type de vote")
+@app_commands.choices(type=[app_commands.Choice(name="Loi", value="l"),
+                             app_commands.Choice(name="Révision constitutionnelle", value="r")])
+async def vote(inter, type : str = "l"):
     try:
-        await inter.response.defer(ephemeral=True)
         if not (is_local or not running_locally): return
 
         if not bot_disabled:
             for right in VOTE_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     if hasattr(inter.channel, "parent_id") and inter.channel.parent_id == AGORA_ID:
-                        modal_vote = FormulaireModalVote()
-                        inter.response.send_modal(modal_vote)
+                        modal_vote = FormulaireModalVote(type)
+                        await inter.response.send_modal(modal_vote)
                     else:
                         await error_response(inter, f"Désolé, vous ne pouvez initier de vote que dans un post dans l'agora.")
                     break
