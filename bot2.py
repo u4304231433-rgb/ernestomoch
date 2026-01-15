@@ -2075,8 +2075,8 @@ def get_current_citoyens(inter):
 class FormulaireModalVote(discord.ui.Modal):
     def __init__(self):
         super().__init__(title="Créer un vote")
-        self.type = discord.SelectMenu(
-            #placeholder="Type",
+        self.type = discord.ui.Select(
+            placeholder="Type",
             options=[discord.SelectOption(label="Loi", value="l", default=True),discord.SelectOption(label="Révision constitutionnelle", value="r")],
             required=True,
         )
