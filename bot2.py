@@ -2075,11 +2075,11 @@ def get_current_citoyens(inter):
 class FormulaireModalVote(discord.ui.Modal):
     def __init__(self):
         super().__init__(title="Créer un vote")
-        self.type = discord.ui.Select(
+        """self.type = discord.ui.Select(
             placeholder="Type",
             options=[discord.SelectOption(label="Loi", value="l", default=True),discord.SelectOption(label="Révision constitutionnelle", value="r")],
             required=True,
-        )
+        )"""
 
         self.titre = discord.ui.TextInput(
             label="Titre",
@@ -2137,7 +2137,7 @@ class FormulaireModalVote(discord.ui.Modal):
 @bot.tree.command(description="[C] Initie un vote.")
 async def vote(inter):
     try:
-        #await inter.response.defer(ephemeral=True)
+        await inter.response.defer(ephemeral=True)
         if not (is_local or not running_locally): return
 
         if not bot_disabled:
