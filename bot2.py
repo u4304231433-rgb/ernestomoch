@@ -2073,7 +2073,7 @@ def get_current_citoyens(inter):
 
 class FormulaireModalVote(discord.ui.Modal):
     def __init__(self, type, channel_id, titre=""):
-        super().__init__(title=("Loi" if type == l else "Révision constitutionnelle"))
+        super().__init__(title=("Loi" if type == "l" else "Révision constitutionnelle"))
         self.channel_id = channel_id
 
         self.titre = discord.ui.TextInput(
