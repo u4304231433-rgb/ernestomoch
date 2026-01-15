@@ -2076,7 +2076,7 @@ class FormulaireModalVote(discord.ui.Modal):
     def __init__(self):
         super().__init__(title="Créer un vote")
         self.type = discord.SelectMenu(
-            placeholder="Type",
+            #placeholder="Type",
             options=[discord.SelectOption(label="Loi", value="l", default=True),discord.SelectOption(label="Révision constitutionnelle", value="r")],
             required=True,
         )
