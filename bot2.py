@@ -2144,6 +2144,7 @@ async def vote(inter):
         if not bot_disabled:
             for right in VOTE_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                    log_save(inter.channel.parent_id)
                     if hasattr(inter.channel, "parent_id") and inter.channel == AGORA_ID:
                         modal_vote = FormulaireModalVote()
                         inter.response.send_modal(modal_vote)
