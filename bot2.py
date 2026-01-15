@@ -2137,7 +2137,7 @@ class FormulaireModalVote(discord.ui.Modal):
 @bot.tree.command(description="[C] Initie un vote.")
 async def vote(inter):
     try:
-        await inter.response.defer(ephemeral=True)
+        #await inter.response.defer(ephemeral=True)
         if not (is_local or not running_locally): return
 
         if not bot_disabled:
