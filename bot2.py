@@ -1791,7 +1791,7 @@ class PollView(discord.ui.View):
         txt += (w//2)*emptyem+(" ○ ".join(results) if self.oui+self.non+self.blancs>0 else "")+(w-w//2)*emptyem
         txt += " "+1*self.PB_EMOJIS["empty"]
         if not ended:
-            txt += "<t:"+str(self.timestamp+self.duration)+":R>"
+            txt += "<t:"+str(round(self.timestamp+self.duration))+":R>"
         else:
             txt += "**Terminé**"
         embed.add_field(name=emptyem, value=txt, inline=False)
@@ -1825,7 +1825,7 @@ class PollView(discord.ui.View):
                 polls[i]["closed"] = 1
                 break
         save_polls(polls)
-        channel = bot.get_channel(self.channel_id)
+        channel = bot.get_channel(VOTES_ID)
         message = await channel.fetch_message(self.message_id)
         embed = self.get_embed(True)
         view = get_closed_view(polls[i])
@@ -1833,29 +1833,52 @@ class PollView(discord.ui.View):
         await self.send_compterendu()
 
     async def send_compterendu(self):
-        channel = bot.get_channel(RESULTATS_VOTES_ID)
         if self.non+self.oui == 0:
             txt = "En l'absence de votants, la proposition est **rejetée**."
             txtvotants = ""
             color = discord.Color.dark_purple()
+            adopte = False
         else:
             txtvotants = f"Votants : {self.oui+self.non+self.blancs}, Majorité : {int(self.proportion*(self.oui+self.non))+1}, Votes blanc : {self.blancs}, Pour : {self.oui}, Contre : {self.non}\n"
             prop = self.oui/(self.non+self.oui)
             if prop>self.proportion:
                 txt = "En conséquence, la proposition est **adoptée**."
                 color = discord.Color.yellow()
+                adopte = True
             else:
-
                 txt = "En conséquence, la proposition est **rejetée**."
                 color = discord.Color.dark_purple()
-        link = f"https://discord.com/channels/{self.guild_id}/{self.channel_id}"
+                adopte = False
+        link = f"https://discord.com/channels/{self.guild_id}/{VOTES_ID}/{self.message_id}"
+        link_result = f"https://discord.com/channels/{self.guild_id}/{self.channel_id}"
+
+        embed_result = discord.Embed(
+            title=f"",
+            description=f"Le vote de {'loi' if self.vote_type == 'l' else 'révision constitutionnelle'} {link_result} : _\"{self.question}\"_ est clos.\n"+txtvotants+"\n"+txt,
+            color=color
+        )
         embed = discord.Embed(
             title=f"",
             description=f"Le vote de {'loi' if self.vote_type == 'l' else 'révision constitutionnelle'} {link} : _\"{self.question}\"_ est clos.\n"+txtvotants+"\n"+txt,
             color=color
         )
         #roletoping = discord.utils.get(channel.guild.roles,name=PING_FIN_LOI)
+        channel_result = bot.get_channel(RESULTATS_VOTES_ID)
+        await channel_result.send(embed=embed_result)
+        channel = bot.get_channel(self.channel_id)
         await channel.send(PING_FIN_LOI, embed=embed)
+
+        if not hasattr(channel, "parent"):return
+
+        if adopte:
+            if TAG_ACCEPTE not in [t.id for t in channel.applied_tags]:
+                actuel_vote_tag = discord.utils.get(channel.parent.available_tags, id=TAG_ACCEPTE)
+                await channel.edit(applied_tags=channel.applied_tags+[actuel_vote_tag])
+        else:
+            if TAG_REFUSE not in [t.id for t in channel.applied_tags]:
+                actuel_vote_tag = discord.utils.get(channel.parent.available_tags, id=TAG_REFUSE)
+                await channel.edit(applied_tags=channel.applied_tags+[actuel_vote_tag])
+
 
 
 class PollButton(discord.ui.Button):
