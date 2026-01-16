@@ -1866,12 +1866,11 @@ class PollView(discord.ui.View):
         channel_result = bot.get_channel(RESULTATS_VOTES_ID)
         await channel_result.send(embed=embed_result)
         channel = bot.get_channel(self.channel_id)
-        #await channel.send(PING_FIN_LOI, embed=embed)
-        await channel.send(embed=embed)
+        await channel.send(PING_FIN_LOI, embed=embed)
 
         if not hasattr(channel, "parent"):return
 
-        applied_tags = [t for t in channel.applied_tags if t.id != TAG_ACTUEL_VOTE]
+        applied_tags = [t for t in channel.applied_tags if t.id != TAG_ACTUEL_VOTE and (t.id != TAG_REFUSE or not adopte) and (t.id != TAG_ACCEPTE or adopte)]
         
         if adopte:
             if TAG_ACCEPTE not in [t.id for t in applied_tags]:
@@ -2179,7 +2178,7 @@ class FormulaireModalVote(discord.ui.Modal):
             votes_channel = bot.get_channel(VOTES_ID)
             role = interaction.guild.get_role(CITOYENS_ID)
 
-            await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url)#+"\n"+role.mention)
+            await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url+"\n"+role.mention)
             
             if TAG_ACTUEL_VOTE not in [t.id for t in interaction.channel.applied_tags]:
                 actuel_vote_tag = discord.utils.get(interaction.channel.parent.available_tags, id=TAG_ACTUEL_VOTE)
@@ -2217,6 +2216,9 @@ async def vote(inter):
                             type_ = "r"
                         else:
                             await error_response(inter, f"Désolé, le type de vote que vous souhaitez initier n'est pas défini. Vous devez ajouter un tag (Loi ou Révision).", duration=15)
+                            return
+                        if TAG_ACTUEL_VOTE in tags_ids:
+                            await error_response(inter, f"Désolé, cette proposition est déjà en cours de vote.", duration=15)
                             return
                         modal_vote = FormulaireModalVote(type_, inter.channel.id, titre=inter.channel.name)
                         await inter.response.send_modal(modal_vote)
