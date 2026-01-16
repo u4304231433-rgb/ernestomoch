@@ -1866,18 +1866,21 @@ class PollView(discord.ui.View):
         channel_result = bot.get_channel(RESULTATS_VOTES_ID)
         await channel_result.send(embed=embed_result)
         channel = bot.get_channel(self.channel_id)
-        await channel.send(PING_FIN_LOI, embed=embed)
+        #await channel.send(PING_FIN_LOI, embed=embed)
+        await channel.send(embed=embed)
 
         if not hasattr(channel, "parent"):return
 
+        applied_tags = [t for t in channel.applied_tags if t.id != TAG_ACTUEL_VOTE]
+        
         if adopte:
-            if TAG_ACCEPTE not in [t.id for t in channel.applied_tags]:
+            if TAG_ACCEPTE not in [t.id for t in applied_tags]:
                 actuel_vote_tag = discord.utils.get(channel.parent.available_tags, id=TAG_ACCEPTE)
-                await channel.edit(applied_tags=channel.applied_tags+[actuel_vote_tag])
+                await channel.edit(applied_tags=applied_tags+[actuel_vote_tag])
         else:
-            if TAG_REFUSE not in [t.id for t in channel.applied_tags]:
+            if TAG_REFUSE not in [t.id for t in applied_tags]:
                 actuel_vote_tag = discord.utils.get(channel.parent.available_tags, id=TAG_REFUSE)
-                await channel.edit(applied_tags=channel.applied_tags+[actuel_vote_tag])
+                await channel.edit(applied_tags=applied_tags+[actuel_vote_tag])
 
 
 
@@ -2176,7 +2179,7 @@ class FormulaireModalVote(discord.ui.Modal):
             votes_channel = bot.get_channel(VOTES_ID)
             role = interaction.guild.get_role(CITOYENS_ID)
 
-            await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url+"\n"+role.mention)
+            await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url)#+"\n"+role.mention)
             
             if TAG_ACTUEL_VOTE not in [t.id for t in interaction.channel.applied_tags]:
                 actuel_vote_tag = discord.utils.get(interaction.channel.parent.available_tags, id=TAG_ACTUEL_VOTE)
