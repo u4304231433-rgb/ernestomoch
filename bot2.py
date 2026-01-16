@@ -73,6 +73,13 @@ RESULTATS_VOTES_ID = PARAMS["RESULTATS_VOTES_ID"]
 VOTES_ID = PARAMS["VOTES_ID"]
 AGORA_ID = PARAMS["AGORA_ID"]
 
+TAG_ACTUEL_VOTE=PARAMS["TAG_ACTUEL_VOTE"]
+TAG_ACCEPTE=PARAMS["TAG_ACCEPTE"]
+TAG_REFUSE=PARAMS["TAG_REFUSE"]
+
+TAG_LOI=PARAMS["TAG_LOI"]
+TAG_REVISION=PARAMS["TAG_REVISION"]
+
 COMMAND_PREFIX = PARAMS["COMMAND_PREFIX"]
 BOT_NAME = PARAMS["BOT_NAME"]
 
@@ -259,7 +266,7 @@ def save_polls(polls, path="votes/polls.csv"):
                     elif type(v) == str:
                         gv = "\""+v.replace(";", "{\\pointvirgule}").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")+"\""
                     else:
-                        raise Exception(f"Error while saving {path}, type {type(v)} not implemented.")
+                        raise Exception(f"Error while saving {path}, type {type(v)} not implemented for {str(v)} with key {k}")
                     l.append(gv)
                 else:
                     votes = []
@@ -911,6 +918,36 @@ async def logs(inter, limit : int = 0):
                     fw.write("".join(lines[-limit::][::-1]))
                     fw.close()
                     file = discord.File("limit.log", filename=f".log")
+                    await inter.followup.send("", file=file,ephemeral=True)
+                    break
+            else:
+                await error_response(inter,ERROR_RIGHTS_MESSAGE)
+        elif bot_disabled:
+            await error_response(inter,ERROR_BOT_DISABLED_MESSAGE)
+    except Exception as e:
+        print_command_error(inter,e)
+        await error_response(inter,ERROR_MESSAGE)
+
+
+@bot.tree.command(description="[A] Affiche le fichier des polls", name="polls")
+@app_commands.describe(limit="Limite du nombre de lignes dans le fichier polls, infinie par défaut.")
+async def polls_function(inter, limit : int = 0):
+    try:
+        if (is_local or not running_locally) and not bot_disabled:
+            for right in ADMINISTRATOR_RIGHTS:
+                if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                    try:
+                        await inter.response.defer(ephemeral=True)
+                    except discord.HTTPException:
+                        pass
+                    flog = open("votes/polls.csv","r",encoding="utf-8")
+                    i = 0
+                    lines = flog.readlines()
+                    flog.close()
+                    fw = open("limit.csv","w")
+                    fw.write("".join(lines[-limit::][::-1]))
+                    fw.close()
+                    file = discord.File("limit.csv", filename=f"polls.csv")
                     await inter.followup.send("", file=file,ephemeral=True)
                     break
             else:
@@ -2110,19 +2147,23 @@ class FormulaireModalVote(discord.ui.Modal):
             poll = PollView(t_titre, guild_id=interaction.guild.id, author_id=interaction.user.id, \
                             channel_id=self.channel_id, \
                             proportion=proportion, \
-                            vote_type=vote,
+                            vote_type=self.t_type,
                             timestamp=int(time.time()), duration=DUREE_VOTES*24*3600, \
                             citoyens=citoyensl)
             votes_channel = bot.get_channel(VOTES_ID)
             role = interaction.guild.get_role(CITOYENS_ID)
 
-            await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url)#+"\n"+role.mention)
+            await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url+"\n"+role.mention)
+            
+            if TAG_ACTUEL_VOTE not in [t.id for t in interaction.channel.applied_tags]:
+                actuel_vote_tag = discord.utils.get(interaction.channel.parent.available_tags, id=TAG_ACTUEL_VOTE)
+                await interaction.channel.edit(applied_tags=interaction.channel.applied_tags+[actuel_vote_tag])
             
             await interaction.followup.send(":ballot_box: La proposition a été mise au vote")
 
             msg = await poll.send(votes_channel)
             poll_id = poll.save(msg.id)
-            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {interaction.guild.id if interaction.guild else 'DM'} ADD: vote \"{t_titre}\" #{poll_id} | Auteur: {interaction.user} | Serveur: {interaction.guild.name if interaction.guild else 'DM'} | Canal: {interaction.channel.name if interaction.guild else 'DM'} | Commande: {interaction.command.name}")
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {interaction.guild.id if interaction.guild else 'DM'} ADD: vote \"{t_titre}\" #{poll_id} | Auteur: {interaction.user} | Serveur: {interaction.guild.name if interaction.guild else 'DM'} | Canal: {interaction.channel.name if interaction.guild else 'DM'}")
             asyncio.create_task(poll.wait_end())
 
         except Exception as e:
@@ -2132,10 +2173,7 @@ class FormulaireModalVote(discord.ui.Modal):
 
 
 @bot.tree.command(description="[C] Initie un vote.")
-@app_commands.describe(type="Type de vote")
-@app_commands.choices(type=[app_commands.Choice(name="Loi", value="l"),
-                             app_commands.Choice(name="Révision constitutionnelle", value="r")])
-async def vote(inter, type : str = "l"):
+async def vote(inter):
     try:
         if not (is_local or not running_locally): return
 
@@ -2143,10 +2181,21 @@ async def vote(inter, type : str = "l"):
             for right in VOTE_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     if hasattr(inter.channel, "parent_id") and inter.channel.parent_id == AGORA_ID:
-                        modal_vote = FormulaireModalVote(type, inter.channel.id, titre=inter.channel.name)
+                        tags_ids = [t.id for t in inter.channel.applied_tags]
+                        if TAG_LOI in tags_ids and TAG_REVISION in tags_ids:
+                            await error_response(inter, f"Désolé, le type de vote que vous souhaitez initier est ambigu. Vous devez supprimer un des tags (Révision ou Loi).", duration=15)
+                            return
+                        elif TAG_LOI in tags_ids:
+                            type_ = "l"
+                        elif TAG_REVISION in tags_ids:
+                            type_ = "r"
+                        else:
+                            await error_response(inter, f"Désolé, le type de vote que vous souhaitez initier n'est pas défini. Vous devez ajouter un tag (Loi ou Révision).", duration=15)
+                            return
+                        modal_vote = FormulaireModalVote(type_, inter.channel.id, titre=inter.channel.name)
                         await inter.response.send_modal(modal_vote)
                     else:
-                        await error_response(inter, f"Désolé, vous ne pouvez initier de vote que dans un post dans l'agora.")
+                        await error_response(inter, f"Désolé, vous ne pouvez initier de vote que dans un post dans l'agora.", duration=10)
                     break
             else:
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
