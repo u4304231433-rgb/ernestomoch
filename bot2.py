@@ -336,7 +336,7 @@ def load_polls(path="votes/polls.csv"):
 async def recover_polls():
     polls = load_polls()
     for poll in polls:
-        if poll["closed"] != 1:
+        if time.time() - poll["timestamp"] < 24*3600*(DUREE_DE_VIE_VOTE+DUREE_VOTES):
             channel = bot.get_channel(VOTES_ID)
             if not channel:
                 continue
@@ -352,7 +352,8 @@ async def recover_polls():
                                 duration=poll["duration"], \
                                 vote_type=poll["type"], \
                                 citoyens=poll["citoyens"], \
-                                poll_id=poll["poll_id"])
+                                poll_id=poll["poll_id"], \
+                                closed=poll["closed"])
                 view.message = message
                 asyncio.create_task(view.wait_end())
                 embed = view.get_embed()
@@ -1832,27 +1833,29 @@ class PollView(discord.ui.View):
         delay = self.timestamp+self.duration-time.time()
         if delay > 0:
             await asyncio.sleep(delay)
-        self.termine = True
         polls = load_polls()
         for i in range(len(polls)):
             if self.poll_id == polls[i]["poll_id"]:
                 polls[i]["closed"] = 1
                 break
         save_polls(polls)
-        channel = bot.get_channel(VOTES_ID)
-        message = await channel.fetch_message(self.message_id)
-        embed = self.get_embed(True)
-        view = get_closed_view(polls[i])
-        await message.edit(embed=embed, view=view)
-        await self.send_compterendu()
+        if not self.termine:
+            channel = bot.get_channel(VOTES_ID)
+            message = await channel.fetch_message(self.message_id)
+            embed = self.get_embed(True)
+            view = get_closed_view(polls[i])
+            await message.edit(embed=embed, view=view)
+            await self.send_compterendu()
+            self.termine = True
 
         #suppression automatique
         delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600-self.duration)-time.time()
         if delay > 0:
             await asyncio.sleep(delay)
         remove_poll(i)
-        channel = bot.get_channel(self.channel_id)
-        await channel.send(f":card_box: Le vote #{self.poll_id} de cette proposition a été archivé.")
+        if self.channel_id != VOTES_ID:
+            channel = bot.get_channel(self.channel_id)
+            await channel.send(f":card_box: Le vote #{self.poll_id} de cette proposition a été archivé.")
 
 
     async def send_compterendu(self):
