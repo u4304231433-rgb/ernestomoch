@@ -336,7 +336,7 @@ def load_polls(path="votes/polls.csv"):
 async def recover_polls():
     polls = load_polls()
     for poll in polls:
-        if poll["closed"] != 1:
+        if True:#poll["closed"] != 1:
             channel = bot.get_channel(VOTES_ID)
             if not channel:
                 continue
