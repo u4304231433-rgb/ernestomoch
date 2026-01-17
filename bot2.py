@@ -1840,13 +1840,13 @@ class PollView(discord.ui.View):
                 break
         save_polls(polls)
         if not self.termine:
+            self.termine = True
             channel = bot.get_channel(VOTES_ID)
             message = await channel.fetch_message(self.message_id)
             embed = self.get_embed(True)
             view = get_closed_view(polls[i])
             await message.edit(embed=embed, view=view)
             await self.send_compterendu()
-            self.termine = True
 
         #suppression automatique
         delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600-self.duration)-time.time()
