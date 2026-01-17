@@ -336,7 +336,7 @@ def load_polls(path="votes/polls.csv"):
 async def recover_polls():
     polls = load_polls()
     for poll in polls:
-        if True:#poll["closed"] != 1:
+        if poll["closed"] != 1:
             channel = bot.get_channel(VOTES_ID)
             if not channel:
                 continue
@@ -952,15 +952,20 @@ async def polls_function(inter, limit : int = 0):
                         await inter.response.defer(ephemeral=True)
                     except discord.HTTPException:
                         pass
-                    flog = open("votes/polls.csv","r",encoding="utf-8")
-                    i = 0
-                    lines = flog.readlines()
-                    flog.close()
-                    fw = open("limit.csv","w")
-                    fw.write("".join(lines[-limit::][::-1]))
-                    fw.close()
-                    file = discord.File("limit.csv", filename=f"polls.csv")
-                    await inter.followup.send("", file=file,ephemeral=True)
+                    if limit == 0:
+                        file = discord.File("votes/polls.csv", filename=f"polls.csv")
+                        await inter.followup.send("", file=file,ephemeral=True)
+                        file = discord.File("votes/archive.csv", filename=f"archive.csv")
+                        await inter.followup.send("", file=file,ephemeral=True)
+                    else:
+                        flog = open("votes/polls.csv","r",encoding="utf-8")
+                        lines = flog.readlines()
+                        flog.close()
+                        fw = open("limit.csv","w")
+                        fw.write("".join(lines[-limit::][::-1]))
+                        fw.close()
+                        file = discord.File("limit.csv", filename=f"polls.csv")
+                        await inter.followup.send("", file=file,ephemeral=True)
                     break
             else:
                 await error_response(inter,ERROR_RIGHTS_MESSAGE)
@@ -1883,8 +1888,8 @@ class PollView(discord.ui.View):
         #roletoping = discord.utils.get(channel.guild.roles,name=PING_FIN_LOI)
         channel_result = bot.get_channel(RESULTATS_VOTES_ID)
         await channel_result.send(embed=embed_result)
-        #channel = bot.get_channel(self.channel_id)
-        #await channel.send(PING_FIN_LOI, embed=embed)
+        channel = bot.get_channel(self.channel_id)
+        await channel.send(PING_FIN_LOI, embed=embed)
 
         if not hasattr(channel, "parent"):return
 
