@@ -97,6 +97,7 @@ PROPORTION_LOI = PARAMS["PROPORTION_LOI"]
 PROPORTION_REVISION = PARAMS["PROPORTION_REVISION"]
 
 DUREE_VOTES = PARAMS["DUREE_VOTES"]
+DUREE_DE_VIE_VOTE = PARAMS["DUREE_DE_VIE_VOTE"]
 
 PING_FIN_LOI = PARAMS["PING_FIN_LOI"]
 
@@ -282,7 +283,7 @@ def save_polls(polls, path="votes/polls.csv"):
         f.close()
     else:
         f = open(path, "w", encoding="utf-8")
-        f.write()
+        f.write("")
         f.close()
 
 def load_polls(path="votes/polls.csv"):
@@ -336,7 +337,7 @@ async def recover_polls():
     polls = load_polls()
     for poll in polls:
         if poll["closed"] != 1:
-            channel = bot.get_channel(poll["channel_id"])
+            channel = bot.get_channel(VOTES_ID)
             if not channel:
                 continue
             try:
@@ -366,6 +367,17 @@ async def recover_polls():
             message = await channel.fetch_message(poll["message_id"])
             view = get_closed_view(poll)
             await message.edit(view=view)
+
+def remove_poll(i):
+    polls = load_polls()
+    polls_archive = load_polls(path="votes/archive.csv")
+    poll_removed = polls[i].copy()
+    poll_removed["remove_time"] = int(time.time())
+    save_polls(polls_archive+[poll_removed], path="votes/archive.csv")
+    polls2 = polls[:i]+polls[i+1:]
+    save_polls(polls2)
+    return poll_removed
+
 
 def get_closed_view(poll):
     view = discord.ui.View(timeout=None)
@@ -1797,18 +1809,15 @@ class PollView(discord.ui.View):
         embed.add_field(name=emptyem, value=txt, inline=False)
         return embed
 
-    async def send(self, channel):
+    async def send(self, channel, msgdescription):
         embed = self.get_embed()
-        msg = await channel.send(embed=embed, view=self)
+        msg = await msgdescription.reply(embed=embed, view=self)
         return msg
 
     def save(self, msg_id):
         self.message_id = msg_id
         polls = load_polls()
-        if polls:
-            poll_id = max(poll["poll_id"] for poll in polls)+1
-        else:
-            poll_id = 1
+        poll_id = random.randint(int(1e10),int(1e11-1))
         self.poll_id = poll_id
         polls.append({"poll_id": poll_id, "message_id": msg_id, "question": self.question, "proportion": self.proportion, "type": self.vote_type, "author_id": self.author_id, "channel_id": self.channel_id, "guild_id": self.guild_id, "timestamp": int(self.timestamp), "duration": self.duration, "vote_type": self.vote_type, "closed": 0, "votes":{}, "citoyens": self.citoyens})
         save_polls(polls)
@@ -1831,6 +1840,15 @@ class PollView(discord.ui.View):
         view = get_closed_view(polls[i])
         await message.edit(embed=embed, view=view)
         await self.send_compterendu()
+
+        #suppression automatique
+        delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600-self.duration)-time.time()
+        if delay > 0:
+            await asyncio.sleep(delay)
+        remove_poll(i)
+        channel = bot.get_channel(self.channel_id)
+        await channel.send(f":card_box: Le vote #{self.poll_id} de cette proposition a été archivé.")
+
 
     async def send_compterendu(self):
         if self.non+self.oui == 0:
@@ -1870,16 +1888,18 @@ class PollView(discord.ui.View):
 
         if not hasattr(channel, "parent"):return
 
-        applied_tags = [t for t in channel.applied_tags if t.id != TAG_ACTUEL_VOTE and (t.id != TAG_REFUSE or not adopte) and (t.id != TAG_ACCEPTE or adopte)]
-        
+        applied_tags = [t for t in channel.applied_tags if (t.id != TAG_ACTUEL_VOTE) and (t.id != TAG_REFUSE or not adopte) and (t.id != TAG_ACCEPTE or adopte)]
+
         if adopte:
             if TAG_ACCEPTE not in [t.id for t in applied_tags]:
-                actuel_vote_tag = discord.utils.get(channel.parent.available_tags, id=TAG_ACCEPTE)
-                await channel.edit(applied_tags=applied_tags+[actuel_vote_tag])
+                tag_accepte = discord.utils.get(channel.parent.available_tags, id=TAG_ACCEPTE)
+                applied_tags.append(tag_accepte)
         else:
             if TAG_REFUSE not in [t.id for t in applied_tags]:
-                actuel_vote_tag = discord.utils.get(channel.parent.available_tags, id=TAG_REFUSE)
-                await channel.edit(applied_tags=applied_tags+[actuel_vote_tag])
+                tag_refuse = discord.utils.get(channel.parent.available_tags, id=TAG_REFUSE)
+                applied_tags.append(tag_refuse)
+        
+        await channel.edit(applied_tags=applied_tags)
 
 
 
@@ -2056,15 +2076,30 @@ class ConfirmView(discord.ui.View):
     @discord.ui.button(label="✅ Oui", style=discord.ButtonStyle.danger, custom_id="confirm")
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         if self.visible == 0:
-            channel = bot.get_channel(self.channel_id)
-            message = await channel.fetch_message(self.msg_id)
-            await message.delete()
-        polls = load_polls()
-        polls2 = polls[:self.i]+polls[self.i+1:]
-        save_polls(polls2)
+            channel = bot.get_channel(VOTES_ID)
+            try:
+                message = await channel.fetch_message(self.msg_id)
+                if message.reference:
+                    ref = message.reference
+                    if ref.resolved:
+                        replied = ref.resolved
+                    else:
+                        replied = await message.channel.fetch_message(ref.message_id)
+                    await message.delete()
+                    await replied.delete()
+                else:
+                    await message.delete()
+                    await error_response(interaction, "Impossible de supprimer le message descriptif, suite à un problème technique.", duration=10)
+
+            except discord.errors.NotFound:
+                pass
+        poll = remove_poll(self.i)
         await self.inter.delete_original_response()
-        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {self.inter.guild.id if self.inter.guild else 'DM'} DELETE: vote \"{polls[self.i]['question']}\" #{self.poll_id} | Auteur: {self.inter.user} | Serveur: {self.inter.guild.name if self.inter.guild else 'DM'} | Canal: {self.inter.channel.name if self.inter.guild else 'DM'} | Commande: {self.inter.command.name}")
-        await custom_response(interaction, "✅ Suppression confirmée")
+        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {self.inter.guild.id if self.inter.guild else 'DM'} DELETE: vote \"{poll['question']}\" #{self.poll_id} | Auteur: {self.inter.user} | Serveur: {self.inter.guild.name if self.inter.guild else 'DM'} | Canal: {self.inter.channel.name if self.inter.guild else 'DM'} | Commande: {self.inter.command.name}")
+        applied_tags = [t for t in self.inter.channel.applied_tags if t.id != TAG_ACTUEL_VOTE]
+        await self.inter.channel.edit(applied_tags=applied_tags)
+
+        await self.inter.followup.send(f":scissors: Vote supprimé par {self.inter.user.mention}", allowed_mentions=NO_MENTION)
 
     @discord.ui.button(label="❌ Non", style=discord.ButtonStyle.secondary, custom_id="cancel")
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -2079,11 +2114,10 @@ async def votesupdate(inter):
 
 
 @bot.tree.command(description="[C] Supprime un vote.")
-@app_commands.describe(identifiant="Identifiant du vote")
 @app_commands.describe(visible="Garder le vote sur le serveur ?")
 @app_commands.choices(visible=[app_commands.Choice(name="Oui", value=1),
                              app_commands.Choice(name="Non", value=0)])
-async def deletevote(inter, identifiant: int, visible : int = 0):
+async def deletevote(inter, visible : int = 0):
     try:
         if not (is_local or not running_locally): return
 
@@ -2091,26 +2125,26 @@ async def deletevote(inter, identifiant: int, visible : int = 0):
             for right in VOTE_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     polls = load_polls()
-                    for i, poll in enumerate(polls):
-                        if poll["poll_id"] == identifiant:
-                            if poll["guild_id"] == inter.guild.id:
-                                if poll["channel_id"] == inter.channel.id:
-                                    if visible == 0 or poll["closed"] == 1:
-                                        link = f"https://discord.com/channels/{poll['guild_id']}/{poll['channel_id']}/{poll['message_id']}"
-                                        embed = discord.Embed(
-                                            title="⚠️ Confirmation requise",
-                                            description=f"Êtes-vous sûr.e de vouloir **supprimer** de façon **définitive** ce vote : \"{poll['question']}\" : {link} ?",
-                                            color=discord.Color.red()
-                                        )
-                                        view = ConfirmView(inter, i, poll["message_id"], poll["channel_id"], visible, poll_id=identifiant)
-                                        await inter.response.send_message(embed=embed, view=view, ephemeral=True)
-                                    else:
-                                        await error_response(inter, "Désolé, vous ne pouvez supprimer ce vote de façon invisible car il est toujours actif.\nSi vous souhaitez le supprimer tout de même, exécutez `deletevote` en supprimant également le message associé (visible=Non).", duration=10)
+                    for i in range(len(polls)-1,-1,-1):
+                        poll = polls[i]
+                        if poll["guild_id"] == inter.guild.id:
+                            if poll["channel_id"] == inter.channel.id:
+                                if visible == 0 or poll["closed"] == 1:
+                                    link = f"https://discord.com/channels/{poll['guild_id']}/{VOTES_ID}/{poll['message_id']}"
+                                    embed = discord.Embed(
+                                        title="⚠️ Confirmation requise",
+                                        description=f"Êtes-vous sûr.e de vouloir **supprimer** de façon **définitive** ce vote : \"{poll['question']}\" : {link} ?",
+                                        color=discord.Color.red()
+                                    )
+                                    view = ConfirmView(inter, i, poll["message_id"], poll["channel_id"], visible, poll_id=poll["poll_id"])
+                                    await inter.response.send_message(embed=embed, view=view, ephemeral=True)
                                 else:
-                                    await error_response(inter, "Désolé, vous devez supprimer ce vote depuis le canal dans lequel vous l'avez initié.")
+                                    await error_response(inter, "Désolé, vous ne pouvez supprimer ce vote de façon invisible car il est toujours actif.\nSi vous souhaitez le supprimer tout de même, exécutez `deletevote` en supprimant également le message associé (visible=Non).", duration=10)
                             else:
-                                await error_response(inter, "Désolé, vous ne pouvez pas supprimer ce vote.")
-                            break
+                                await error_response(inter, "Désolé, vous devez supprimer ce vote depuis le canal dans lequel vous l'avez initié.")
+                        else:
+                            await error_response(inter, "Désolé, vous ne pouvez pas supprimer ce vote.")
+                        break
                     else:
                         await error_response(inter, "Désolé, cet identifiant n'est associé à aucun vote.")
                     break
@@ -2178,7 +2212,7 @@ class FormulaireModalVote(discord.ui.Modal):
             votes_channel = bot.get_channel(VOTES_ID)
             role = interaction.guild.get_role(CITOYENS_ID)
 
-            await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url+"\n"+role.mention)
+            msgdescription = await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url+"\n"+role.mention)
             
             if TAG_ACTUEL_VOTE not in [t.id for t in interaction.channel.applied_tags]:
                 actuel_vote_tag = discord.utils.get(interaction.channel.parent.available_tags, id=TAG_ACTUEL_VOTE)
@@ -2186,7 +2220,8 @@ class FormulaireModalVote(discord.ui.Modal):
             
             await interaction.followup.send(":ballot_box: La proposition a été mise au vote")
 
-            msg = await poll.send(votes_channel)
+            msg = await poll.send(votes_channel, msgdescription)
+            
             poll_id = poll.save(msg.id)
             log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] {interaction.guild.id if interaction.guild else 'DM'} ADD: vote \"{t_titre}\" #{poll_id} | Auteur: {interaction.user} | Serveur: {interaction.guild.name if interaction.guild else 'DM'} | Canal: {interaction.channel.name if interaction.guild else 'DM'}")
             asyncio.create_task(poll.wait_end())

@@ -16,4 +16,5 @@ __pycache__/
 /tex/main.fdb_latexmk
 /params/local.txt
 /votes/polls.csv
+/votes/archive.csv
 /scores/
