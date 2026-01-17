@@ -1883,8 +1883,8 @@ class PollView(discord.ui.View):
         #roletoping = discord.utils.get(channel.guild.roles,name=PING_FIN_LOI)
         channel_result = bot.get_channel(RESULTATS_VOTES_ID)
         await channel_result.send(embed=embed_result)
-        channel = bot.get_channel(self.channel_id)
-        await channel.send(PING_FIN_LOI, embed=embed)
+        #channel = bot.get_channel(self.channel_id)
+        #await channel.send(PING_FIN_LOI, embed=embed)
 
         if not hasattr(channel, "parent"):return
 
