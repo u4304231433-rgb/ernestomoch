@@ -1835,7 +1835,7 @@ class PollView(discord.ui.View):
     async def wait_end(self):
         log_save(f"0.5")
         polls = load_polls()
-        log_save(f"1: recovering poll {polls[i]['question']}")
+        log_save(f"1: recovering poll {self.poll_id}")
 
         delay = self.timestamp+self.duration-time.time()
         if delay > 0:
