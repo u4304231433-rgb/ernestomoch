@@ -1843,10 +1843,10 @@ class PollView(discord.ui.View):
             self.termine = True
             channel = bot.get_channel(VOTES_ID)
             message = await channel.fetch_message(self.message_id)
-            embed = self.get_embed(True)
-            view = get_closed_view(polls[i])
             await self.send_compterendu()
         
+        view = get_closed_view(polls[i])
+        embed = self.get_embed(True)
         await message.edit(embed=embed, view=view)
 
         #suppression automatique
