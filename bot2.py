@@ -1833,6 +1833,7 @@ class PollView(discord.ui.View):
         return poll_id
 
     async def wait_end(self):
+        log_save(f"0.5: recovering poll {poll['question']}")
         delay = self.timestamp+self.duration-time.time()
         if delay > 0:
             await asyncio.sleep(delay)
