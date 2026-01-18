@@ -355,6 +355,7 @@ async def recover_polls():
                                 poll_id=poll["poll_id"], \
                                 closed=poll["closed"])
                 view.message = message
+                log_save(f"0: recovering poll {poll['question']}")
                 asyncio.create_task(view.wait_end())
 
                 if not poll["closed"]:
