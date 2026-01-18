@@ -1850,6 +1850,7 @@ class PollView(discord.ui.View):
         view = get_closed_view(polls[i])
         embed = self.get_embed(True)
         await message.edit(embed=embed, view=view)
+        log_save(f"recovering poll {polls[i]['question']}")
 
         #suppression automatique
         delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600-self.duration)-time.time()
