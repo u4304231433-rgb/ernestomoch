@@ -251,7 +251,9 @@ def load_emojis():
 
 load_emojis()
 
-def save_polls(polls, path="votes/polls.csv"):
+FICHIER_POLLS = "votes/polls2.csv"
+
+def save_polls(polls, path=FICHIER_POLLS):
     if polls:
         txt = []
         keys = list(polls[0].keys())
@@ -286,7 +288,7 @@ def save_polls(polls, path="votes/polls.csv"):
         f.write("")
         f.close()
 
-def load_polls(path="votes/polls.csv"):
+def load_polls(path=FICHIER_POLLS):
     try:
         f = open(path, "r", encoding="utf-8")
         keys = []
@@ -957,12 +959,12 @@ async def polls_function(inter, limit : int = 0):
                     except discord.HTTPException:
                         pass
                     if limit == 0:
-                        file = discord.File("votes/polls.csv", filename=f"polls.csv")
+                        file = discord.File(FICHIER_POLLS, filename=f"polls.csv")
                         await inter.followup.send("", file=file,ephemeral=True)
                         file = discord.File("votes/archive.csv", filename=f"archive.csv")
                         await inter.followup.send("", file=file,ephemeral=True)
                     else:
-                        flog = open("votes/polls.csv","r",encoding="utf-8")
+                        flog = open(FICHIER_POLLS,"r",encoding="utf-8")
                         lines = flog.readlines()
                         flog.close()
                         fw = open("limit.csv","w")
