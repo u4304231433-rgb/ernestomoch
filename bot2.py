@@ -1833,13 +1833,13 @@ class PollView(discord.ui.View):
         return poll_id
 
     async def wait_end(self):
-        log_save(f"0.5: recovering poll {poll['question']}")
+        polls = load_polls()
+        log_save(f"1:recovering poll {polls[i]['question']}")
+
         delay = self.timestamp+self.duration-time.time()
         if delay > 0:
             await asyncio.sleep(delay)
-        log_save(f"1:recovering poll {polls[i]['question']}")
 
-        polls = load_polls()
         for i in range(len(polls)):
             if self.poll_id == polls[i]["poll_id"]:
                 polls[i]["closed"] = 1
