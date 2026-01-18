@@ -356,8 +356,10 @@ async def recover_polls():
                                 closed=poll["closed"])
                 view.message = message
                 asyncio.create_task(view.wait_end())
-                embed = view.get_embed()
-                await message.edit(embed=embed, view=view)
+
+                if not poll["closed"]:
+                    embed = view.get_embed()
+                    await message.edit(embed=embed, view=view)
             except Exception as e:
                 log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ERROR: impossible de reprendre le vote #{poll['poll_id']} \"{poll['question']}\" suite à l'erreur : {e}")
         else:
