@@ -221,7 +221,7 @@ def log_save(m):
 
     else:
         with open(".log","r", encoding="utf-8") as flog:
-            lines = flog.readlines()[:500]
+            lines = flog.readlines()[-500:]
         with open(".log","w", encoding="utf-8") as flog:
             for l in lines:
                 flog.write(l)
