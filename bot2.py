@@ -337,7 +337,9 @@ def load_polls(path=FICHIER_POLLS):
 
 async def recover_polls():
     polls = load_polls()
-    for poll in polls:
+    i = len(polls)
+    for poll in polls[::-1]:
+        i-=1
         if time.time() - poll["timestamp"] < 24*3600*(DUREE_DE_VIE_VOTE+DUREE_VOTES):
             channel = bot.get_channel(VOTES_ID)
             if not channel:
@@ -373,6 +375,7 @@ async def recover_polls():
             message = await channel.fetch_message(poll["message_id"])
 
             await message.edit(view=None)
+            remove_poll(i)
             log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ARCH. POLL {poll["poll_id"]} RECOVERED | Serveur: {poll["guild_id"]}")
 
 def remove_poll(i):
@@ -1859,6 +1862,7 @@ class PollView(discord.ui.View):
         log_save(f"3: recovering poll {self.poll_id}")
 
         view = get_closed_view(polls[i])
+
         log_save(f"4: recovering poll {self.poll_id}")
         embed = self.get_embed(True)
         log_save(f"5: recovering poll {self.poll_id}")
@@ -1871,6 +1875,9 @@ class PollView(discord.ui.View):
         if delay > 0:
             await asyncio.sleep(delay)
         remove_poll(i)
+        message = await channel.fetch_message(self.message_id)
+        await message.edit(view=None)
+
         log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL {self.poll_id} ARCHIVE | Serveur: {self.guild_id}")
 
         if self.channel_id != VOTES_ID:
