@@ -252,6 +252,7 @@ def load_emojis():
 load_emojis()
 
 FICHIER_POLLS = "votes/polls2.csv"
+FICHIER_ARCHIVE = "votes/archive2.csv"
 
 def save_polls(polls, path=FICHIER_POLLS):
     if polls:
@@ -382,10 +383,10 @@ async def recover_polls():
 
 def remove_poll(i):
     polls = load_polls()
-    polls_archive = load_polls(path="votes/archive.csv")
+    polls_archive = load_polls(path=FICHIER_ARCHIVE)
     poll_removed = polls[i].copy()
     poll_removed["remove_time"] = int(time.time())
-    save_polls(polls_archive+[poll_removed], path="votes/archive.csv")
+    save_polls(polls_archive+[poll_removed], path=FICHIER_ARCHIVE)
     polls2 = polls[:i]+polls[i+1:]
     save_polls(polls2)
     return poll_removed
@@ -967,7 +968,7 @@ async def polls_function(inter, limit : int = 0):
                     if limit == 0:
                         file = discord.File(FICHIER_POLLS, filename=f"polls.csv")
                         await inter.followup.send("", file=file,ephemeral=True)
-                        file = discord.File("votes/archive.csv", filename=f"archive.csv")
+                        file = discord.File(FICHIER_ARCHIVE, filename=f"archive.csv")
                         await inter.followup.send("", file=file,ephemeral=True)
                     else:
                         flog = open(FICHIER_POLLS,"r",encoding="utf-8")
