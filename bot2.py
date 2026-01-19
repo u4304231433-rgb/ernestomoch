@@ -303,7 +303,7 @@ def load_polls(path=FICHIER_POLLS):
                     poll = {}
                     if l == "":continue
                     values = l.split(";")
-                    if len(values) != len(keys):
+                    if len(values) < len(keys):
                         raise Exception(f"Error while scanning {path} {values} {keys}")
                     for j in range(len(keys)):
                         if keys[j] == "votes":
