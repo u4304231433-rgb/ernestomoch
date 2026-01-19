@@ -369,10 +369,14 @@ async def recover_polls():
             channel = bot.get_channel(poll["channel_id"])
             if not channel:
                 continue
+            
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL {poll["poll_id"]} ARCHIVE | Serveur: {poll["guild_id"]}")
 
             message = await channel.fetch_message(poll["message_id"])
+
             view = get_closed_view(poll)
             await message.edit(view=view)
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ARCH. POLL {poll["poll_id"]} RECOVERED | Serveur: {poll["guild_id"]}")
 
 def remove_poll(i):
     polls = load_polls()
@@ -1870,6 +1874,8 @@ class PollView(discord.ui.View):
         if delay > 0:
             await asyncio.sleep(delay)
         remove_poll(i)
+        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL {self.poll_id} ARCHIVE | Serveur: {self.guild_id}")
+
         if self.channel_id != VOTES_ID:
             channel = bot.get_channel(self.channel_id)
             await channel.send(f":card_box: Le vote #{self.poll_id} de cette proposition a été archivé.")
