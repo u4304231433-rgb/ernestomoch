@@ -340,43 +340,45 @@ async def recover_polls():
     i = len(polls)
     for poll in polls[::-1]:
         i-=1
-        if time.time() - poll["timestamp"] < 24*3600*(DUREE_DE_VIE_VOTE+DUREE_VOTES):
-            channel = bot.get_channel(VOTES_ID)
-            if not channel:
-                continue
-            try:
-                message = await channel.fetch_message(poll["message_id"])
-                view = PollView(question=poll["question"], guild_id=poll["guild_id"], \
-                                channel_id=poll["channel_id"], \
-                                author_id=poll["author_id"], \
-                                message_id=poll["message_id"], \
-                                proportion=poll["proportion"], \
-                                existing_votes=poll["votes"], \
-                                timestamp=poll["timestamp"], \
-                                duration=poll["duration"], \
-                                vote_type=poll["type"], \
-                                citoyens=poll["citoyens"], \
-                                poll_id=poll["poll_id"], \
-                                closed=poll["closed"])
-                view.message = message
+        channel = bot.get_channel(VOTES_ID)
+        if not channel:
+            continue
+        try:
+            message = await channel.fetch_message(poll["message_id"])
+            view = PollView(question=poll["question"], guild_id=poll["guild_id"], \
+                            channel_id=poll["channel_id"], \
+                            author_id=poll["author_id"], \
+                            message_id=poll["message_id"], \
+                            proportion=poll["proportion"], \
+                            existing_votes=poll["votes"], \
+                            timestamp=poll["timestamp"], \
+                            duration=poll["duration"], \
+                            vote_type=poll["type"], \
+                            citoyens=poll["citoyens"], \
+                            poll_id=poll["poll_id"], \
+                            closed=poll["closed"])
+            view.message = message
+            if time.time() - poll["timestamp"] < 24*3600*(DUREE_DE_VIE_VOTE+DUREE_VOTES):
+
                 log_save(f"0: recovering poll {poll['question']}")
                 asyncio.create_task(view.wait_end())
 
                 if not poll["closed"]:
                     embed = view.get_embed()
                     await message.edit(embed=embed, view=view)
-            except Exception as e:
-                log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ERROR: impossible de reprendre le vote #{poll['poll_id']} \"{poll['question']}\" suite à l'erreur : {e}")
-        else:
-            channel = bot.get_channel(poll["channel_id"])
-            if not channel:
-                continue
-            
-            message = await channel.fetch_message(poll["message_id"])
+            else:
+                channel = bot.get_channel(poll["channel_id"])
+                if not channel:
+                    continue
+                
+                message = await channel.fetch_message(poll["message_id"])
+                embed=view.get_embed()
+                await message.edit(embed=embed,view=None)
+                remove_poll(i)
+                log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ARCH. POLL {poll["poll_id"]} RECOVERED | Serveur: {poll["guild_id"]}")
 
-            await message.edit(view=None)
-            remove_poll(i)
-            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ARCH. POLL {poll["poll_id"]} RECOVERED | Serveur: {poll["guild_id"]}")
+        except Exception as e:
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ERROR: impossible de reprendre le vote #{poll['poll_id']} \"{poll['question']}\" suite à l'erreur : {e}")
 
 def remove_poll(i):
     polls = load_polls()
