@@ -370,12 +370,9 @@ async def recover_polls():
             if not channel:
                 continue
             
-            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL {poll["poll_id"]} ARCHIVE | Serveur: {poll["guild_id"]}")
-
             message = await channel.fetch_message(poll["message_id"])
 
-            view = get_closed_view(poll)
-            await message.edit(view=view)
+            await message.edit(view=None)
             log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ARCH. POLL {poll["poll_id"]} RECOVERED | Serveur: {poll["guild_id"]}")
 
 def remove_poll(i):
@@ -444,7 +441,7 @@ def get_closed_view(poll):
     for k in poll["votes"]:
         view.votes[poll["votes"][k]].append(int(k))
 
-    view.add_item(button)
+    #view.add_item(button)
     return view
 
 @bot.event
