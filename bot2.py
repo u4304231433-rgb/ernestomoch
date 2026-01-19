@@ -373,7 +373,7 @@ async def recover_polls():
                     continue
                 
                 message = await channel.fetch_message(poll["message_id"])
-                embed=view.get_embed()
+                embed=view.get_embed(True)
                 await message.edit(embed=embed,view=None)
                 remove_poll(i)
                 log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ARCH. POLL {poll["poll_id"]} RECOVERED | Serveur: {poll["guild_id"]}")
