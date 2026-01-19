@@ -2250,7 +2250,7 @@ class FormulaireModalVote(discord.ui.Modal):
             votes_channel = bot.get_channel(VOTES_ID)
             role = interaction.guild.get_role(CITOYENS_ID)
 
-            msgdescription = await votes_channel.send("# "+t_titre+"\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url+"\n"+role.mention)
+            msgdescription = await votes_channel.send("# "+t_titre+"\n"+interaction.channel.owner.mention+" a effectué la proposition suivante :"+"\n\n"+t_texte+"\n\nLa proposition est disponible dans "+interaction.channel.jump_url+"\n"+role.mention)
             
             if TAG_ACTUEL_VOTE not in [t.id for t in interaction.channel.applied_tags]:
                 actuel_vote_tag = discord.utils.get(interaction.channel.parent.available_tags, id=TAG_ACTUEL_VOTE)
