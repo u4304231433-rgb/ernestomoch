@@ -1837,7 +1837,7 @@ class PollView(discord.ui.View):
         if not self.termine:
             view = self
             log_save("#"+str(self.poll_id)+" recovered")
-        if not self.archive:
+        elif not self.archive:
             view = get_closed_view(self.poll())
             log_save("#"+str(self.poll_id)+" closed")
         else:
