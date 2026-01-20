@@ -339,11 +339,9 @@ def load_polls(path=FICHIER_POLLS):
 async def recover_polls():
     polls = load_polls()
     i = len(polls)
+    channel = bot.get_channel(VOTES_ID)
     for poll in polls[::-1]:
         i-=1
-        channel = bot.get_channel(VOTES_ID)
-        if not channel:
-            continue
         try:
             message = await channel.fetch_message(poll["message_id"])
             view = PollView(question=poll["question"], guild_id=poll["guild_id"], \
@@ -1836,6 +1834,8 @@ class PollView(discord.ui.View):
 
         embed = self.get_embed()
 
+        if not self.termine:
+            view = self
         if not self.archive:
             view = get_closed_view(self.poll())
         else:
@@ -1871,7 +1871,6 @@ class PollView(discord.ui.View):
             log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL #{self.poll_id} CLOS \""+self.question+"\" | Serveur: {self.guild_id}")
             await asyncio.sleep(delay)
 
-        
         remove_poll(i)
         self.archive = True
         
