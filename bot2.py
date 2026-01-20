@@ -364,9 +364,8 @@ async def recover_polls():
                 log_save(f"0: recovering poll {poll['question']}")
                 asyncio.create_task(view.wait_end())
 
-                if not poll["closed"]:
-                    embed = view.get_embed()
-                    await message.edit(embed=embed, view=view)
+                embed = view.get_embed(True)
+                await message.edit(embed=embed, view=view)
             else:
                 channel = bot.get_channel(poll["channel_id"])
                 if not channel:
