@@ -359,23 +359,11 @@ async def recover_polls():
                             poll_id=poll["poll_id"], \
                             closed=poll["closed"])
             view.message = message
-            if time.time() - poll["timestamp"] < 24*3600*(DUREE_DE_VIE_VOTE+DUREE_VOTES):
-
-                log_save(f"0: recovering poll {poll['question']}")
-                asyncio.create_task(view.wait_end())
-
-                embed = view.get_embed(True)
-                await message.edit(embed=embed, view=view)
-            else:
-                channel = bot.get_channel(poll["channel_id"])
-                if not channel:
-                    continue
-                
-                message = await channel.fetch_message(poll["message_id"])
-                embed=view.get_embed(True)
-                await message.edit(embed=embed,view=None)
+            if time.time() - poll["timestamp"] >= 24*3600*(DUREE_DE_VIE_VOTE+DUREE_VOTES):
                 remove_poll(i)
                 log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ARCH. POLL {poll["poll_id"]} RECOVERED | Serveur: {poll["guild_id"]}")
+            
+            asyncio.create_task(view.wait_end())
 
         except Exception as e:
             log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ERROR: impossible de reprendre le vote #{poll['poll_id']} \"{poll['question']}\" suite à l'erreur : {e}")
