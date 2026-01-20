@@ -1569,6 +1569,7 @@ class PollView(discord.ui.View):
         self.ern = ern
 
         self.termine = closed
+        self.archive = False
 
         self.options = {
             "o": {
@@ -1839,7 +1840,7 @@ class PollView(discord.ui.View):
 
         embed = self.get_embed()
 
-        if self.termine:
+        if not self.archive:
             view = get_closed_view(self.poll())
         else:
             view = None
@@ -1874,6 +1875,8 @@ class PollView(discord.ui.View):
         if delay > 0:
             await self.upload_post_view()
             await asyncio.sleep(delay)
+        
+        self.archive = True
 
         remove_poll(i)
 
