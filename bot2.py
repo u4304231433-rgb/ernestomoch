@@ -1849,15 +1849,13 @@ class PollView(discord.ui.View):
 
 
     async def wait_end(self):
-        log_save(f"1: recovering poll {self.poll_id}")
-
         delay = self.timestamp+self.duration-time.time()
         if delay > 0:
             await self.upload_post_view()
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL RECOVERED #{self.poll_id} \""+self.question+"\" | Serveur: {self.guild_id}")
             await asyncio.sleep(delay)
         
         polls = load_polls()
-        log_save(f"2: recovering poll {self.poll_id}")
 
         for i in range(len(polls)):
             if self.poll_id == polls[i]["poll_id"]:
@@ -1874,9 +1872,12 @@ class PollView(discord.ui.View):
         delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600-self.duration)-time.time()
         if delay > 0:
             await self.upload_post_view()
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL CLOS #{self.poll_id} \""+self.question+"\" | Serveur: {self.guild_id}")
             await asyncio.sleep(delay)
-        
+        else:
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL {self.poll_id} ARCHIVE \""+self.question+"\" | Serveur: {self.guild_id}")
 
+        
         remove_poll(i)
         self.archive = True
         
