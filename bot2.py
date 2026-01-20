@@ -359,7 +359,8 @@ async def recover_polls():
                             poll_id=poll["poll_id"], \
                             closed=poll["closed"])
             view.message = message
-            if time.time() - poll["timestamp"] >= 24*3600*(DUREE_DE_VIE_VOTE+DUREE_VOTES):
+
+            if time.time() - poll["timestamp"] >= 24*3600*(DUREE_DE_VIE_VOTE+DUREE_VOTES): #le poll est à archiver
                 remove_poll(i)
                 log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ARCH. POLL {poll["poll_id"]} RECOVERED | Serveur: {poll["guild_id"]}")
             
@@ -1758,7 +1759,8 @@ class PollView(discord.ui.View):
         return "\n".join(ntext)
         
         
-    def get_embed(self, ended=False):
+    def get_embed(self):
+        ended = self.termine
         pb = ">\u200B<".join(self.get_progressbar().split("><"))
         results = []
         w=0
@@ -1824,15 +1826,33 @@ class PollView(discord.ui.View):
         polls = load_polls()
         poll_id = random.randint(int(1e10),int(1e11-1))
         self.poll_id = poll_id
-        polls.append({"poll_id": poll_id, "message_id": msg_id, "question": self.question, "proportion": self.proportion, "type": self.vote_type, "author_id": self.author_id, "channel_id": self.channel_id, "guild_id": self.guild_id, "timestamp": int(self.timestamp), "duration": self.duration, "vote_type": self.vote_type, "closed": 0, "votes":{}, "citoyens": self.citoyens})
+        polls.append(self.poll())
         save_polls(polls)
         return poll_id
+    
+    def poll(self):
+        return {"poll_id": self.poll_id, "message_id": self.message_id, "question": self.question, "proportion": self.proportion, "type": self.vote_type, "author_id": self.author_id, "channel_id": self.channel_id, "guild_id": self.guild_id, "timestamp": int(self.timestamp), "duration": self.duration, "vote_type": self.vote_type, "closed": 0, "votes":{}, "citoyens": self.citoyens}
+
+    async def upload_post_view(self):
+        channel = bot.get_channel(VOTES_ID)
+        message = await channel.fetch_message(self.message_id)
+
+        embed = self.get_embed()
+
+        if self.termine:
+            view = get_closed_view(self.poll())
+        else:
+            view = None
+
+        await message.edit(embed=embed, view=view)
+
 
     async def wait_end(self):
         log_save(f"1: recovering poll {self.poll_id}")
 
         delay = self.timestamp+self.duration-time.time()
         if delay > 0:
+            await self.upload_post_view()
             await asyncio.sleep(delay)
         
         polls = load_polls()
@@ -1840,33 +1860,24 @@ class PollView(discord.ui.View):
 
         for i in range(len(polls)):
             if self.poll_id == polls[i]["poll_id"]:
-                polls[i]["closed"] = 1
+                if polls[i]["closed"] == 0:
+                    await self.send_compterendu() # si c'est la première fois que le sondage se clôt, envoyer le compte rendu
+                    polls[i]["closed"] = 1
                 break
-        save_polls(polls)
-        if not self.termine:
-            self.termine = True
-            channel = bot.get_channel(VOTES_ID)
-            message = await channel.fetch_message(self.message_id)
-            await self.send_compterendu()
         
-        log_save(f"3: recovering poll {self.poll_id}")
+        self.termine = True
 
-        view = get_closed_view(polls[i])
-
-        log_save(f"4: recovering poll {self.poll_id}")
-        embed = self.get_embed(True)
-        log_save(f"5: recovering poll {self.poll_id}")
-
-        await message.edit(embed=embed, view=view)
-        log_save(f"6: recovering poll {self.poll_id}")
-
+        save_polls(polls)
+    
         #suppression automatique
         delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600-self.duration)-time.time()
         if delay > 0:
+            await self.upload_post_view()
             await asyncio.sleep(delay)
+
         remove_poll(i)
-        message = await channel.fetch_message(self.message_id)
-        await message.edit(view=None)
+
+        await self.upload_post_view()
 
         log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL {self.poll_id} ARCHIVE | Serveur: {self.guild_id}")
 
