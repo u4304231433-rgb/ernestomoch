@@ -1867,7 +1867,7 @@ class PollView(discord.ui.View):
         save_polls(polls)
     
         #archivage automatique
-        delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600+self.duration)-time.time()-delay
+        delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600+self.duration)-time.time()
         if delay > 0:
             await self.upload_post_view(polls[i])
             log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL #{self.poll_id} CLOS \""+self.question+f"\" | Serveur: {self.guild_id}")
