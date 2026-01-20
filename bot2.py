@@ -429,7 +429,7 @@ def get_closed_view(poll):
     for k in poll["votes"]:
         view.votes[poll["votes"][k]].append(int(k))
 
-    #view.add_item(button)
+    view.add_item(button)
     return view
 
 @bot.event
@@ -1840,7 +1840,7 @@ class PollView(discord.ui.View):
             view = get_closed_view(self.poll())
         else:
             view = None
-        log_save(str(type(embed))+", "+str(type(view)))
+        log_save(str(type(view)))
         await message.edit(embed=embed, view=view)
 
 
