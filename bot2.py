@@ -1870,19 +1870,20 @@ class PollView(discord.ui.View):
 
         save_polls(polls)
     
-        #suppression automatique
+        #archivage automatique
         delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600-self.duration)-time.time()
         if delay > 0:
             await self.upload_post_view()
             await asyncio.sleep(delay)
         
-        self.archive = True
 
         remove_poll(i)
+        self.archive = True
+        
+        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL {self.poll_id} ARCHIVE \""+self.question+"\" | Serveur: {self.guild_id}")
 
         await self.upload_post_view()
 
-        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL {self.poll_id} ARCHIVE | Serveur: {self.guild_id}")
 
         if self.channel_id != VOTES_ID:
             channel = bot.get_channel(self.channel_id)
