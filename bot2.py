@@ -359,10 +359,6 @@ async def recover_polls():
                             poll_id=poll["poll_id"], \
                             closed=poll["closed"])
             view.message = message
-
-            if time.time() - poll["timestamp"] >= 24*3600*(DUREE_DE_VIE_VOTE+DUREE_VOTES): #le poll est à archiver
-                remove_poll(i)
-                log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] ARCH. POLL {poll["poll_id"]} RECOVERED | Serveur: {poll["guild_id"]}")
             
             asyncio.create_task(view.wait_end())
 
@@ -1852,7 +1848,7 @@ class PollView(discord.ui.View):
         delay = self.timestamp+self.duration-time.time()
         if delay > 0:
             await self.upload_post_view()
-            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL RECOVERED #{self.poll_id} \""+self.question+"\" | Serveur: {self.guild_id}")
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL #{self.poll_id} RECOVERED \""+self.question+"\" | Serveur: {self.guild_id}")
             await asyncio.sleep(delay)
         
         polls = load_polls()
@@ -1872,16 +1868,14 @@ class PollView(discord.ui.View):
         delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600+self.duration)-time.time()-delay
         if delay > 0:
             await self.upload_post_view()
-            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL CLOS #{self.poll_id} \""+self.question+"\" | Serveur: {self.guild_id}")
+            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL #{self.poll_id} CLOS \""+self.question+"\" | Serveur: {self.guild_id}")
             await asyncio.sleep(delay)
-        else:
-            log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL {self.poll_id} ARCHIVE \""+self.question+"\" | Serveur: {self.guild_id}")
 
         
         remove_poll(i)
         self.archive = True
         
-        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL {self.poll_id} ARCHIVE \""+self.question+"\" | Serveur: {self.guild_id}")
+        log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL #{self.poll_id} ARCHIVE \""+self.question+"\" | Serveur: {self.guild_id}")
 
         await self.upload_post_view()
 
