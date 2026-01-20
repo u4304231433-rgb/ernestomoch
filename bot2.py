@@ -1828,7 +1828,7 @@ class PollView(discord.ui.View):
     def poll(self):
         return {"poll_id": self.poll_id, "message_id": self.message_id, "question": self.question, "proportion": self.proportion, "type": self.vote_type, "author_id": self.author_id, "channel_id": self.channel_id, "guild_id": self.guild_id, "timestamp": int(self.timestamp), "duration": self.duration, "vote_type": self.vote_type, "closed": 0, "votes":{}, "citoyens": self.citoyens}
 
-    async def upload_post_view(self):
+    async def upload_post_view(self, poll=None):
         channel = bot.get_channel(VOTES_ID)
         message = await channel.fetch_message(self.message_id)
 
@@ -1838,7 +1838,7 @@ class PollView(discord.ui.View):
             view = self
             log_save("#"+str(self.poll_id)+" recovered")
         elif not self.archive:
-            view = get_closed_view(self.poll())
+            view = get_closed_view(poll)
             log_save("#"+str(self.poll_id)+" closed")
         else:
             view = None
@@ -1869,7 +1869,7 @@ class PollView(discord.ui.View):
         #archivage automatique
         delay = self.timestamp+(DUREE_DE_VIE_VOTE*24*3600+self.duration)-time.time()-delay
         if delay > 0:
-            await self.upload_post_view()
+            await self.upload_post_view(polls[i])
             log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL #{self.poll_id} CLOS \""+self.question+f"\" | Serveur: {self.guild_id}")
             await asyncio.sleep(delay)
 
