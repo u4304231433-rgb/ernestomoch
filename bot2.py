@@ -508,6 +508,12 @@ def replace_tags(text):
         text = ''.join(new_text)
     return text
 
+scores_dict = {
+    "msg": "messages",
+    "cat": ":3",
+    "spam": "spams"
+}
+
 def score_read(type):
     try:
         with open(r"./scores/"+type+".txt", "r") as file:
@@ -597,6 +603,25 @@ async def send_custom_message(channel, name, user, avatar_url, content, delete_o
         if reaction[0].emoji == "❌":
             msg2 = await channel.fetch_message(msg_id)
             await msg2.delete()
+
+@bot.tree.command(name="top", description="Affiche le classement")
+@app_commands.choices(score_type=[app_commands.Choice(name="Nombre de "+scores_dict[score_type], value=score_type) for score_type in scores_dict])
+@app_commands.describe(score_type="Type de classement", size="Nombre de personnes affichées")
+async def top(inter:discord.Interaction, score_type:str="msg", size:int=10):
+    try:
+        await inter.response.defer(ephemeral=True)
+        lines = score_read(score_type)
+        scores = []
+        for line in lines:
+            if ":" in line:
+                split = line.split(":")
+                scores.append(split[0],int(split[1]))
+        scores.sort(key=lambda x: x[1])
+        if len(scores)>size:
+            scores = scores[:size]
+        inter.followup.send(embed=discord.Embed(color=discord.Color.yellow(),title="Classement par nombre de "+scores_dict[score_type]+" (`"+score_type+"`)",description="\n".join(["* <@"+score[0]+"> : "+str(score[0]) for score in scores])),allowed_mentions=NO_MENTION)
+    except Exception as e:
+        print_message_error(None,e)
 
 @bot.event
 async def on_message(msg):
