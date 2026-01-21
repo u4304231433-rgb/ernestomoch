@@ -1806,8 +1806,10 @@ class PollView(discord.ui.View):
         txt += " "+1*self.PB_EMOJIS["empty"]
         if not ended:
             txt += "<t:"+str(round(self.timestamp+self.duration))+":R>"
-        else:
+        elif not self.archive:
             txt += "**Terminé**"
+        else:
+            txt += "**Archivé**"
         embed.add_field(name=emptyem, value=txt, inline=False)
         return embed
 
@@ -1836,13 +1838,10 @@ class PollView(discord.ui.View):
 
         if not self.termine:
             view = self
-            log_save("#"+str(self.poll_id)+" recovered")
         elif not self.archive:
             view = get_closed_view(poll)
-            log_save("#"+str(self.poll_id)+" closed")
         else:
             view = None
-            log_save("#"+str(self.poll_id)+" archived")
         await message.edit(embed=embed, view=view)
 
 
