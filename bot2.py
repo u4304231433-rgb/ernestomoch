@@ -615,7 +615,7 @@ async def top(inter:discord.Interaction, score_type:str="msg", size:int=10):
         for line in lines:
             if ":" in line:
                 split = line.split(":")
-                scores.append(split[0],int(split[1]))
+                scores.append((split[0],int(split[1])))
         scores.sort(key=lambda x: x[1])
         if len(scores)>size:
             scores = scores[:size]
