@@ -619,7 +619,7 @@ async def top(inter:discord.Interaction, score_type:str="msg", size:int=10):
         scores.sort(key=lambda x: x[1], reverse=True)
         if len(scores)>size:
             scores = scores[:size]
-        await inter.followup.send(embed=discord.Embed(color=discord.Color.yellow(),title="Classement par nombre de "+scores_dict[score_type]+" (`"+score_type+"`)",description="\n".join(["* <@"+score[0]+"> : "+str(score[0]) for score in scores])),allowed_mentions=NO_MENTION)
+        await inter.followup.send(embed=discord.Embed(color=discord.Color.yellow(),title="Classement par nombre de "+scores_dict[score_type]+" (`"+score_type+"`)",description="\n".join(["* <@"+score[0]+"> : "+str(score[1]) for score in scores])),allowed_mentions=NO_MENTION)
     except Exception as e:
         print_message_error(None,e)
 
