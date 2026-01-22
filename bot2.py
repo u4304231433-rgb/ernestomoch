@@ -1877,6 +1877,7 @@ class PollView(discord.ui.View):
             log_save(f"[{datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] POLL #{self.poll_id} RECOVERED \""+self.question+f"\" | Serveur: {self.guild_id}")
             await asyncio.sleep(delay)
         
+        
         polls = load_polls()
 
         for i in range(len(polls)):
