@@ -373,7 +373,6 @@ def remove_poll(i):
     save_polls(polls2)
     return poll_removed
 
-
 def get_closed_view(poll):
     view = discord.ui.View(timeout=None)
     view.question = poll["question"]
@@ -1846,7 +1845,8 @@ class PollView(discord.ui.View):
     def save(self, msg_id):
         self.message_id = msg_id
         polls = load_polls()
-        poll_id = random.randint(int(1e10),int(1e11-1))
+        id_max = max([poll["poll_id"] for poll in polls]) + 1
+        poll_id = id_max
         self.poll_id = poll_id
         polls.append(self.poll())
         save_polls(polls)
