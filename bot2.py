@@ -2672,7 +2672,22 @@ async def upgradebot(inter):
             await error_response(inter, ERROR_RIGHTS_MESSAGE)
     else:
         await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
-    
+
+@bot.tree.command(description="[A] démarre MicroBalls")
+async def microballs(inter):
+    if not bot_disabled:
+        for right in ADMINISTRATOR_RIGHTS:
+            if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+                try:
+                    await validation_response(inter, "MicroBalls va bien redémarrer")
+                except Exception as e:
+                    print_command_error(inter,e)
+                os.system("./microballs.sh &")
+                break
+        else:
+            await error_response(inter, ERROR_RIGHTS_MESSAGE)
+    else:
+        await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
 
 
 ftoken = open("SECRET/token_discord.txt","r")
