@@ -2036,12 +2036,7 @@ class PollButton(discord.ui.Button):
         else:
             adv_non = self.poll_view.non/(citoyens_number - prop)
         
-        if adv_non == 0 and adv_oui == 0:
-            m = "b"
-        elif adv_oui > adv_non:
-            m = "o"
-        else:
-            m = "n"
+        m = self.poll_view.get_actual_max()
         
         if m == "o":
             color = discord.Color.yellow()
