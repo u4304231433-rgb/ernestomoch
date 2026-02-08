@@ -1640,7 +1640,7 @@ class PollView(discord.ui.View):
         side_spaces = ""
         
         """en pratique, je n'ai pas programmé le cas
-        où la limite est au bord pour les votes non vides... inutiles ici"""
+        où la limite est au bord pour les votes non vides... inutile ici"""
         
         if self.oui + self.non == 0:
             pb = side_spaces
@@ -1664,7 +1664,7 @@ class PollView(discord.ui.View):
             first_col = "progressbar_left_o"
             if self.oui == 0:
                 first_col = "progressbar_left_n"
-            if oui_numberhalf <= b_s_number:
+            if oui_numberhalf < b_s_number or (oui_numberhalf == b_s_number and self.oui <= self.proportion*(self.oui+self.non)):
                 pb = side_spaces+self.PB_EMOJIS[first_col]
                 pb += (oui_number-1)*self.PB_EMOJIS["progressbar_middle_o"]
                 if oui_numberhalf < b_s_number and oui_number>=1:
@@ -1676,7 +1676,8 @@ class PollView(discord.ui.View):
                 pb += self.PB_EMOJIS["progressbar_middle_n_l"]
                 pb += (pb_width-b_s_number-2)*self.PB_EMOJIS["progressbar_middle_n"]
                 pb += self.PB_EMOJIS["progressbar_right_n"]
-            elif oui_numberhalf == b_s_number+0.5:
+
+            elif oui_numberhalf == b_s_number+0.5 or (oui_numberhalf == b_s_number and self.oui > self.proportion*(self.oui+self.non)):
                 pb = side_spaces+self.PB_EMOJIS[first_col]
                 pb += (oui_number-1)*self.PB_EMOJIS["progressbar_middle_o"]
                 pb += self.PB_EMOJIS["progressbar_middle_on_l"]
