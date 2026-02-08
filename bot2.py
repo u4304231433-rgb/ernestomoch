@@ -1709,6 +1709,7 @@ class PollView(discord.ui.View):
     def get_actual_max(self):
         citoyens_number = len(self.citoyens)
         if citoyens_number > 0:
+            log_save(str(self.oui)+", "+str(self.proportion*(self.oui+self.non)))
             if self.non == 0 and self.oui == 0:
                 return "b"
             elif self.oui > self.proportion*(self.oui+self.non):
