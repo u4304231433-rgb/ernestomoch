@@ -1676,7 +1676,6 @@ class PollView(discord.ui.View):
                 pb += self.PB_EMOJIS["progressbar_middle_n_l"]
                 pb += (pb_width-b_s_number-2)*self.PB_EMOJIS["progressbar_middle_n"]
                 pb += self.PB_EMOJIS["progressbar_right_n"]
-
             elif oui_numberhalf == b_s_number+0.5 or (oui_numberhalf == b_s_number and self.oui > self.proportion*(self.oui+self.non)):
                 pb = side_spaces+self.PB_EMOJIS[first_col]
                 pb += (oui_number-1)*self.PB_EMOJIS["progressbar_middle_o"]
@@ -1732,7 +1731,7 @@ class PollView(discord.ui.View):
                 return self.PB_EMOJIS["load_100_o"]
             elif self.proportion == 1:
                 return self.PB_EMOJIS["load_100_n"]
-            if adv_oui > adv_non:
+            if self.oui > self.proportion*(self.oui+self.non):
                 if adv_oui >= 1:
                     return self.PB_EMOJIS["load_100_o"]
                 else:
