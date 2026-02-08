@@ -1709,7 +1709,6 @@ class PollView(discord.ui.View):
     def get_actual_max(self):
         citoyens_number = len(self.citoyens)
         if citoyens_number > 0:
-            log_save(str(self.oui)+", "+str(self.proportion*(self.oui+self.non)))
             if self.non == 0 and self.oui == 0:
                 return "b"
             elif self.oui > self.proportion*(self.oui+self.non):
@@ -1722,7 +1721,7 @@ class PollView(discord.ui.View):
     def get_advancement(self):
         citoyens_number = len(self.citoyens) - self.blancs
         if citoyens_number > 0:
-            prop = (int(citoyens_number*self.proportion)+1)
+            prop = (int(citoyens_number*self.proportion))
             adv_oui = self.oui/prop
             if citoyens_number == prop:
                 adv_non = 1
@@ -1914,8 +1913,7 @@ class PollView(discord.ui.View):
             adopte = False
         else:
             txtvotants = f"Votants : {self.oui+self.non+self.blancs}, Majorité : {int(self.proportion*(self.oui+self.non))+1}, Votes blanc : {self.blancs}, Pour : {self.oui}, Contre : {self.non}\n"
-            prop = self.oui/(self.non+self.oui)
-            if prop>self.proportion:
+            if self.oui>self.proportion*(self.non+self.oui):
                 txt = "En conséquence, la proposition est **adoptée**."
                 color = discord.Color.yellow()
                 adopte = True
