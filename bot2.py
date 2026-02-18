@@ -17,7 +17,7 @@ import traceback
 from tex.processcsv import *
 from tex.googleapif import *
 
-import pdf2image as p2i
+# import pdf2image as p2i
 
 from difflib import SequenceMatcher
 
@@ -2688,21 +2688,21 @@ async def microballs(inter):
     else:
         await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
 
-@bot.tree.command(description="Affiche le BOcal")
-@app_commands.describe(numero="Numéro du BOcal à afficher")
-async def BOcal(inter, numero:int):
-    if not bot_disabled:
-        for right in ADMINISTRATOR_RIGHTS:
-            if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
-                pages = p2i.convert_from_path("./BOcal/1278.pdf", dpi=300)
-                nbr_pages = len(pages)
-                for i in range(nbr_pages):
-                    pages[i].save("./BOcal/page_"+str(i)+".jpg", 'JPEG')
-                break
-        else:
-            await error_response(inter, ERROR_RIGHTS_MESSAGE)
-    else:
-        await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
+# @bot.tree.command(description="Affiche le BOcal")
+# @app_commands.describe(numero="Numéro du BOcal à afficher")
+# async def BOcal(inter, numero:int):
+#     if not bot_disabled:
+#         for right in ADMINISTRATOR_RIGHTS:
+#             if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+#                 pages = p2i.convert_from_path("./BOcal/1278.pdf", dpi=300)
+#                 nbr_pages = len(pages)
+#                 for i in range(nbr_pages):
+#                     pages[i].save("./BOcal/page_"+str(i)+".jpg", 'JPEG')
+#                 break
+#         else:
+#             await error_response(inter, ERROR_RIGHTS_MESSAGE)
+#     else:
+#         await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
 
 
 ftoken = open("SECRET/token_discord.txt","r")
