@@ -46,7 +46,7 @@ DICO_RIGHTS=LINGUISTE_NAME,BOT_DEV_NAME
 REFS_RIGHTS=BOT_DEV_NAME,ANIM_PART_NAME
 
 ERROR_RIGHTS_MESSAGE=Désolé, vous ne disposez pas des droits pour effectuer cette commande.
-ERROR_MESSAGE=Une erreur s'est produite, veuillez nous en excuser.
+ERROR_MESSAGE=Une erreur s’est produite, veuillez nous en excuser.
 ERROR_BOT_DISABLED_MESSAGE=Désolé, le bot est actuellement désactivé.
 
 VALIDATION_EMOJI=:white_check_mark:
