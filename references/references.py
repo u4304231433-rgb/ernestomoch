@@ -1,6 +1,7 @@
 from thefuzz import fuzz
 import re
 from discord import File
+from random import randint
 
 
 def load_references():
@@ -112,7 +113,9 @@ if __name__ != "__main__":
                     await channel.send(reform_text(refs[i_ref]["text"].split("/")[i_repl].replace(";"," ")))
                     #print(reform_text(refs[i_ref]["text"].split("/")[i_repl].replace(";"," ")))
                 if refs[i_ref]["gif"] is not None:
-                    await channel.send(refs[i_ref]['gif'].replace("{\deuxpoints}", ":"))
+                    gifs = refs[i_ref]['gif'].split(",")
+                    i = randint(0,len(gifs)-1)
+                    await channel.send(gifs[i].replace("{\deuxpoints}", ":"))
                     #print("gif", refs[i_ref]["gif"])
 
 else:
