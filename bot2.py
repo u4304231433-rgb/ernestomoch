@@ -635,7 +635,12 @@ async def on_message(msg):
         msgauthor = msg.author
         if bot_disabled:return
         if not (is_local or not running_locally): return
-
+        # Scores
+        score_increment("msg",msgauthor.id)
+        if any([meow in msgtext for meow in CATS]):
+            score_increment("cat",msgauthor.id)
+        if msgchannel.id == SPAM_CHANNEL_ID:
+            score_increment("spam",msgauthor.id)
         if not msg.author.bot and replacing_tags:
             balises = ["€","£",r"\$"]
             tomodify = False
@@ -657,13 +662,6 @@ async def on_message(msg):
         if (isinstance(msgchannel, discord.DMChannel) or (hasattr(msgchannel,"category") and  simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES])) and not "** ** ** ** ** **" in msgtext: return
 
         if "** ** ** **" in msg.content: return
-        
-        # Scores
-        score_increment("msg",msgauthor.id)
-        if any([meow in msgtext for meow in CATS]):
-            score_increment("cat",msgauthor.id)
-        if msgchannel.id == SPAM_CHANNEL_ID:
-            score_increment("spam",msgauthor.id)
         
         if (ioloenabled or simplify_role_name(msg.channel.name) == simplify_role_name(SPAM_CHANNEL_NAME)) and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             
@@ -2714,5 +2712,6 @@ DISCORD_TOKEN = ftoken.read()
 ftoken.close()
 
 bot.run(DISCORD_TOKEN)
+
 
 
