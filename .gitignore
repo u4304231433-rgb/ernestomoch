@@ -2,6 +2,7 @@
 *.log
 /.git
 __pycache__/
+/.vscode/
 /bin/
 /fonts/
 /lib/

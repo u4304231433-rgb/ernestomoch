@@ -86,6 +86,7 @@ COMMAND_PREFIX = PARAMS["COMMAND_PREFIX"]
 BOT_NAME = PARAMS["BOT_NAME"]
 
 SPAM_CHANNEL_NAME = PARAMS["SPAM_CHANNEL_NAME"]
+SPAM_CHANNEL_ID = PARAMS["SPAM_CHANNEL_ID"]
 
 ERROR_RIGHTS_MESSAGE = PARAMS["ERROR_RIGHTS_MESSAGE"]
 ERROR_MESSAGE = PARAMS["ERROR_MESSAGE"]
@@ -106,6 +107,8 @@ PING_FIN_LOI = PARAMS["PING_FIN_LOI"]
 REGEX_DI = PARAMS["REGEX_DI"]
 REGEX_CRI = PARAMS["REGEX_CRI"]
 REGEX_SUS = PARAMS["REGEX_SUS"]
+CATS = PARAMS["CATS"].split(',')
+
 FREQUENCY_DI = PARAMS["DI_FREQUENCY"]
 FREQ_SELF_RESP = PARAMS["FREQ_SELF_RESP"]
 
@@ -654,13 +657,14 @@ async def on_message(msg):
         if (isinstance(msgchannel, discord.DMChannel) or (hasattr(msgchannel,"category") and  simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES])) and not "** ** ** ** ** **" in msgtext: return
 
         if "** ** ** **" in msg.content: return
-        # ↓ c'est juste pour tester mes fonctionnalités, ça n'a pas pour but de rester
-        if msgauthor.id == PARAMS['ID_VIVIEN'] and len(msgtext)>2 and msgtext[:2]=="ππ":
-            await score_message(msg)
-            return
-        score = score_increment("msg",msgauthor.id)
-        if len(score)>2 and score[-2:]=="00":
-            await msgchannel.send("-# Bravo <@"+str(msgauthor.id)+">, tu a envoyé "+score+" messsages sur ce serveur !", allowed_mentions=NO_MENTION)
+        
+        # Scores
+        score_increment("msg",msgauthor.id)
+        if any([meow in msgtext for meow in CATS]):
+            score_increment("cat",msgauthor.id)
+        if msgchannel.id == SPAM_CHANNEL_ID:
+            score_increment("spam",msgauthor.id)
+        
         if (ioloenabled or simplify_role_name(msg.channel.name) == simplify_role_name(SPAM_CHANNEL_NAME)) and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             
             matchs_di = re.search(REGEX_DI, msgtext)
