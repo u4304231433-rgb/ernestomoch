@@ -17,6 +17,8 @@ import traceback
 from tex.processcsv import *
 from tex.googleapif import *
 
+# import pdf2image as p2i
+
 from difflib import SequenceMatcher
 
 import textounicode.convert
@@ -84,6 +86,7 @@ COMMAND_PREFIX = PARAMS["COMMAND_PREFIX"]
 BOT_NAME = PARAMS["BOT_NAME"]
 
 SPAM_CHANNEL_NAME = PARAMS["SPAM_CHANNEL_NAME"]
+SPAM_CHANNEL_ID = PARAMS["SPAM_CHANNEL_ID"]
 
 ERROR_RIGHTS_MESSAGE = PARAMS["ERROR_RIGHTS_MESSAGE"]
 ERROR_MESSAGE = PARAMS["ERROR_MESSAGE"]
@@ -104,6 +107,8 @@ PING_FIN_LOI = PARAMS["PING_FIN_LOI"]
 REGEX_DI = PARAMS["REGEX_DI"]
 REGEX_CRI = PARAMS["REGEX_CRI"]
 REGEX_SUS = PARAMS["REGEX_SUS"]
+CATS = PARAMS["CATS"].split(',')
+
 FREQUENCY_DI = PARAMS["DI_FREQUENCY"]
 FREQ_SELF_RESP = PARAMS["FREQ_SELF_RESP"]
 
@@ -630,7 +635,12 @@ async def on_message(msg):
         msgauthor = msg.author
         if bot_disabled:return
         if not (is_local or not running_locally): return
-
+        # Scores
+        score_increment("msg",msgauthor.id)
+        if any([meow in msgtext for meow in CATS]):
+            score_increment("cat",msgauthor.id)
+        if msgchannel.id == SPAM_CHANNEL_ID:
+            score_increment("spam",msgauthor.id)
         if not msg.author.bot and replacing_tags:
             balises = ["€","£",r"\$"]
             tomodify = False
@@ -652,13 +662,7 @@ async def on_message(msg):
         if (isinstance(msgchannel, discord.DMChannel) or (hasattr(msgchannel,"category") and  simplify_role_name(msgchannel.category.name) in [simplify_role_name(c) for c in DISABLE_CATEGORIES])) and not "** ** ** ** ** **" in msgtext: return
 
         if "** ** ** **" in msg.content: return
-        # ↓ c'est juste pour tester mes fonctionnalités, ça n'a pas pour but de rester
-        if msgauthor.id == PARAMS['ID_VIVIEN'] and len(msgtext)>2 and msgtext[:2]=="ππ":
-            await score_message(msg)
-            return
-        score = score_increment("msg",msgauthor.id)
-        if len(score)>2 and score[-2:]=="00":
-            await msgchannel.send("-# Bravo <@"+str(msgauthor.id)+">, tu a envoyé "+score+" messsages sur ce serveur !", allowed_mentions=NO_MENTION)
+        
         if (ioloenabled or simplify_role_name(msg.channel.name) == simplify_role_name(SPAM_CHANNEL_NAME)) and (random.randint(0,99) < FREQUENCY_DI or msgauthor.bot):
             
             matchs_di = re.search(REGEX_DI, msgtext)
@@ -2686,11 +2690,28 @@ async def microballs(inter):
     else:
         await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
 
+# @bot.tree.command(description="Affiche le BOcal")
+# @app_commands.describe(numero="Numéro du BOcal à afficher")
+# async def BOcal(inter, numero:int):
+#     if not bot_disabled:
+#         for right in ADMINISTRATOR_RIGHTS:
+#             if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
+#                 pages = p2i.convert_from_path("./BOcal/1278.pdf", dpi=300)
+#                 nbr_pages = len(pages)
+#                 for i in range(nbr_pages):
+#                     pages[i].save("./BOcal/page_"+str(i)+".jpg", 'JPEG')
+#                 break
+#         else:
+#             await error_response(inter, ERROR_RIGHTS_MESSAGE)
+#     else:
+#         await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
+
 
 ftoken = open("SECRET/token_discord.txt","r")
 DISCORD_TOKEN = ftoken.read()
 ftoken.close()
 
 bot.run(DISCORD_TOKEN)
+
 
 

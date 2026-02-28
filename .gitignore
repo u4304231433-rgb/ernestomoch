@@ -2,6 +2,7 @@
 *.log
 /.git
 __pycache__/
+/.vscode/
 /bin/
 /fonts/
 /lib/
@@ -18,3 +19,4 @@ __pycache__/
 /votes/polls.csv
 /votes/archive.csv
 /scores/
+/BOcal/

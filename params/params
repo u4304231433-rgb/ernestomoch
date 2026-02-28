@@ -35,6 +35,7 @@ TAG_REVISION=1429101575812550807
 AGORA_ID=1424828391106019500
 
 SPAM_CHANNEL_NAME=-spam
+SPAM_CHANNEL_ID=1444050131623350535
 
 COMMAND_PREFIX=/
 
@@ -46,7 +47,7 @@ DICO_RIGHTS=LINGUISTE_NAME,BOT_DEV_NAME
 REFS_RIGHTS=BOT_DEV_NAME,ANIM_PART_NAME
 
 ERROR_RIGHTS_MESSAGE=Désolé, vous ne disposez pas des droits pour effectuer cette commande.
-ERROR_MESSAGE=Une erreur s'est produite, veuillez nous en excuser.
+ERROR_MESSAGE=Une erreur s’est produite, veuillez nous en excuser.
 ERROR_BOT_DISABLED_MESSAGE=Désolé, le bot est actuellement désactivé.
 
 VALIDATION_EMOJI=:white_check_mark:
@@ -65,6 +66,7 @@ REGEX_DI=10 |[dD][iI][sStT][ -]|([dÞD]['h]*([iîIÎıyŷ]|ı̂|ı))|[fF][aA][iI
 REGEX_CRI=[cCkK][hH]?[rR][iIyY]([ets]s? )?
 REGEX_QUOI=.*[qQkKcC]+([uUwW]+[aA]+|[uUwW]*[oO]+[iI]+)[sS]*[^a-zA-Z0-9]*$
 REGEX_SUS=([sS][uU][sS][ -]|[sS][uU][sS])
+CATS=:3,ε:,meow,miaou
 
 COMPLIMENT_FREQUENCY=5
 DI_FREQUENCY=100
