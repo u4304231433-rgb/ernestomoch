@@ -1912,7 +1912,7 @@ class PollView(discord.ui.View):
             color = discord.Color.dark_purple()
             adopte = False
         else:
-            txtvotants = f"Votants : {self.oui+self.non+self.blancs}, Majorité : {int(self.proportion*(self.oui+self.non))+1}, Votes blanc : {self.blancs}, Pour : {self.oui}, Contre : {self.non}\n"
+            txtvotants = f"Votants : {self.oui+self.non+self.blancs}, Majorité : {int(self.proportion*(self.oui+self.non))+1}, Votes blancs : {self.blancs}, Pour : {self.oui}, Contre : {self.non}\n"
             if self.oui>self.proportion*(self.non+self.oui):
                 txt = "En conséquence, la proposition est **adoptée**."
                 color = discord.Color.yellow()
