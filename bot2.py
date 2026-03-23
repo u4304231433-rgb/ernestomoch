@@ -2699,13 +2699,14 @@ async def bocal(inter:discord.Interaction, numero:str):
             for right in ADMINISTRATOR_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     await inter.response.defer(ephemeral=True)
+                    bocal_channel = inter.guild.get_channel(PARAMS["BOCAL_CHANNEL_ID"])
                     link = "https://bocal.cof.ens.fr/bocal_www/"+PARAMS["BOCAL_YEAR"]+"/"+numero+".pdf"
                     os.system("./BOcal/bocal.sh "+numero+" "+link)
                     pages = []
                     for i in range(1,len(os.listdir("./BOcal/numeros/"+numero+""))):
                         with open(r"./BOcal/numeros/"+numero+"/"+numero+"-"+str(i)+".jpg", "rb") as file:
                             pages.append(discord.File(file))
-                    await inter.guild.get_channel(PARAMS["BOCAL_CHANNEL_ID"]).send("# BOcal n°"+numero+"\n:link: [Lire en ligne](<"+link+">)\n\n-# <@&"+str(PARAMS["BOCAL_PING_ROLE_ID"])+">", files=pages)
+                    await bocal_channel.send("# BOcal n°"+numero+"\n:link: [Lire en ligne](<"+link+">)\n\n-# <@&"+str(PARAMS["BOCAL_PING_ROLE_ID"])+">", files=pages)
                     break
             else:
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
