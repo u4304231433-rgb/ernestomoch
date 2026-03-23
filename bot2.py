@@ -2690,9 +2690,9 @@ async def microballs(inter):
     else:
         await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
 
-@bot.tree.command(description="Télécharge le BOcal")
+@bot.tree.command(description="Télécharge puis envoie le BOcal dans ce salon")
 @app_commands.describe(numero="Numéro du bocal à afficher")
-async def download_bocal(inter:discord.Interaction, numero:int):
+async def bocal(inter:discord.Interaction, numero:int):
     try:
         if not bot_disabled:
             for right in ADMINISTRATOR_RIGHTS:
@@ -2709,27 +2709,6 @@ async def download_bocal(inter:discord.Interaction, numero:int):
     except Exception as e:
         print_command_error(inter,e)
         await error_response(inter,ERROR_MESSAGE)
-
-# @bot.tree.command(description="Envoie le BOcal dans le salon correspondant")
-# @app_commands.describe(numero="Numéro du bocal à afficher")
-# async def download_bocal(inter:discord.Interaction, numero:int):
-#     try:
-#         if not bot_disabled:
-#             for right in ADMINISTRATOR_RIGHTS:
-#                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
-#                     await inter.response.defer(ephemeral=True)
-#                     if os.
-#                     with open("./img/"+balls[ball_id]["img"]+".png", "rb") as file:
-#                     picture = discord.File(file)
-#                     break
-#             else:
-#                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
-#         else:
-#             await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
-#     except Exception as e:
-#         print_command_error(inter,e)
-#         await error_response(inter,ERROR_MESSAGE)
-
 
 ftoken = open("SECRET/token_discord.txt","r")
 DISCORD_TOKEN = ftoken.read()
