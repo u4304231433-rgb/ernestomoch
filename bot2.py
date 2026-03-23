@@ -2707,6 +2707,7 @@ async def bocal(inter:discord.Interaction, numero:int):
                         with open(r"./BOcal/numeros/1288/1288-"+str(i)+".jpg", "rb") as file:
                             pages.append(discord.File(file))
                     await inter.channel.send("# BOcal n°"+str(numero)+"\n-# <@&"+str(PARAMS["ID_PING_BOCAL_ROLE"])+">", files=pages)
+                    print("🫙",os.listdir("./BOcal/1288"))
                     await inter.followup.send("c'est okkk")
                     break
             else:
