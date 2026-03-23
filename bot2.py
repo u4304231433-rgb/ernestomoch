@@ -2699,7 +2699,7 @@ async def bocal(inter:discord.Interaction, numero:int):
             for right in ADMINISTRATOR_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     await inter.response.defer(ephemeral=True)
-                    os.system("./BOcal/bocal.sh")
+                    os.system("./BOcal/bocal.sh "+str(numero))
                     # with open(r"./BOcal/numeros/1288/1288.pdf", "rb") as file:
                     #     pdf = discord.File(file)
                     pages = []
