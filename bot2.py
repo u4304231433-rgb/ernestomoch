@@ -2699,7 +2699,7 @@ async def bocal(inter:discord.Interaction, numero:int):
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     await inter.response.defer(ephemeral=True)
                     os.system("./bocal/bocal.sh")
-                    inter.followup.send("C'est okkkk")
+                    await inter.followup.send("C'est okkkk")
                     break
             else:
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
