@@ -2693,18 +2693,18 @@ async def microballs(inter):
 
 @bot.tree.command(description="Télécharge puis envoie le BOcal dans ce salon")
 @app_commands.describe(numero="Numéro du bocal à afficher")
-async def bocal(inter:discord.Interaction, numero:int):
+async def bocal(inter:discord.Interaction, numero:str):
     try:
         if not bot_disabled:
             for right in ADMINISTRATOR_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     await inter.response.defer(ephemeral=True)
-                    os.system("./BOcal/bocal.sh "+str(numero))
+                    os.system("./BOcal/bocal.sh "+numero)
                     pages = []
-                    for i in range(1,len(os.listdir("./BOcal/numeros/"+str(numero)+""))):
-                        with open(r"./BOcal/numeros/"+str(numero)+"/"+str(numero)+"-"+str(i)+".jpg", "rb") as file:
+                    for i in range(1,len(os.listdir("./BOcal/numeros/"+numero+""))):
+                        with open(r"./BOcal/numeros/"+numero+"/"+numero+"-"+str(i)+".jpg", "rb") as file:
                             pages.append(discord.File(file))
-                    await inter.channel.send("# BOcal n°"+str(numero)+"\n-# <@&"+str(PARAMS["ID_PING_BOCAL_ROLE"])+">", files=pages)
+                    await inter.channel.send("# BOcal n°"+numero+"\n-# <@&"+str(PARAMS["ID_PING_BOCAL_ROLE"])+">", files=pages)
                     break
             else:
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
