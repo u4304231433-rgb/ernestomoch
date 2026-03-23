@@ -2700,15 +2700,12 @@ async def bocal(inter:discord.Interaction, numero:int):
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     await inter.response.defer(ephemeral=True)
                     os.system("./BOcal/bocal.sh "+str(numero))
-                    # with open(r"./BOcal/numeros/1288/1288.pdf", "rb") as file:
-                    #     pdf = discord.File(file)
                     pages = []
                     for i in range(1,5):
-                        with open(r"./BOcal/numeros/1288/1288-"+str(i)+".jpg", "rb") as file:
+                        with open(r"./BOcal/numeros/"+str(numero)+"/"+str(numero)+"-"+str(i)+".jpg", "rb") as file:
                             pages.append(discord.File(file))
                     await inter.channel.send("# BOcal n°"+str(numero)+"\n-# <@&"+str(PARAMS["ID_PING_BOCAL_ROLE"])+">", files=pages)
-                    print("🫙",os.listdir("./BOcal/1288"))
-                    await inter.followup.send("c'est okkk")
+                    await inter.followup.send("c'est okkk"+str(os.listdir("./BOcal/"+str(numero)+"")))
                     break
             else:
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
