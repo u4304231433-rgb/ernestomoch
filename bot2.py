@@ -2701,10 +2701,10 @@ async def bocal(inter:discord.Interaction, numero:int):
                     await inter.response.defer(ephemeral=True)
                     os.system("./BOcal/bocal.sh "+str(numero))
                     pages = []
-                    for i in range(1,5):
+                    for i in range(1,len(os.listdir("./BOcal/numeros/"+str(numero)+""))):
                         with open(r"./BOcal/numeros/"+str(numero)+"/"+str(numero)+"-"+str(i)+".jpg", "rb") as file:
                             pages.append(discord.File(file))
-                    await inter.channel.send("# BOcal n°"+str(numero)+"\n-# <@&"+str(PARAMS["ID_PING_BOCAL_ROLE"])+"> "+str(os.listdir("./BOcal/numeros/"+str(numero)+"")), files=pages)
+                    await inter.channel.send("# BOcal n°"+str(numero)+"\n-# <@&"+str(PARAMS["ID_PING_BOCAL_ROLE"])+">", files=pages)
                     break
             else:
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
