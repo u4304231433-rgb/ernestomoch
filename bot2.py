@@ -2699,7 +2699,8 @@ async def bocal(inter:discord.Interaction, numero:int):
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     await inter.response.defer(ephemeral=True)
                     os.system("./BOcal/bocal.sh")
-                    await inter.followup.send(print(os.path.isfile(r"./BOcal/numeors/1288/1288.pdf")))
+                    print("🫙", os.path.isfile(r"./BOcal/numeors/1288/1288.pdf"))
+                    await inter.followup.send("c'est okkk")
                     break
             else:
                 await error_response(inter, ERROR_RIGHTS_MESSAGE)
