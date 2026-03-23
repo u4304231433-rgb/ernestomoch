@@ -113,6 +113,7 @@ FREQUENCY_DI = PARAMS["DI_FREQUENCY"]
 FREQ_SELF_RESP = PARAMS["FREQ_SELF_RESP"]
 
 COMPLIMENT_FREQ=PARAMS["COMPLIMENT_FREQUENCY"]
+
 ID_HUGO=PARAMS["ID_HUGO"]
 ID_LOUIS=PARAMS["ID_LOUIS"]
 ID_VIVIEN=PARAMS["ID_VIVIEN"]
@@ -2699,7 +2700,9 @@ async def bocal(inter:discord.Interaction, numero:int):
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     await inter.response.defer(ephemeral=True)
                     os.system("./BOcal/bocal.sh")
-                    print("🫙", os.path.isfile(r"./BOcal/numeros/1288/1288.pdf"))
+                    with open(r"./BOcal/numeros/1288/1288.pdf", "rb") as file:
+                        pdf = discord.File(file)
+                    await inter.channel.send("# BOcal n°"+str(numero)+"\n-# <@&"+str(PARAMS["ID_PING_BOCAL_ROLE"])+">", file=pdf)
                     await inter.followup.send("c'est okkk")
                     break
             else:
