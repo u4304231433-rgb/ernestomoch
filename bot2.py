@@ -2690,15 +2690,15 @@ async def microballs(inter):
     else:
         await error_response(inter, ERROR_BOT_DISABLED_MESSAGE)
 
-@bot.tree.command(description="Affiche le BOcal")
-@app_commands.describe(numero="Numéro du BOcal à afficher")
-async def BOcal(inter:discord.Interaction, numero:int):
+@bot.tree.command(description="Affiche le bocal")
+@app_commands.describe(numero="Numéro du bocal à afficher")
+async def bocal(inter:discord.Interaction, numero:int):
     try:
         if not bot_disabled:
             for right in ADMINISTRATOR_RIGHTS:
                 if simplify_role_name(right) in [simplify_role_name(r.name) for r in inter.user.roles]:
                     await inter.response.defer(ephemeral=True)
-                    os.system("./BOcal/Bocal.sh")
+                    os.system("./bocal/bocal.sh")
                     inter.followup.send("C'est okkkk")
                     break
             else:
